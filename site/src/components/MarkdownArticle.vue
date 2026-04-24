@@ -63,7 +63,7 @@ const articleRef = ref<HTMLElement | null>(null)
 .markdown-article {
   font-size: 15px;
   line-height: 1.7;
-  color: var(--text-color);
+  color: var(--site-text);
 }
 
 .markdown-article :deep(h1) {
@@ -71,7 +71,7 @@ const articleRef = ref<HTMLElement | null>(null)
   font-weight: 700;
   margin: 1.2em 0 0.6em;
   padding-bottom: 0.3em;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--site-border);
 }
 
 .markdown-article :deep(h2) {
@@ -114,7 +114,7 @@ const articleRef = ref<HTMLElement | null>(null)
 
 .markdown-article :deep(code) {
   padding: 2px 6px;
-  background: var(--card-bg);
+  background: var(--site-panel-muted-bg);
   border-radius: 4px;
   font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
   font-size: 0.9em;
@@ -122,8 +122,8 @@ const articleRef = ref<HTMLElement | null>(null)
 
 .markdown-article :deep(pre) {
   padding: 14px 18px;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
+  background: var(--site-panel-muted-bg);
+  border: 1px solid var(--site-border);
   border-radius: 6px;
   overflow-x: auto;
   margin: 1em 0;
@@ -151,8 +151,8 @@ const articleRef = ref<HTMLElement | null>(null)
   margin: 1em 0;
   padding: 0.6em 1em;
   border-left: 3px solid var(--primary-color);
-  background: var(--card-bg);
-  color: var(--text-secondary);
+  background: var(--site-panel-muted-bg);
+  color: var(--site-text-muted);
   border-radius: 0 4px 4px 0;
 }
 
@@ -165,18 +165,18 @@ const articleRef = ref<HTMLElement | null>(null)
 .markdown-article :deep(th),
 .markdown-article :deep(td) {
   padding: 8px 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--site-border);
   text-align: left;
 }
 
 .markdown-article :deep(th) {
-  background: var(--card-bg);
+  background: var(--site-panel-muted-bg);
   font-weight: 600;
 }
 
 .markdown-article :deep(hr) {
   border: none;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--site-border);
   margin: 1.5em 0;
 }
 </style>

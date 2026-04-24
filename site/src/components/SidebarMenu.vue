@@ -92,7 +92,7 @@ function navigateTo(id: string): void {
   padding: 8px 12px 4px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--site-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -102,19 +102,19 @@ function navigateTo(id: string): void {
   padding: 6px 12px;
   border-radius: 4px;
   font-size: 13px;
-  color: var(--text-color);
+  color: var(--site-text);
   cursor: pointer;
   transition: all 0.15s;
   text-decoration: none;
 }
 
 .menu-item:hover {
-  background: var(--hover-bg);
+  background: var(--site-panel-hover-bg);
   color: var(--primary-color);
 }
 
 .menu-item.active {
-  background: var(--active-bg);
+  background: var(--site-panel-muted-bg);
   color: var(--primary-color);
   font-weight: 500;
 }

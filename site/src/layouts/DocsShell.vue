@@ -50,12 +50,15 @@ defineExpose({
   height: 100%;
   display: flex;
   overflow: hidden;
+  background: var(--site-bg);
+  color: var(--site-text);
 }
 
 .docs-sidebar {
   width: 220px;
   flex-shrink: 0;
-  border-right: 1px solid var(--border-color);
+  border-right: 1px solid var(--site-border);
+  background: var(--site-panel-bg);
   overflow-y: auto;
   overflow-x: hidden;
   padding: 16px 0;
@@ -67,12 +70,14 @@ defineExpose({
   overflow-x: hidden;
   padding: 24px 32px;
   min-width: 0;
+  background: var(--site-bg);
 }
 
 .docs-toc {
   width: 180px;
   flex-shrink: 0;
-  border-left: 1px solid var(--border-color);
+  border-left: 1px solid var(--site-border);
+  background: var(--site-panel-bg);
   overflow-y: auto;
   padding: 16px 12px;
 }

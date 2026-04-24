@@ -36,7 +36,7 @@ const emit = defineEmits<{
   padding: 4px 8px 8px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--site-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -46,7 +46,7 @@ const emit = defineEmits<{
   padding: 3px 8px;
   border-radius: 3px;
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--site-text-muted);
   cursor: pointer;
   transition: all 0.15s;
   text-decoration: none;
@@ -57,12 +57,12 @@ const emit = defineEmits<{
 
 .toc-item:hover {
   color: var(--primary-color);
-  background: var(--hover-bg);
+  background: var(--site-panel-hover-bg);
 }
 
 .toc-item.active {
   color: var(--primary-color);
   font-weight: 500;
-  background: var(--active-bg);
+  background: var(--site-panel-muted-bg);
 }
 </style>

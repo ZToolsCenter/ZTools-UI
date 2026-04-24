@@ -193,17 +193,17 @@ onUnmounted(() => {
 
 .component-not-found h2 {
   font-size: 20px;
-  color: var(--text-color);
+  color: var(--site-text);
   margin-bottom: 12px;
 }
 
 .component-not-found p {
-  color: var(--text-secondary);
+  color: var(--site-text-muted);
 }
 
 .component-not-found code {
-  background: var(--control-bg);
-  border: 1px solid var(--border-color);
+  background: var(--site-panel-muted-bg);
+  border: 1px solid var(--site-border);
   border-radius: 4px;
   padding: 2px 6px;
   font-family: monospace;
@@ -216,19 +216,19 @@ onUnmounted(() => {
 .component-header {
   margin-bottom: 24px;
   padding-bottom: 16px;
-  border-bottom: 1px solid var(--divider-color);
+  border-bottom: 1px solid var(--site-divider);
 }
 
 .component-title {
   font-size: 28px;
   font-weight: 700;
-  color: var(--text-color);
+  color: var(--site-text);
   margin: 0 0 4px;
 }
 
 .component-subtitle {
   font-size: 16px;
-  color: var(--text-secondary);
+  color: var(--site-text-muted);
   margin: 0;
   font-weight: 400;
 }
@@ -240,7 +240,7 @@ onUnmounted(() => {
 .component-description p {
   font-size: 14px;
   line-height: 1.6;
-  color: var(--text-secondary);
+  color: var(--site-text-muted);
   margin: 0;
 }
 
@@ -283,7 +283,7 @@ onUnmounted(() => {
 .section-title {
   font-size: 18px;
   font-weight: 600;
-  color: var(--text-color);
+  color: var(--site-text);
   margin: 0 0 16px;
 }
 

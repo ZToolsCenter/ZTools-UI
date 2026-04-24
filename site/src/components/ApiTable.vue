@@ -112,10 +112,10 @@ const hasApi = (data?: any[]): boolean => {
 .section-title {
   font-size: 18px;
   font-weight: 600;
-  color: var(--text-color);
+  color: var(--site-text);
   margin: 0 0 20px;
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--divider-color);
+  border-bottom: 1px solid var(--site-divider);
 }
 
 .api-subsection {
@@ -129,7 +129,7 @@ const hasApi = (data?: any[]): boolean => {
 .subsection-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--text-color);
+  color: var(--site-text);
   margin: 0 0 12px;
 }
 
@@ -140,21 +140,21 @@ const hasApi = (data?: any[]): boolean => {
 }
 
 .api-table thead {
-  background: var(--hover-bg);
+  background: var(--site-panel-hover-bg);
 }
 
 .api-table th {
   text-align: left;
   padding: 8px 12px;
   font-weight: 500;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--divider-color);
+  color: var(--site-text-muted);
+  border-bottom: 1px solid var(--site-divider);
 }
 
 .api-table td {
   padding: 10px 12px;
-  border-bottom: 1px solid var(--divider-color);
-  color: var(--text-color);
+  border-bottom: 1px solid var(--site-divider);
+  color: var(--site-text);
   vertical-align: top;
 }
 
@@ -163,8 +163,8 @@ const hasApi = (data?: any[]): boolean => {
 }
 
 .api-table code {
-  background: var(--control-bg);
-  border: 1px solid var(--border-color);
+  background: var(--site-panel-muted-bg);
+  border: 1px solid var(--site-border);
   border-radius: 4px;
   padding: 2px 6px;
   font-size: 12px;
@@ -174,8 +174,8 @@ const hasApi = (data?: any[]): boolean => {
 
 .type-token {
   display: inline-block;
-  background: var(--control-bg);
-  border: 1px solid var(--border-color);
+  background: var(--site-panel-muted-bg);
+  border: 1px solid var(--site-border);
   border-radius: 4px;
   padding: 2px 6px;
   font-size: 12px;
@@ -225,22 +225,22 @@ const hasApi = (data?: any[]): boolean => {
   padding: 2px 6px;
   font-size: 10px;
   font-weight: 500;
-  color: var(--text-secondary);
-  background: var(--control-bg);
+  color: var(--site-text-muted);
+  background: var(--site-panel-muted-bg);
   border-radius: 4px;
 }
 
 .empty {
-  color: var(--text-secondary);
+  color: var(--site-text-muted);
   font-style: italic;
 }
 
 .empty-api {
   padding: 32px;
   text-align: center;
-  color: var(--text-secondary);
+  color: var(--site-text-muted);
   font-size: 14px;
-  background: var(--card-bg);
+  background: var(--site-panel-bg);
   border-radius: 8px;
 }
 </style>

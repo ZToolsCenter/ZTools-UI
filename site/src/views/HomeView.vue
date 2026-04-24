@@ -55,7 +55,7 @@
 
 .hero-subtitle {
   font-size: 18px;
-  color: var(--text-secondary);
+  color: var(--site-text-muted);
   margin-bottom: 32px;
   line-height: 1.6;
 }
@@ -73,14 +73,14 @@
   font-weight: 500;
   text-decoration: none;
   border: 2px solid var(--control-border);
-  background: var(--control-bg);
-  color: var(--text-color);
+  background: var(--site-panel-muted-bg);
+  color: var(--site-text);
   transition: all 0.2s;
   cursor: pointer;
 }
 
 .hero-btn:hover {
-  background: var(--hover-bg);
+  background: var(--site-panel-hover-bg);
   border-color: var(--primary-color);
   color: var(--primary-color);
 }
@@ -106,8 +106,8 @@
 .feature-card {
   flex: 1;
   padding: 20px;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
+  background: var(--site-panel-bg);
+  border: 1px solid var(--site-border);
   border-radius: 8px;
 }
 
@@ -115,12 +115,12 @@
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 8px;
-  color: var(--text-color);
+  color: var(--site-text);
 }
 
 .feature-card p {
   font-size: 13px;
-  color: var(--text-secondary);
+  color: var(--site-text-muted);
   line-height: 1.5;
 }
 </style>

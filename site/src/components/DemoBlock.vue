@@ -152,21 +152,21 @@ const highlightedCode = computed(() => highlightVueSource(props.sourceCode ?? ''
 .demo-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--text-color);
+  color: var(--site-text);
   margin: 0 0 6px;
 }
 
 .demo-description {
   font-size: 13px;
-  color: var(--text-secondary);
+  color: var(--site-text-muted);
   margin: 0;
   line-height: 1.5;
 }
 
 .demo-content {
   flex: 1;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
+  background: var(--site-panel-bg);
+  border: 1px solid var(--site-border);
   border-radius: 8px;
   padding: 20px;
   min-height: 60px;
@@ -183,10 +183,10 @@ const highlightedCode = computed(() => highlightVueSource(props.sourceCode ?? ''
   flex-shrink: 0;
   height: 28px;
   padding: 0 8px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--site-border);
   border-radius: 6px;
-  background: var(--card-bg);
-  color: var(--text-secondary);
+  background: var(--site-panel-bg);
+  color: var(--site-text-muted);
   font-size: 12px;
   line-height: 1;
   cursor: pointer;
@@ -195,7 +195,7 @@ const highlightedCode = computed(() => highlightVueSource(props.sourceCode ?? ''
 .demo-code-toggle:hover {
   color: var(--primary-color);
   border-color: var(--primary-color);
-  background: var(--hover-bg);
+  background: var(--site-panel-hover-bg);
 }
 
 .demo-code-toggle svg {
@@ -219,7 +219,7 @@ const highlightedCode = computed(() => highlightVueSource(props.sourceCode ?? ''
   padding: 16px;
   max-height: 420px;
   overflow: auto;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--site-border);
   border-radius: 8px;
   background: var(--hljs-bg);
   color: var(--hljs-color);

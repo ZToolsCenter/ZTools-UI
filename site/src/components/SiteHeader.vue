@@ -58,8 +58,8 @@ const navItems = [
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-color);
+  border-bottom: 1px solid var(--site-border);
+  background: var(--site-panel-bg);
   flex-shrink: 0;
   user-select: none;
 }
@@ -92,28 +92,28 @@ const navItems = [
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--site-text-muted);
   text-decoration: none;
   transition: all 0.15s;
 }
 
 .nav-link:hover {
-  background: var(--hover-bg);
-  color: var(--text-color);
+  background: var(--site-panel-hover-bg);
+  color: var(--site-text);
 }
 
 .nav-link.active {
-  background: var(--active-bg);
+  background: var(--site-panel-muted-bg);
   color: var(--primary-color);
 }
 
 .theme-toggle {
   height: 28px;
   padding: 0 10px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--site-border);
   border-radius: 6px;
-  background: var(--card-bg);
-  color: var(--text-secondary);
+  background: var(--site-panel-bg);
+  color: var(--site-text-muted);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -122,7 +122,7 @@ const navItems = [
 
 .theme-toggle:hover {
   border-color: var(--primary-color);
-  background: var(--hover-bg);
+  background: var(--site-panel-hover-bg);
   color: var(--primary-color);
 }
 </style>
