@@ -77,10 +77,12 @@ createApp(App).use(router).use(ZToolsUI).mount('#app')
 
 ```vue
 <script setup lang="ts">
+import { ref } from 'vue'
 import { Dropdown, useToast } from 'ztools-ui'
 
 const { success } = useToast()
 
+const value = ref('light')
 const options = [
   { label: '浅色', value: 'light' },
   { label: '深色', value: 'dark' }
@@ -92,7 +94,7 @@ function handleChange() {
 </script>
 
 <template>
-  <Dropdown :options="options" model-value="light" @change="handleChange" />
+  <Dropdown v-model="value" :options="options" clearable @change="handleChange" />
 </template>
 ```
 
@@ -190,7 +192,7 @@ createApp(App).mount('#app')
 | --- | --- | --- |
 | `Button` | 基础按钮组件，支持类型、尺寸、loading 和 block | 无 |
 | `Input` | 基础输入框，支持 `v-model`、清空按钮、前后缀插槽 | 无 |
-| `Dropdown` | 基础下拉选择组件，支持 `v-model` | 无 |
+| `Dropdown` | 下拉选择组件，支持单选、多选、清空、验证状态和 tag 输入 | 无 |
 | `ColorPicker` | 基于原生输入实现的颜色选择器 | 无 |
 | `Checkbox` | 基础复选框组件，支持半选状态 | 无 |
 | `Radio` | 基础单选框组件，适合互斥选择 | 无 |

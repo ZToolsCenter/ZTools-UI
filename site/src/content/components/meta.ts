@@ -1473,11 +1473,11 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
     group: 'input',
     zhName: '下拉选择器',
     enName: 'Dropdown',
-    description: '用于从一组选项中选择单个值的下拉选择器，支持自定义选项和占位符。',
+    description: '用于从一组选项中选择值的下拉选择器，支持单选、多选、可清空、验证状态和 tag 输入模式。',
     demos: [
       {
-        title: '基础用法',
-        description: '最基础的用法，通过 v-model 绑定选中值，options 配置选项列表。',
+        title: '完整用法',
+        description: '展示单选、多选、可清空、尺寸、验证状态、滚动事件、最大标签显示数量和 tag 输入模式。',
         component: DropdownDemo
       }
     ],
@@ -1485,15 +1485,15 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
       props: [
         {
           name: 'modelValue',
-          type: 'string | number',
-          description: '当前选中的值',
+          type: 'string | number | Array<string | number>',
+          description: '当前选中的值，多选和 tag 输入模式下为数组',
           required: true,
           since: '1.0.0'
         },
         {
           name: 'options',
           type: 'DropdownOption[]',
-          description: '选项列表，每项包含 label 和 value',
+          description: '选项列表，每项包含 label、value，可通过 disabled 禁用单项',
           required: true,
           since: '1.0.0'
         },
@@ -1503,19 +1503,110 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
           default: '请选择',
           description: '未选择时的占位文本',
           since: '1.0.0'
+        },
+        {
+          name: 'multiple',
+          type: 'boolean',
+          default: 'false',
+          description: '是否启用多选模式',
+          since: '1.0.0'
+        },
+        {
+          name: 'clearable',
+          type: 'boolean',
+          default: 'false',
+          description: '是否显示清空按钮',
+          since: '1.0.0'
+        },
+        {
+          name: 'disabled',
+          type: 'boolean',
+          default: 'false',
+          description: '是否禁用下拉选择器',
+          since: '1.0.0'
+        },
+        {
+          name: 'readonly',
+          type: 'boolean',
+          default: 'false',
+          description: '是否只读',
+          since: '1.0.0'
+        },
+        {
+          name: 'size',
+          type: "'small' | 'medium' | 'large'",
+          default: 'medium',
+          description: '选择器尺寸',
+          since: '1.0.0'
+        },
+        {
+          name: 'status',
+          type: "'success' | 'warning' | 'error'",
+          description: '验证状态',
+          since: '1.0.0'
+        },
+        {
+          name: 'message',
+          type: 'string',
+          default: "''",
+          description: '验证提示信息',
+          since: '1.0.0'
+        },
+        {
+          name: 'maxTagCount',
+          type: 'number',
+          description: '多选或 tag 输入模式下最多展示的标签数量，剩余显示为 +N',
+          since: '1.0.0'
+        },
+        {
+          name: 'mode',
+          type: "'default' | 'tags'",
+          default: 'default',
+          description: '选择器模式，tags 模式允许输入并创建自定义标签',
+          since: '1.0.0'
         }
       ],
       emits: [
         {
           name: 'update:modelValue',
-          signature: '(value: string | number) => void',
+          signature: '(value: string | number | Array<string | number>) => void',
           description: '选中值变化时触发',
           since: '1.0.0'
         },
         {
           name: 'change',
-          signature: '(value: string | number) => void',
+          signature: '(value: string | number | Array<string | number>) => void',
           description: '选中值变化时触发（与 update:modelValue 同时触发）',
+          since: '1.0.0'
+        },
+        {
+          name: 'clear',
+          signature: '() => void',
+          description: '点击清空按钮时触发',
+          since: '1.0.0'
+        },
+        {
+          name: 'scroll',
+          signature: '(event: Event) => void',
+          description: '下拉菜单滚动时触发',
+          since: '1.0.0'
+        },
+        {
+          name: 'visible-change',
+          signature: '(visible: boolean) => void',
+          description: '下拉菜单显示状态变化时触发',
+          since: '1.0.0'
+        },
+        {
+          name: 'tag-create',
+          signature: '(value: string) => void',
+          description: 'tag 输入模式创建自定义标签时触发',
+          since: '1.0.0'
+        },
+        {
+          name: 'tag-remove',
+          signature: '(value: string | number) => void',
+          description: '移除已选标签时触发',
           since: '1.0.0'
         }
       ]

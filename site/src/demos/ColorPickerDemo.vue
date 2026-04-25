@@ -27,7 +27,7 @@ const compactColor = ref('#16a34a')
     </template>
 
     <template v-else-if="props.variant === 'size'">
-      <div class="color-picker-demo__row">
+      <div class="color-picker-demo__row color-picker-demo__row--align-end">
         <ColorPicker v-model="color" size="small" />
         <ColorPicker v-model="color" size="medium" />
         <ColorPicker v-model="color" size="large" />
@@ -57,6 +57,12 @@ const compactColor = ref('#16a34a')
   flex-direction: column;
   align-items: flex-start;
   gap: 12px;
+}
+
+.color-picker-demo__row--align-end {
+  flex-direction: row;
+  align-items: flex-end;
+  flex-wrap: wrap;
 }
 
 .color-picker-demo__value {

@@ -34,7 +34,7 @@ const textEnabled = ref(true)
     </template>
 
     <template v-else-if="props.variant === 'size'">
-      <div class="switch-demo__row">
+      <div class="switch-demo__row switch-demo__row--align-end">
         <Switch :model-value="false" size="small" />
         <Switch :model-value="true" size="medium" />
         <Switch :model-value="true" size="large" />
@@ -58,6 +58,10 @@ const textEnabled = ref(true)
   flex-wrap: wrap;
   align-items: center;
   gap: 16px;
+}
+
+.switch-demo__row--align-end {
+  align-items: flex-end;
 }
 
 .switch-demo__value {
