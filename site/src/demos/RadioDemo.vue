@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Radio } from 'ztools-ui-components/common/Radio'
+import { ZRadio } from 'ztools-ui-components/common/Radio'
 
 type RadioDemoVariant = 'basic' | 'disabled'
 
@@ -21,9 +21,9 @@ const value = ref('blue')
     <template v-if="props.variant === 'basic'">
       <div class="radio-demo__column">
         <div class="radio-demo__row">
-          <Radio v-model="value" name="theme" value="blue">蓝色</Radio>
-          <Radio v-model="value" name="theme" value="purple">紫色</Radio>
-          <Radio v-model="value" name="theme" value="green">绿色</Radio>
+          <ZRadio v-model="value" name="theme" value="blue">蓝色</ZRadio>
+          <ZRadio v-model="value" name="theme" value="purple">紫色</ZRadio>
+          <ZRadio v-model="value" name="theme" value="green">绿色</ZRadio>
         </div>
         <span class="radio-demo__value">当前值: {{ value }}</span>
       </div>
@@ -31,8 +31,8 @@ const value = ref('blue')
 
     <template v-else-if="props.variant === 'disabled'">
       <div class="radio-demo__row">
-        <Radio model-value="blue" name="disabled-theme" value="blue" disabled>蓝色（禁用）</Radio>
-        <Radio model-value="blue" name="disabled-theme" value="orange" disabled>橙色（禁用）</Radio>
+        <ZRadio model-value="blue" name="disabled-theme" value="blue" disabled>蓝色（禁用）</ZRadio>
+        <ZRadio model-value="blue" name="disabled-theme" value="orange" disabled>橙色（禁用）</ZRadio>
       </div>
     </template>
   </div>

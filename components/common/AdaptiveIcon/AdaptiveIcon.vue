@@ -62,7 +62,7 @@ function analyzeIfVisible(): void {
 // 计算自适应类名
 const adaptiveClass = computed(() => {
   if (props.forceAdaptive) {
-    return 'force-adaptive'
+    return isDark.value ? 'force-adaptive-invert' : ''
   }
 
   if (!analysisResult.value?.needsAdaptation) {
@@ -151,8 +151,8 @@ export default {
   filter: invert(1) brightness(1.1);
 }
 
-/* 强制自适应模式 - 仅在深色模式下应用 */
-:global(html.dark) .adaptive-icon.force-adaptive {
+/* 强制自适应模式 */
+.adaptive-icon.force-adaptive-invert {
   filter: invert(1) brightness(1.1);
 }
 </style>

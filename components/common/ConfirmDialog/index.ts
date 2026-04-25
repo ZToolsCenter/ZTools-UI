@@ -1,2 +1,2 @@
-export { default as ConfirmDialog } from './ConfirmDialog.vue'
+export { default as ConfirmDialog, default as ZConfirmDialog } from './ConfirmDialog.vue'
 export * from './useConfirmDialog'

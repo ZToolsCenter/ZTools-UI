@@ -32,7 +32,6 @@
     "resolver.ts",
     "style.ts",
     "vite.config.ts",
-    "vite.docs.config.ts",
     "uno.config.ts",
     "assets/**/*.ts",
     "components/**/*.ts",

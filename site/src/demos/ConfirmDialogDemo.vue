@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ConfirmDialog } from 'ztools-ui-components/common/ConfirmDialog'
+import { ZConfirmDialog } from 'ztools-ui-components/common/ConfirmDialog'
 
 const visible = ref(false)
 const dialogType = ref<'info' | 'warning' | 'danger'>('info')
@@ -19,7 +19,7 @@ function open(type: 'info' | 'warning' | 'danger') {
       <button class="btn" @click="open('warning')">Warning 确认</button>
       <button class="btn" @click="open('danger')">Danger 确认</button>
     </div>
-    <ConfirmDialog
+    <ZConfirmDialog
       v-model:visible="visible"
       title="操作确认"
       message="你确定要执行此操作吗？此操作无法撤销。"

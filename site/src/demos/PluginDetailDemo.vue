@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { PluginDetail } from 'ztools-ui-components/common/PluginDetail'
+import { ZPluginDetail } from 'ztools-ui-components/common/PluginDetail'
 import type { PluginItem } from 'ztools-ui-components/common/PluginDetail'
 
 const mockPlugin: PluginItem = {
@@ -42,7 +42,7 @@ const mockPlugin: PluginItem = {
   <div class="demo-section">
     <p>插件详情面板，包含插件信息、README、指令列表和数据管理。依赖宿主 API 较多。</p>
     <div class="demo-box" style="position: relative; height: 500px; border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden;">
-      <PluginDetail
+      <ZPluginDetail
         :plugin="mockPlugin"
         :is-loading="false"
         :is-running="true"

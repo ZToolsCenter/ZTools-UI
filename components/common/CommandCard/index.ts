@@ -1,1 +1,1 @@
-export { default as CommandCard } from './CommandCard.vue'
+export { default as CommandCard, default as ZCommandCard } from './CommandCard.vue'

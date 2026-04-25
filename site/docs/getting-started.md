@@ -1,9 +1,13 @@
+---
+title: 快速上手
+---
+
 # 快速上手
 
 ## 安装
 
 ```bash
-npm install @jspatrick/ztools-ui
+npm install ztools-ui
 ```
 
 ## 引入样式
@@ -11,7 +15,7 @@ npm install @jspatrick/ztools-ui
 在入口文件中引入组件库的样式和 UnoCSS：
 
 ```ts
-import '@jspatrick/ztools-ui/style'
+import 'ztools-ui/style'
 ```
 
 > `style` 入口会自动加载全局 CSS 变量、主题系统和 UnoCSS 运行时。
@@ -22,8 +26,8 @@ import '@jspatrick/ztools-ui/style'
 
 ```ts
 import { createApp } from 'vue'
-import ZToolsUI from '@jspatrick/ztools-ui'
-import '@jspatrick/ztools-ui/style'
+import ZToolsUI from 'ztools-ui'
+import 'ztools-ui/style'
 
 const app = createApp(App)
 app.use(ZToolsUI)
@@ -33,22 +37,22 @@ app.use(ZToolsUI)
 
 ```vue
 <script setup>
-import { Dropdown } from '@jspatrick/ztools-ui'
+import { ZSelect } from 'ztools-ui'
 </script>
 
 <template>
-  <Dropdown v-model="value" :options="options" />
+  <ZSelect v-model="value" :options="options" />
 </template>
 ```
 
-配合 `unplugin-vue-components` 和 `@jspatrick/ztools-ui/resolver` 可以实现自动按需导入。
+配合 `unplugin-vue-components` 和 `ztools-ui/resolver` 可以实现自动按需导入。
 
 ## 主题初始化
 
 组件库依赖 ZTools 宿主提供的主题信息。如果你在 ZTools 插件环境中使用，调用 `useZtoolsTheme()` 即可自动同步：
 
 ```ts
-import { useZtoolsTheme } from '@jspatrick/ztools-ui'
+import { useZtoolsTheme } from 'ztools-ui'
 
 const { isDark, primaryColor } = useZtoolsTheme()
 ```

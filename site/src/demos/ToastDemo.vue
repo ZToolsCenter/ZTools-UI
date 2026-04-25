@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useToast } from 'ztools-ui-components/common/Toast'
-import { Toast } from 'ztools-ui-components/common/Toast'
+import { ZToast } from 'ztools-ui-components/common/Toast'
 
 const { toastState, confirmState, success, error, warning, info, hide, handleConfirm, handleCancel } = useToast()
 </script>
@@ -14,7 +14,7 @@ const { toastState, confirmState, success, error, warning, info, hide, handleCon
       <button class="btn" @click="warning('注意')">Warning</button>
       <button class="btn" @click="info('提示信息')">Info</button>
     </div>
-    <Toast
+    <ZToast
       :visible="toastState.visible"
       :message="toastState.message"
       :type="toastState.type"

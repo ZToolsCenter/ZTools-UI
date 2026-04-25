@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Switch } from 'ztools-ui-components/common/Switch'
+import { ZSwitch } from 'ztools-ui-components/common/Switch'
 
 type SwitchDemoVariant = 'basic' | 'text' | 'size' | 'disabled'
 
@@ -21,31 +21,31 @@ const textEnabled = ref(true)
   <div class="switch-demo">
     <template v-if="props.variant === 'basic'">
       <div class="switch-demo__row">
-        <Switch v-model="enabled" />
+        <ZSwitch v-model="enabled" />
         <span class="switch-demo__value">当前值: {{ enabled }}</span>
       </div>
     </template>
 
     <template v-else-if="props.variant === 'text'">
       <div class="switch-demo__row">
-        <Switch v-model="textEnabled" active-text="开启" inactive-text="关闭" />
+        <ZSwitch v-model="textEnabled" active-text="开启" inactive-text="关闭" />
         <span class="switch-demo__value">当前值: {{ textEnabled }}</span>
       </div>
     </template>
 
     <template v-else-if="props.variant === 'size'">
       <div class="switch-demo__row switch-demo__row--align-end">
-        <Switch :model-value="false" size="small" />
-        <Switch :model-value="true" size="medium" />
-        <Switch :model-value="true" size="large" />
+        <ZSwitch :model-value="false" size="small" />
+        <ZSwitch :model-value="true" size="medium" />
+        <ZSwitch :model-value="true" size="large" />
       </div>
     </template>
 
     <template v-else-if="props.variant === 'disabled'">
       <div class="switch-demo__row">
-        <Switch :model-value="true" disabled />
-        <Switch :model-value="false" disabled />
-        <Switch :model-value="true" active-text="开启" inactive-text="关闭" disabled />
+        <ZSwitch :model-value="true" disabled />
+        <ZSwitch :model-value="false" disabled />
+        <ZSwitch :model-value="true" active-text="开启" inactive-text="关闭" disabled />
       </div>
     </template>
   </div>

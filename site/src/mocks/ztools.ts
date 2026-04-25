@@ -118,14 +118,15 @@ function mockZtools() {
     }
   }
 
-  applyTheme(themeInfo)
-
-  // Wire up theme toggle for docs dev
-  ;(window as any).__toggleDocsTheme = () => {
-    themeInfo.isDark = !themeInfo.isDark
+  function setDocsTheme(isDark: boolean) {
+    themeInfo.isDark = isDark
     applyTheme(themeInfo)
     themeCallbacks.forEach((cb) => cb({ ...themeInfo }))
   }
+
+  applyTheme(themeInfo)
+
+  ;(window as any).__setDocsTheme = setDocsTheme
 
   ;(window as any).ztools = ztools
   ;(window as any).ztools.internal.onHotkeyRecorded = undefined

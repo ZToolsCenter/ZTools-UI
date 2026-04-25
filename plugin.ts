@@ -1,47 +1,47 @@
 import type { App, Component, Plugin } from 'vue'
 
-import { AdaptiveIcon } from './components/common/AdaptiveIcon'
-import { Button } from './components/common/Button'
-import { Checkbox } from './components/common/Checkbox'
-import { ColorPicker } from './components/common/ColorPicker'
-import { CommandCard } from './components/common/CommandCard'
-import { CommandTag } from './components/common/CommandTag'
-import { ConfirmDialog } from './components/common/ConfirmDialog'
-import { DetailPanel } from './components/common/DetailPanel'
-import { Dropdown } from './components/common/Dropdown'
-import { FeatureCard } from './components/common/FeatureCard'
-import { HotkeyInput } from './components/common/HotkeyInput'
-import { Input } from './components/common/Input'
-import { PluginDetail } from './components/common/PluginDetail'
-import { Radio } from './components/common/Radio'
-import { ShortcutEditor } from './components/common/ShortcutEditor'
-import { Slider } from './components/common/Slider'
-import { Switch } from './components/common/Switch'
-import { Tag } from './components/common/Tag'
-import { TagDropdown } from './components/common/TagDropdown'
-import { Toast } from './components/common/Toast'
+import { ZAdaptiveIcon } from './components/common/AdaptiveIcon'
+import { ZButton } from './components/common/Button'
+import { ZCheckbox } from './components/common/Checkbox'
+import { ZColorPicker } from './components/common/ColorPicker'
+import { ZCommandCard } from './components/common/CommandCard'
+import { ZCommandTag } from './components/common/CommandTag'
+import { ZConfirmDialog } from './components/common/ConfirmDialog'
+import { ZDetailPanel } from './components/common/DetailPanel'
+import { ZSelect } from './components/common/Select'
+import { ZFeatureCard } from './components/common/FeatureCard'
+import { ZHotkeyInput } from './components/common/HotkeyInput'
+import { ZInput } from './components/common/Input'
+import { ZPluginDetail } from './components/common/PluginDetail'
+import { ZRadio } from './components/common/Radio'
+import { ZShortcutEditor } from './components/common/ShortcutEditor'
+import { ZSlider } from './components/common/Slider'
+import { ZSwitch } from './components/common/Switch'
+import { ZTag } from './components/common/Tag'
+import { ZTagDropdown } from './components/common/TagDropdown'
+import { ZToast } from './components/common/Toast'
 
 const components = {
-  AdaptiveIcon,
-  Button,
-  Checkbox,
-  ColorPicker,
-  CommandCard,
-  CommandTag,
-  ConfirmDialog,
-  DetailPanel,
-  Dropdown,
-  FeatureCard,
-  HotkeyInput,
-  Input,
-  PluginDetail,
-  Radio,
-  ShortcutEditor,
-  Slider,
-  Switch,
-  Tag,
-  TagDropdown,
-  Toast
+  ZAdaptiveIcon,
+  ZButton,
+  ZCheckbox,
+  ZColorPicker,
+  ZCommandCard,
+  ZCommandTag,
+  ZConfirmDialog,
+  ZDetailPanel,
+  ZSelect,
+  ZFeatureCard,
+  ZHotkeyInput,
+  ZInput,
+  ZPluginDetail,
+  ZRadio,
+  ZShortcutEditor,
+  ZSlider,
+  ZSwitch,
+  ZTag,
+  ZTagDropdown,
+  ZToast
 } as const
 
 export function install(app: App): void {

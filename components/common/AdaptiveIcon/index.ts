@@ -1,1 +1,1 @@
-export { default as AdaptiveIcon } from './AdaptiveIcon.vue'
+export { default as AdaptiveIcon, default as ZAdaptiveIcon } from './AdaptiveIcon.vue'

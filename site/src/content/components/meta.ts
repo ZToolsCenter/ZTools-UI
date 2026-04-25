@@ -1,7 +1,8 @@
 import type { Component } from 'vue'
+import { componentGroups, componentIndex } from './nav'
 import ButtonDemo from '../../demos/ButtonDemo.vue'
-import DropdownDemo from '../../demos/DropdownDemo.vue'
-import DropdownDemoSource from '../../demos/DropdownDemo.vue?raw'
+import SelectDemo from '../../demos/SelectDemo.vue'
+import SelectDemoSource from '../../demos/SelectDemo.vue?raw'
 import SliderDemo from '../../demos/SliderDemo.vue'
 import SliderDemoSource from '../../demos/SliderDemo.vue?raw'
 import InputDemo from '../../demos/InputDemo.vue'
@@ -28,11 +29,13 @@ import TagDropdownDemo from '../../demos/TagDropdownDemo.vue'
 import TagDropdownDemoSource from '../../demos/TagDropdownDemo.vue?raw'
 import DetailPanelDemo from '../../demos/DetailPanelDemo.vue'
 import DetailPanelDemoSource from '../../demos/DetailPanelDemo.vue?raw'
+import ShortcutEditorDemo from '../../demos/ShortcutEditorDemo.vue'
+import ShortcutEditorDemoSource from '../../demos/ShortcutEditorDemo.vue?raw'
 import PluginDetailDemo from '../../demos/PluginDetailDemo.vue'
 import PluginDetailDemoSource from '../../demos/PluginDetailDemo.vue?raw'
 
 const componentDemoSources = new Map<Component, string>([
-  [DropdownDemo, DropdownDemoSource],
+  [SelectDemo, SelectDemoSource],
   [SliderDemo, SliderDemoSource],
   [HotkeyInputDemo, HotkeyInputDemoSource],
   [CommandCardDemo, CommandCardDemoSource],
@@ -43,6 +46,7 @@ const componentDemoSources = new Map<Component, string>([
   [ConfirmDialogDemo, ConfirmDialogDemoSource],
   [TagDropdownDemo, TagDropdownDemoSource],
   [DetailPanelDemo, DetailPanelDemoSource],
+  [ShortcutEditorDemo, ShortcutEditorDemoSource],
   [PluginDetailDemo, PluginDetailDemoSource]
 ])
 
@@ -95,25 +99,29 @@ function createDemoSource(template: string, script: string): string {
   return `<template>\n${indentCodeBlock(template)}\n</template>\n\n<script setup lang="ts">\n${trimCodeBlock(script)}\n</script>`
 }
 
-const buttonDemoScript = `import { Button } from 'ztools-ui-components/common/Button'`
-const inputDemoScript = `import { Input } from 'ztools-ui-components/common/Input'`
+const buttonDemoScript = `import { ZButton } from 'ztools-ui-components/common/Button'`
+const inputDemoScript = `import { ZInput } from 'ztools-ui-components/common/Input'`
 const inputModelDemoScript = `import { ref } from 'vue'
-import { Input } from 'ztools-ui-components/common/Input'`
-const colorPickerDemoScript = `import { ColorPicker } from 'ztools-ui-components/common/ColorPicker'`
+import { ZInput } from 'ztools-ui-components/common/Input'`
+const colorPickerDemoScript = `import { ZColorPicker } from 'ztools-ui-components/common/ColorPicker'`
 const colorPickerModelDemoScript = `import { ref } from 'vue'
-import { ColorPicker } from 'ztools-ui-components/common/ColorPicker'`
-const checkboxDemoScript = `import { Checkbox } from 'ztools-ui-components/common/Checkbox'`
+import { ZColorPicker } from 'ztools-ui-components/common/ColorPicker'`
+const checkboxDemoScript = `import { ZCheckbox } from 'ztools-ui-components/common/Checkbox'`
 const checkboxModelDemoScript = `import { ref } from 'vue'
-import { Checkbox } from 'ztools-ui-components/common/Checkbox'`
-const radioDemoScript = `import { Radio } from 'ztools-ui-components/common/Radio'`
+import { ZCheckbox } from 'ztools-ui-components/common/Checkbox'`
+const radioDemoScript = `import { ZRadio } from 'ztools-ui-components/common/Radio'`
 const radioModelDemoScript = `import { ref } from 'vue'
-import { Radio } from 'ztools-ui-components/common/Radio'`
-const switchDemoScript = `import { Switch } from 'ztools-ui-components/common/Switch'`
+import { ZRadio } from 'ztools-ui-components/common/Radio'`
+const switchDemoScript = `import { ZSwitch } from 'ztools-ui-components/common/Switch'`
 const switchModelDemoScript = `import { ref } from 'vue'
-import { Switch } from 'ztools-ui-components/common/Switch'`
-const tagDemoScript = `import { Tag } from 'ztools-ui-components/common/Tag'`
+import { ZSwitch } from 'ztools-ui-components/common/Switch'`
+const tagDemoScript = `import { ZTag } from 'ztools-ui-components/common/Tag'`
 const tagModelDemoScript = `import { ref } from 'vue'
-import { Tag } from 'ztools-ui-components/common/Tag'`
+import { ZTag } from 'ztools-ui-components/common/Tag'`
+const selectDemoScript = `import { ZSelect } from 'ztools-ui-components/common/Select'`
+const selectModelDemoScript = `import { ref } from 'vue'
+import { ZSelect } from 'ztools-ui-components/common/Select'
+import type { SelectValueType } from 'ztools-ui-components/common/Select'`
 
 const buttonDemoVariants = [
   {
@@ -124,13 +132,13 @@ const buttonDemoVariants = [
       `
         <div class="button-demo">
           <div class="button-demo__row">
-            <Button>默认按钮</Button>
-            <Button type="primary">主要按钮</Button>
-            <Button type="success">成功按钮</Button>
-            <Button type="warning">警告按钮</Button>
-            <Button type="danger">危险按钮</Button>
+            <ZButton>默认按钮</ZButton>
+            <ZButton type="primary">主要按钮</ZButton>
+            <ZButton type="success">成功按钮</ZButton>
+            <ZButton type="warning">警告按钮</ZButton>
+            <ZButton type="danger">危险按钮</ZButton>
           </div>
-          <Button block type="primary">块级按钮</Button>
+          <ZButton block type="primary">块级按钮</ZButton>
         </div>
       `,
       buttonDemoScript
@@ -144,9 +152,9 @@ const buttonDemoVariants = [
       `
         <div class="button-demo">
           <div class="button-demo__row">
-            <Button class="button-demo__dashed">默认虚线</Button>
-            <Button class="button-demo__dashed button-demo__dashed--primary">主要虚线</Button>
-            <Button class="button-demo__dashed button-demo__dashed--danger">危险虚线</Button>
+            <ZButton class="button-demo__dashed">默认虚线</ZButton>
+            <ZButton class="button-demo__dashed button-demo__dashed--primary">主要虚线</ZButton>
+            <ZButton class="button-demo__dashed button-demo__dashed--danger">危险虚线</ZButton>
           </div>
         </div>
       `,
@@ -161,9 +169,9 @@ const buttonDemoVariants = [
       `
         <div class="button-demo">
           <div class="button-demo__row button-demo__row--align-end">
-            <Button size="small">Small</Button>
-            <Button size="medium" type="primary">Medium</Button>
-            <Button size="large" type="success">Large</Button>
+            <ZButton size="small">Small</ZButton>
+            <ZButton size="medium" type="primary">Medium</ZButton>
+            <ZButton size="large" type="success">Large</ZButton>
           </div>
         </div>
       `,
@@ -178,9 +186,9 @@ const buttonDemoVariants = [
       `
         <div class="button-demo">
           <div class="button-demo__row">
-            <Button type="text">文字按钮</Button>
-            <Button type="text">查看详情</Button>
-            <Button type="text">移除</Button>
+            <ZButton type="text">文字按钮</ZButton>
+            <ZButton type="text">查看详情</ZButton>
+            <ZButton type="text">移除</ZButton>
           </div>
         </div>
       `,
@@ -195,24 +203,24 @@ const buttonDemoVariants = [
       `
         <div class="button-demo">
           <div class="button-demo__row">
-            <Button type="primary">
+            <ZButton type="primary">
               <span class="button-demo__compound">
                 <span>发布</span>
                 <span class="button-demo__pill button-demo__pill--light">Beta</span>
               </span>
-            </Button>
-            <Button>
+            </ZButton>
+            <ZButton>
               <span class="button-demo__compound">
                 <span>消息</span>
                 <span class="button-demo__pill">12</span>
               </span>
-            </Button>
-            <Button type="success">
+            </ZButton>
+            <ZButton type="success">
               <span class="button-demo__compound">
                 <span>同步</span>
                 <span class="button-demo__pill button-demo__pill--success">已启用</span>
               </span>
-            </Button>
+            </ZButton>
           </div>
         </div>
       `,
@@ -227,9 +235,9 @@ const buttonDemoVariants = [
       `
         <div class="button-demo">
           <div class="button-demo__row">
-            <Button disabled>默认禁用</Button>
-            <Button type="primary" disabled>主要禁用</Button>
-            <Button type="text" disabled>文字禁用</Button>
+            <ZButton disabled>默认禁用</ZButton>
+            <ZButton type="primary" disabled>主要禁用</ZButton>
+            <ZButton type="text" disabled>文字禁用</ZButton>
           </div>
         </div>
       `,
@@ -244,30 +252,30 @@ const buttonDemoVariants = [
       `
         <div class="button-demo">
           <div class="button-demo__row">
-            <Button type="primary">
+            <ZButton type="primary">
               <template #icon>
                 <svg class="button-demo__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                   <path d="M8 2v8m0 0 3-3m-3 3L5 7m-2 5h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </template>
               下载
-            </Button>
-            <Button>
+            </ZButton>
+            <ZButton>
               <template #icon>
                 <svg class="button-demo__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                   <path d="M7 3h6M7 8h6M7 13h6M3 3h.01M3 8h.01M3 13h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
                 </svg>
               </template>
               列表
-            </Button>
-            <Button type="success">
+            </ZButton>
+            <ZButton type="success">
               <template #icon>
                 <svg class="button-demo__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                   <path d="m3.5 8 3 3 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </template>
               已完成
-            </Button>
+            </ZButton>
           </div>
         </div>
       `,
@@ -283,9 +291,9 @@ const buttonDemoVariants = [
         <div class="button-demo">
           <div class="button-demo__column">
             <div class="button-demo__row">
-              <Button @click="handleAction('保存')">保存</Button>
-              <Button type="primary" @click="handleAction('发布')">发布</Button>
-              <Button type="danger" @click="handleAction('删除')">删除</Button>
+              <ZButton @click="handleAction('保存')">保存</ZButton>
+              <ZButton type="primary" @click="handleAction('发布')">发布</ZButton>
+              <ZButton type="danger" @click="handleAction('删除')">删除</ZButton>
             </div>
             <div class="button-demo__status">
               <span>触发次数：{{ clickCount }}</span>
@@ -296,7 +304,7 @@ const buttonDemoVariants = [
       `,
       `
         import { ref } from 'vue'
-        import { Button } from 'ztools-ui-components/common/Button'
+        import { ZButton } from 'ztools-ui-components/common/Button'
 
         const clickCount = ref(0)
         const lastAction = ref('未触发')
@@ -316,15 +324,15 @@ const buttonDemoVariants = [
       `
         <div class="button-demo">
           <div class="button-demo__row">
-            <Button class="button-demo__round" type="primary">圆角按钮</Button>
-            <Button class="button-demo__round" type="success">胶囊按钮</Button>
-            <Button class="button-demo__circle" type="primary" aria-label="添加">
+            <ZButton class="button-demo__round" type="primary">圆角按钮</ZButton>
+            <ZButton class="button-demo__round" type="success">胶囊按钮</ZButton>
+            <ZButton class="button-demo__circle" type="primary" aria-label="添加">
               <template #icon>
                 <svg class="button-demo__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                   <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
                 </svg>
               </template>
-            </Button>
+            </ZButton>
           </div>
         </div>
       `,
@@ -340,9 +348,9 @@ const buttonDemoVariants = [
         <div class="button-demo">
           <div class="button-demo__surface">
             <div class="button-demo__row">
-              <Button class="button-demo__transparent">默认透明</Button>
-              <Button class="button-demo__transparent button-demo__transparent--primary">主要透明</Button>
-              <Button class="button-demo__transparent button-demo__transparent--danger">危险透明</Button>
+              <ZButton class="button-demo__transparent">默认透明</ZButton>
+              <ZButton class="button-demo__transparent button-demo__transparent--primary">主要透明</ZButton>
+              <ZButton class="button-demo__transparent button-demo__transparent--danger">危险透明</ZButton>
             </div>
           </div>
         </div>
@@ -358,14 +366,14 @@ const buttonDemoVariants = [
       `
         <div class="button-demo">
           <div class="button-demo__row">
-            <Button :loading="loading" type="primary" @click="handleLoading">提交</Button>
-            <Button loading>同步中</Button>
+            <ZButton :loading="loading" type="primary" @click="handleLoading">提交</ZButton>
+            <ZButton loading>同步中</ZButton>
           </div>
         </div>
       `,
       `
         import { ref } from 'vue'
-        import { Button } from 'ztools-ui-components/common/Button'
+        import { ZButton } from 'ztools-ui-components/common/Button'
 
         const loading = ref(false)
 
@@ -388,9 +396,9 @@ const buttonDemoVariants = [
       `
         <div class="button-demo">
           <div class="button-demo__group">
-            <Button class="button-demo__group-item">上一步</Button>
-            <Button class="button-demo__group-item button-demo__group-item--active">处理中</Button>
-            <Button class="button-demo__group-item">下一步</Button>
+            <ZButton class="button-demo__group-item">上一步</ZButton>
+            <ZButton class="button-demo__group-item button-demo__group-item--active">处理中</ZButton>
+            <ZButton class="button-demo__group-item">下一步</ZButton>
           </div>
         </div>
       `,
@@ -407,7 +415,7 @@ const inputDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-column">
-          <Input v-model="text" placeholder="请输入内容" />
+          <ZInput v-model="text" placeholder="请输入内容" />
           <span>当前值: {{ text }}</span>
         </div>
       `,
@@ -425,7 +433,7 @@ const inputDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-column">
-          <Input v-model="text" placeholder="请输入内容" clearable />
+          <ZInput v-model="text" placeholder="请输入内容" clearable />
           <span>当前值: {{ text || '空' }}</span>
         </div>
       `,
@@ -443,12 +451,12 @@ const inputDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-grid">
-          <Input v-model="keyword" placeholder="搜索插件">
+          <ZInput v-model="keyword" placeholder="搜索插件">
             <template #prefix>搜索</template>
-          </Input>
-          <Input model-value="readonly value" readonly>
+          </ZInput>
+          <ZInput model-value="readonly value" readonly>
             <template #suffix>只读</template>
-          </Input>
+          </ZInput>
         </div>
       `,
       `
@@ -465,9 +473,9 @@ const inputDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-grid">
-          <Input model-value="Small" size="small" />
-          <Input model-value="Medium" size="medium" />
-          <Input model-value="Large" size="large" />
+          <ZInput model-value="Small" size="small" />
+          <ZInput model-value="Medium" size="medium" />
+          <ZInput model-value="Large" size="large" />
         </div>
       `,
       inputDemoScript
@@ -480,9 +488,9 @@ const inputDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-grid">
-          <Input model-value="readonly value" readonly />
-          <Input model-value="disabled value" disabled />
-          <Input v-model="password" type="password" placeholder="请输入密码" />
+          <ZInput model-value="readonly value" readonly />
+          <ZInput model-value="disabled value" disabled />
+          <ZInput v-model="password" type="password" placeholder="请输入密码" />
         </div>
       `,
       `
@@ -498,7 +506,7 @@ const inputDemoVariants = [
     description: '设置 type 为 textarea 可输入多行文本。',
     sourceCode: createDemoSource(
       `
-        <Input v-model="text" type="textarea" placeholder="请输入多行内容" />
+        <ZInput v-model="text" type="textarea" placeholder="请输入多行内容" />
       `,
       `
         ${inputModelDemoScript}
@@ -514,9 +522,9 @@ const inputDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-grid">
-          <Input model-value="ztools-ui" status="success" message="名称可用" />
-          <Input model-value="ztools" status="warning" message="建议使用更明确的名称" />
-          <Input v-model="username" status="error" message="至少输入 3 个字符" />
+          <ZInput model-value="ztools-ui" status="success" message="名称可用" />
+          <ZInput model-value="ztools" status="warning" message="建议使用更明确的名称" />
+          <ZInput v-model="username" status="error" message="至少输入 3 个字符" />
         </div>
       `,
       `
@@ -532,7 +540,7 @@ const inputDemoVariants = [
     description: '设置 show-word-limit 后显示当前字数，配合 maxlength 展示上限。',
     sourceCode: createDemoSource(
       `
-        <Input v-model="text" type="textarea" :maxlength="30" show-word-limit placeholder="请输入 30 字以内的内容" />
+        <ZInput v-model="text" type="textarea" :maxlength="30" show-word-limit placeholder="请输入 30 字以内的内容" />
       `,
       `
         ${inputModelDemoScript}
@@ -551,7 +559,7 @@ const colorPickerDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-row">
-          <ColorPicker v-model="color" />
+          <ZColorPicker v-model="color" />
           <span>当前颜色: {{ color }}</span>
         </div>
       `,
@@ -568,10 +576,10 @@ const colorPickerDemoVariants = [
     description: '支持 small、medium、large 三种尺寸。',
     sourceCode: createDemoSource(
       `
-        <div class="demo-row">
-          <ColorPicker v-model="color" size="small" />
-          <ColorPicker v-model="color" size="medium" />
-          <ColorPicker v-model="color" size="large" />
+        <div class="demo-column">
+          <ZColorPicker v-model="color" size="small" />
+          <ZColorPicker v-model="color" size="medium" />
+          <ZColorPicker v-model="color" size="large" />
         </div>
       `,
       `
@@ -588,7 +596,7 @@ const colorPickerDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-row">
-          <ColorPicker v-model="color" :show-input="false" />
+          <ZColorPicker v-model="color" :show-input="false" />
           <span>当前颜色: {{ color }}</span>
         </div>
       `,
@@ -606,8 +614,8 @@ const colorPickerDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-row">
-          <ColorPicker model-value="#94a3b8" disabled />
-          <ColorPicker model-value="#64748b" :show-input="false" disabled />
+          <ZColorPicker model-value="#94a3b8" disabled />
+          <ZColorPicker model-value="#64748b" :show-input="false" disabled />
         </div>
       `,
       colorPickerDemoScript
@@ -624,8 +632,8 @@ const checkboxDemoVariants = [
       `
         <div class="demo-column">
           <div class="demo-row">
-            <Checkbox v-model="checked">启用插件</Checkbox>
-            <Checkbox :model-value="false">未选中</Checkbox>
+            <ZCheckbox v-model="checked">启用插件</ZCheckbox>
+            <ZCheckbox :model-value="false">未选中</ZCheckbox>
           </div>
           <span>当前值: {{ checked }}</span>
         </div>
@@ -643,7 +651,7 @@ const checkboxDemoVariants = [
     description: 'indeterminate 适合树形或批量选择中的部分选中状态。',
     sourceCode: createDemoSource(
       `
-        <Checkbox v-model="checked" indeterminate>部分选中</Checkbox>
+        <ZCheckbox v-model="checked" indeterminate>部分选中</ZCheckbox>
       `,
       `
         ${checkboxModelDemoScript}
@@ -659,8 +667,8 @@ const checkboxDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-row">
-          <Checkbox :model-value="true" disabled>已选禁用</Checkbox>
-          <Checkbox :model-value="false" disabled>未选禁用</Checkbox>
+          <ZCheckbox :model-value="true" disabled>已选禁用</ZCheckbox>
+          <ZCheckbox :model-value="false" disabled>未选禁用</ZCheckbox>
         </div>
       `,
       checkboxDemoScript
@@ -677,9 +685,9 @@ const radioDemoVariants = [
       `
         <div class="demo-column">
           <div class="demo-row">
-            <Radio v-model="value" name="theme" value="blue">蓝色</Radio>
-            <Radio v-model="value" name="theme" value="purple">紫色</Radio>
-            <Radio v-model="value" name="theme" value="green">绿色</Radio>
+            <ZRadio v-model="value" name="theme" value="blue">蓝色</ZRadio>
+            <ZRadio v-model="value" name="theme" value="purple">紫色</ZRadio>
+            <ZRadio v-model="value" name="theme" value="green">绿色</ZRadio>
           </div>
           <span>当前值: {{ value }}</span>
         </div>
@@ -698,8 +706,8 @@ const radioDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-row">
-          <Radio model-value="blue" name="disabled-theme" value="blue" disabled>蓝色（禁用）</Radio>
-          <Radio model-value="blue" name="disabled-theme" value="orange" disabled>橙色（禁用）</Radio>
+          <ZRadio model-value="blue" name="disabled-theme" value="blue" disabled>蓝色（禁用）</ZRadio>
+          <ZRadio model-value="blue" name="disabled-theme" value="orange" disabled>橙色（禁用）</ZRadio>
         </div>
       `,
       radioDemoScript
@@ -715,7 +723,7 @@ const switchDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-row">
-          <Switch v-model="enabled" />
+          <ZSwitch v-model="enabled" />
           <span>当前值: {{ enabled }}</span>
         </div>
       `,
@@ -733,7 +741,7 @@ const switchDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-row">
-          <Switch v-model="enabled" active-text="开启" inactive-text="关闭" />
+          <ZSwitch v-model="enabled" active-text="开启" inactive-text="关闭" />
           <span>当前值: {{ enabled }}</span>
         </div>
       `,
@@ -751,9 +759,9 @@ const switchDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-row">
-          <Switch :model-value="false" size="small" />
-          <Switch :model-value="true" size="medium" />
-          <Switch :model-value="true" size="large" />
+          <ZSwitch :model-value="false" size="small" />
+          <ZSwitch :model-value="true" size="medium" />
+          <ZSwitch :model-value="true" size="large" />
         </div>
       `,
       switchDemoScript
@@ -766,12 +774,200 @@ const switchDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-row">
-          <Switch :model-value="true" disabled />
-          <Switch :model-value="false" disabled />
-          <Switch :model-value="true" active-text="开启" inactive-text="关闭" disabled />
+          <ZSwitch :model-value="true" disabled />
+          <ZSwitch :model-value="false" disabled />
+          <ZSwitch :model-value="true" active-text="开启" inactive-text="关闭" disabled />
         </div>
       `,
       switchDemoScript
+    )
+  }
+] satisfies readonly VariantDemoConfig<string>[]
+
+const selectDemoVariants = [
+  {
+    variant: 'basic',
+    title: '基础用法',
+    description: '通过 v-model 绑定当前选中值，options 提供可选项。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <ZSelect v-model="selected" :options="options" placeholder="选择主题色" />
+          <span>当前值: {{ selected }}</span>
+        </div>
+      `,
+      `
+        ${selectModelDemoScript}
+
+        const selected = ref('blue')
+        const options = [
+          { label: '蓝色 (Blue)', value: 'blue' },
+          { label: '紫色 (Purple)', value: 'purple' },
+          { label: '绿色 (Green)', value: 'green' },
+          { label: '橙色 (Orange)', value: 'orange' }
+        ]
+      `
+    )
+  },
+  {
+    variant: 'multiple',
+    title: '多选与最大标签数量',
+    description: 'multiple 开启多选，maxTagCount 可控制已选标签展示数量。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <ZSelect v-model="multipleSelected" :options="options" multiple clearable placeholder="选择多个颜色" />
+          <ZSelect
+            v-model="limitedSelected"
+            :options="options"
+            multiple
+            clearable
+            :max-tag-count="2"
+            placeholder="最多显示 2 个标签"
+          />
+          <span>多选值: {{ multipleSelected.join(', ') }}</span>
+        </div>
+      `,
+      `
+        ${selectModelDemoScript}
+
+        const multipleSelected = ref<ZSelectValueType[]>(['blue', 'green', 'orange'])
+        const limitedSelected = ref<ZSelectValueType[]>(['blue', 'purple', 'green', 'orange'])
+        const options = [
+          { label: '蓝色 (Blue)', value: 'blue' },
+          { label: '紫色 (Purple)', value: 'purple' },
+          { label: '绿色 (Green)', value: 'green' },
+          { label: '橙色 (Orange)', value: 'orange' }
+        ]
+      `
+    )
+  },
+  {
+    variant: 'clearable',
+    title: '可清空',
+    description: '设置 clearable 后，有选中值时显示清空按钮。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <ZSelect v-model="selected" :options="options" clearable placeholder="可清空选择" />
+          <span>当前值: {{ selected || '未选择' }}</span>
+        </div>
+      `,
+      `
+        ${selectModelDemoScript}
+
+        const selected = ref('purple')
+        const options = [
+          { label: '蓝色 (Blue)', value: 'blue' },
+          { label: '紫色 (Purple)', value: 'purple' },
+          { label: '绿色 (Green)', value: 'green' }
+        ]
+      `
+    )
+  },
+  {
+    variant: 'size',
+    title: '尺寸',
+    description: '支持 small、medium、large 三种尺寸。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-row">
+          <ZSelect v-model="sizeValue" :options="sizeOptions" size="small" />
+          <ZSelect v-model="sizeValue" :options="sizeOptions" size="medium" />
+          <ZSelect v-model="sizeValue" :options="sizeOptions" size="large" />
+        </div>
+      `,
+      `
+        ${selectModelDemoScript}
+
+        const sizeValue = ref('medium')
+        const sizeOptions = [
+          { label: '小尺寸', value: 'small' },
+          { label: '默认尺寸', value: 'medium' },
+          { label: '大尺寸', value: 'large' }
+        ]
+      `
+    )
+  },
+  {
+    variant: 'status',
+    title: '验证状态',
+    description: '可独立展示 success、warning、error 状态和提示文案。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-row">
+          <ZSelect v-model="value" :options="options" status="success" message="选择可用" placeholder="成功状态" />
+          <ZSelect v-model="value" :options="options" status="warning" message="建议确认后选择" placeholder="警告状态" />
+          <ZSelect v-model="value" :options="options" status="error" message="请选择一个选项" placeholder="错误状态" />
+        </div>
+      `,
+      `
+        ${selectModelDemoScript}
+
+        const value = ref('')
+        const options = [
+          { label: '蓝色 (Blue)', value: 'blue' },
+          { label: '紫色 (Purple)', value: 'purple' },
+          { label: '绿色 (Green)', value: 'green' }
+        ]
+      `
+    )
+  },
+  {
+    variant: 'scroll',
+    title: '滚动事件',
+    description: '下拉菜单滚动时会触发 scroll 事件。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <ZSelect v-model="scrollValue" :options="longOptions" placeholder="滚动菜单" @scroll="handleScroll" />
+          <span>滚动触发次数: {{ scrollCount }}</span>
+        </div>
+      `,
+      `
+        ${selectModelDemoScript}
+
+        const scrollValue = ref('option-1')
+        const scrollCount = ref(0)
+        const longOptions = Array.from({ length: 24 }, (_, index) => ({
+          label: '选项 ' + (index + 1),
+          value: 'option-' + (index + 1)
+        }))
+
+        function handleScroll(): void {
+          scrollCount.value += 1
+        }
+      `
+    )
+  },
+  {
+    variant: 'tags',
+    title: 'Tag 输入模式',
+    description: 'mode="tags" 时允许输入并通过 Enter 创建自定义标签。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <ZSelect
+            v-model="tagValues"
+            :options="tagOptions"
+            mode="tags"
+            clearable
+            placeholder="输入后按 Enter 创建标签"
+          />
+          <span>标签: {{ tagValues.join(', ') }}</span>
+        </div>
+      `,
+      `
+        ${selectModelDemoScript}
+
+        const tagValues = ref<ZSelectValueType[]>(['设计', '效率'])
+        const tagOptions = [
+          { label: '设计', value: '设计' },
+          { label: '开发', value: '开发' },
+          { label: '效率', value: '效率' },
+          { label: '自动化', value: '自动化' }
+        ]
+      `
     )
   }
 ] satisfies readonly VariantDemoConfig<string>[]
@@ -784,12 +980,12 @@ const tagDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-row">
-          <Tag>默认标签</Tag>
-          <Tag type="primary">主要标签</Tag>
-          <Tag type="success">成功标签</Tag>
-          <Tag type="warning">警告标签</Tag>
-          <Tag type="danger">危险标签</Tag>
-          <Tag type="info">信息标签</Tag>
+          <ZTag>默认标签</ZTag>
+          <ZTag type="primary">主要标签</ZTag>
+          <ZTag type="success">成功标签</ZTag>
+          <ZTag type="warning">警告标签</ZTag>
+          <ZTag type="danger">危险标签</ZTag>
+          <ZTag type="info">信息标签</ZTag>
         </div>
       `,
       tagDemoScript
@@ -802,9 +998,9 @@ const tagDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-row">
-          <Tag size="small">小标签</Tag>
-          <Tag size="medium" type="primary">中标签</Tag>
-          <Tag size="large" type="success">大标签</Tag>
+          <ZTag size="small">小标签</ZTag>
+          <ZTag size="medium" type="primary">中标签</ZTag>
+          <ZTag size="large" type="success">大标签</ZTag>
         </div>
       `,
       tagDemoScript
@@ -817,9 +1013,9 @@ const tagDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-row">
-          <Tag round>圆角标签</Tag>
-          <Tag round type="primary">主要标签</Tag>
-          <Tag round type="success">成功标签</Tag>
+          <ZTag round>圆角标签</ZTag>
+          <ZTag round type="primary">主要标签</ZTag>
+          <ZTag round type="success">成功标签</ZTag>
         </div>
       `,
       tagDemoScript
@@ -833,8 +1029,8 @@ const tagDemoVariants = [
       `
         <div class="demo-column">
           <div class="demo-row">
-            <Tag v-if="visible" closable type="primary" @close="visible = false">可关闭标签</Tag>
-            <Tag closable type="warning">警告标签</Tag>
+            <ZTag v-if="visible" closable type="primary" @close="visible = false">可关闭标签</ZTag>
+            <ZTag closable type="warning">警告标签</ZTag>
           </div>
           <button v-if="!visible" type="button" @click="visible = true">重新显示</button>
         </div>
@@ -853,9 +1049,9 @@ const tagDemoVariants = [
     sourceCode: createDemoSource(
       `
         <div class="demo-row">
-          <Tag disabled>默认禁用</Tag>
-          <Tag type="primary" disabled>主要禁用</Tag>
-          <Tag closable type="danger" disabled>关闭禁用</Tag>
+          <ZTag disabled>默认禁用</ZTag>
+          <ZTag type="primary" disabled>主要禁用</ZTag>
+          <ZTag closable type="danger" disabled>关闭禁用</ZTag>
         </div>
       `,
       tagDemoScript
@@ -896,8 +1092,9 @@ function normalizeDemoSource(source: string | undefined): string | undefined {
   const trimmedSource = source?.trim()
   if (!trimmedSource) return undefined
 
-  const blocks = getSfcSourceBlocks(trimmedSource)
-  if (!blocks.length) return trimmedSource
+  const displaySource = trimmedSource.replace(/(['"])ztools-ui-components\/[^'"]+\1/g, '$1ztools-ui$1')
+  const blocks = getSfcSourceBlocks(displaySource)
+  if (!blocks.length) return displaySource
 
   return [
     ...blocks.filter((block) => block.tag === 'template'),
@@ -1468,19 +1665,13 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
     }
   },
 
-  dropdown: {
-    id: 'dropdown',
+  select: {
+    id: 'select',
     group: 'input',
-    zhName: '下拉选择器',
-    enName: 'Dropdown',
-    description: '用于从一组选项中选择值的下拉选择器，支持单选、多选、可清空、验证状态和 tag 输入模式。',
-    demos: [
-      {
-        title: '完整用法',
-        description: '展示单选、多选、可清空、尺寸、验证状态、滚动事件、最大标签显示数量和 tag 输入模式。',
-        component: DropdownDemo
-      }
-    ],
+    zhName: '选择器',
+    enName: 'Select',
+    description: '用于从一组选项中选择值的选择器，支持单选、多选、可清空、验证状态和 tag 输入模式。',
+    demos: createVariantDemos(SelectDemo, selectDemoVariants),
     api: {
       props: [
         {
@@ -1492,7 +1683,7 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         },
         {
           name: 'options',
-          type: 'DropdownOption[]',
+          type: 'SelectOption[]',
           description: '选项列表，每项包含 label、value，可通过 disabled 禁用单项',
           required: true,
           since: '1.0.0'
@@ -1522,7 +1713,7 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
           name: 'disabled',
           type: 'boolean',
           default: 'false',
-          description: '是否禁用下拉选择器',
+          description: '是否禁用选择器',
           since: '1.0.0'
         },
         {
@@ -2205,7 +2396,7 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
       {
         title: '基础用法',
         description: '通常配合 DetailPanel 使用，提供快捷键录制和目标指令配置。',
-        component: DetailPanelDemo
+        component: ShortcutEditorDemo
       }
     ],
     api: {
@@ -2398,29 +2589,6 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
     }
   }
 }
-
-// 组件分组
-export const componentGroups = [
-  { id: 'input', label: '输入控件' },
-  { id: 'display', label: '展示组件' },
-  { id: 'feedback', label: '反馈组件' },
-  { id: 'host', label: '宿主集成' }
-]
-
-// 组件索引（用于侧边栏）
-export interface ComponentIndexEntry {
-  id: string
-  zhName: string
-  enName: string
-  group: string
-}
-
-export const componentIndex: ComponentIndexEntry[] = Object.values(componentDocs).map((doc) => ({
-  id: doc.id,
-  zhName: doc.zhName,
-  enName: doc.enName,
-  group: doc.group
-}))
 
 // 根据分组获取侧边栏数据
 export function getSidebarData() {

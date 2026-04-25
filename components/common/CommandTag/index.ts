@@ -1,1 +1,1 @@
-export { default as CommandTag } from './CommandTag.vue'
+export { default as CommandTag, default as ZCommandTag } from './CommandTag.vue'

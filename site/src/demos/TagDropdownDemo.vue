@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { TagDropdown } from 'ztools-ui-components/common/TagDropdown'
+import { ZTagDropdown } from 'ztools-ui-components/common/TagDropdown'
 import type { TagDropdownMenuItem } from 'ztools-ui-components/common/TagDropdown'
 
 const menuItems: TagDropdownMenuItem[] = [
@@ -18,9 +18,9 @@ function onSelect(key: string) {
   <div class="demo-section">
     <p>标签下拉菜单，附加在标签元素上点击展开。</p>
     <div class="demo-box">
-      <TagDropdown :menu-items="menuItems" @select="onSelect">
+      <ZTagDropdown :menu-items="menuItems" @select="onSelect">
         <span style="padding: 4px 12px; background: var(--control-bg); border: 1px solid var(--control-border); border-radius: 4px; cursor: pointer; font-size: 13px;">点击展开菜单</span>
-      </TagDropdown>
+      </ZTagDropdown>
     </div>
   </div>
 </template>

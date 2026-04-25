@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/// <reference types="vitepress/client" />
 
 declare module '*.md?raw' {
   const content: string
@@ -68,7 +69,7 @@ interface ZToolsInternal {
 declare const ztools: ZToolsGlobal
 
 interface Window {
-  __toggleDocsTheme?: () => void
+  __setDocsTheme?: (isDark: boolean) => void
   ztools: ZToolsGlobal & {
     isWindows(): boolean
     shellOpenExternal(url: string): void

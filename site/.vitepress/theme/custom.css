@@ -1,0 +1,119 @@
+:root {
+  --site-bg: #f8fafc;
+  --site-panel-bg: #ffffff;
+  --site-panel-muted-bg: #f1f5f9;
+  --site-panel-hover-bg: #f8fafc;
+  --site-code-bg: #282c34;
+  --vp-code-block-bg: #282c34;
+  --site-border: #e2e8f0;
+  --site-divider: #e5e7eb;
+  --site-text: #0f172a;
+  --site-text-muted: #475569;
+  --vp-c-bg: var(--site-bg);
+  --vp-c-bg-alt: var(--site-bg);
+  --vp-c-bg-elv: var(--site-panel-bg);
+  --vp-c-bg-soft: var(--site-panel-muted-bg);
+  --vp-c-divider: var(--site-divider);
+  --vp-c-border: var(--site-border);
+  --vp-c-text-1: var(--site-text);
+  --vp-c-text-2: var(--site-text-muted);
+  --vp-c-brand-1: var(--primary-color);
+  --vp-c-brand-2: var(--primary-color);
+  --vp-c-brand-3: var(--primary-color);
+  --vp-home-hero-name-color: var(--primary-color);
+}
+
+html.dark {
+  --site-bg: #111827;
+  --site-panel-bg: #1f2937;
+  --site-panel-muted-bg: #243244;
+  --site-panel-hover-bg: #273449;
+  --site-code-bg: #282c34;
+  --vp-code-block-bg: #282c34;
+  --site-border: #374151;
+  --site-divider: rgba(255, 255, 255, 0.1);
+  --site-text: #f3f4f6;
+  --site-text-muted: #cbd5e1;
+}
+
+html,
+body {
+  height: auto;
+  overflow: auto !important;
+}
+
+body {
+  background: var(--site-bg);
+  color: var(--site-text);
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.VPApp,
+.Layout,
+.VPContent,
+.VPDoc,
+.VPDoc .container,
+.VPDoc .content,
+.VPDoc .content-container {
+  background: var(--site-bg);
+}
+
+.VPNavBar,
+.VPNavBar .content,
+.VPNavBar .content-body {
+  background: var(--site-bg) !important;
+}
+
+.VPDoc .container {
+  max-width: 1440px;
+}
+
+.VPDoc .content {
+  max-width: 100%;
+}
+
+.VPDoc .content-container {
+  max-width: 1040px;
+}
+
+.VPDoc.has-aside .content-container {
+  max-width: 100%!important;
+}
+
+.VPDoc:not(.has-sidebar) .container {
+  max-width: 1280px;
+}
+
+.vp-doc table {
+  display: table;
+  width: 100%;
+}
+
+.vp-doc tr {
+  border-top: 0;
+}
+
+.vp-doc th,
+.vp-doc td {
+  border: 0;
+}
+
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3,
+.vp-doc h4,
+.vp-doc p {
+  color: inherit;
+}
+
+.vp-doc div[class*='language-'] > button.copy {
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background-size: 14px;
+  border-radius: 6px;
+}

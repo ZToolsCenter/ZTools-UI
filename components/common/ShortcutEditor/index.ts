@@ -1,1 +1,1 @@
-export { default as ShortcutEditor } from './ShortcutEditor.vue'
+export { default as ShortcutEditor, default as ZShortcutEditor } from './ShortcutEditor.vue'

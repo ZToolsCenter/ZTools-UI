@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Tag } from 'ztools-ui-components/common/Tag'
+import { ZTag } from 'ztools-ui-components/common/Tag'
 
 type TagDemoVariant = 'type' | 'size' | 'round' | 'closable' | 'disabled'
 
@@ -20,36 +20,36 @@ const visible = ref(true)
   <div class="tag-demo">
     <template v-if="props.variant === 'type'">
       <div class="tag-demo__row">
-        <Tag>默认标签</Tag>
-        <Tag type="primary">主要标签</Tag>
-        <Tag type="success">成功标签</Tag>
-        <Tag type="warning">警告标签</Tag>
-        <Tag type="danger">危险标签</Tag>
-        <Tag type="info">信息标签</Tag>
+        <ZTag>默认标签</ZTag>
+        <ZTag type="primary">主要标签</ZTag>
+        <ZTag type="success">成功标签</ZTag>
+        <ZTag type="warning">警告标签</ZTag>
+        <ZTag type="danger">危险标签</ZTag>
+        <ZTag type="info">信息标签</ZTag>
       </div>
     </template>
 
     <template v-else-if="props.variant === 'size'">
       <div class="tag-demo__row tag-demo__row--align-end">
-        <Tag size="small">小标签</Tag>
-        <Tag size="medium" type="primary">中标签</Tag>
-        <Tag size="large" type="success">大标签</Tag>
+        <ZTag size="small">小标签</ZTag>
+        <ZTag size="medium" type="primary">中标签</ZTag>
+        <ZTag size="large" type="success">大标签</ZTag>
       </div>
     </template>
 
     <template v-else-if="props.variant === 'round'">
       <div class="tag-demo__row">
-        <Tag round>圆角标签</Tag>
-        <Tag round type="primary">主要标签</Tag>
-        <Tag round type="success">成功标签</Tag>
+        <ZTag round>圆角标签</ZTag>
+        <ZTag round type="primary">主要标签</ZTag>
+        <ZTag round type="success">成功标签</ZTag>
       </div>
     </template>
 
     <template v-else-if="props.variant === 'closable'">
       <div class="tag-demo__column">
         <div class="tag-demo__row">
-          <Tag v-if="visible" closable type="primary" @close="visible = false">可关闭标签</Tag>
-          <Tag closable type="warning">警告标签</Tag>
+          <ZTag v-if="visible" closable type="primary" @close="visible = false">可关闭标签</ZTag>
+          <ZTag closable type="warning">警告标签</ZTag>
         </div>
         <button v-if="!visible" class="tag-demo__reset" type="button" @click="visible = true">重新显示</button>
       </div>
@@ -57,9 +57,9 @@ const visible = ref(true)
 
     <template v-else-if="props.variant === 'disabled'">
       <div class="tag-demo__row">
-        <Tag disabled>默认禁用</Tag>
-        <Tag type="primary" disabled>主要禁用</Tag>
-        <Tag closable type="danger" disabled>关闭禁用</Tag>
+        <ZTag disabled>默认禁用</ZTag>
+        <ZTag type="primary" disabled>主要禁用</ZTag>
+        <ZTag closable type="danger" disabled>关闭禁用</ZTag>
       </div>
     </template>
   </div>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
-import type { DropdownEmits, DropdownOption, DropdownProps, DropdownValueType } from './Dropdown'
+import type { SelectEmits, SelectOption, SelectProps, SelectValueType } from './Select'
 
-const props = withDefaults(defineProps<DropdownProps>(), {
+const props = withDefaults(defineProps<SelectProps>(), {
   placeholder: '请选择',
   multiple: false,
   clearable: false,
@@ -13,10 +13,10 @@ const props = withDefaults(defineProps<DropdownProps>(), {
   mode: 'default'
 })
 
-const emit = defineEmits<DropdownEmits>()
+const emit = defineEmits<SelectEmits>()
 
 const isOpen = ref(false)
-const dropdownRef = ref<HTMLElement>()
+const selectRef = ref<HTMLElement>()
 const tagInputRef = ref<HTMLInputElement>()
 const tagInputValue = ref('')
 
@@ -24,9 +24,9 @@ const isTagsMode = computed(() => props.mode === 'tags')
 const isMultiple = computed(() => props.multiple || isTagsMode.value)
 const isInteractive = computed(() => !props.disabled && !props.readonly)
 
-const dropdownClasses = computed(() => [
-  'dropdown',
-  `dropdown--${props.size}`,
+const selectClasses = computed(() => [
+  'z-select',
+  `select--${props.size}`,
   {
     open: isOpen.value,
     'is-disabled': props.disabled,
@@ -40,7 +40,7 @@ const dropdownClasses = computed(() => [
   }
 ])
 
-const selectedValues = computed<DropdownValueType[]>(() => {
+const selectedValues = computed<SelectValueType[]>(() => {
   if (Array.isArray(props.modelValue)) {
     return props.modelValue
   }
@@ -91,7 +91,7 @@ function focusTagInput(): void {
   nextTick(() => tagInputRef.value?.focus())
 }
 
-function toggleDropdown(): void {
+function toggleSelect(): void {
   if (!isInteractive.value) return
 
   if (isTagsMode.value) {
@@ -103,16 +103,16 @@ function toggleDropdown(): void {
   setOpen(!isOpen.value)
 }
 
-function isSelected(value: DropdownValueType): boolean {
+function isSelected(value: SelectValueType): boolean {
   return selectedValues.value.includes(value)
 }
 
-function emitValue(value: DropdownValueType | DropdownValueType[]): void {
+function emitValue(value: SelectValueType | SelectValueType[]): void {
   emit('update:modelValue', value)
   emit('change', value)
 }
 
-function selectOption(option: DropdownOption): void {
+function selectOption(option: SelectOption): void {
   if (!isInteractive.value || option.disabled) return
 
   if (isMultiple.value) {
@@ -128,7 +128,7 @@ function selectOption(option: DropdownOption): void {
   setOpen(false)
 }
 
-function removeValue(value: DropdownValueType): void {
+function removeValue(value: SelectValueType): void {
   if (!isInteractive.value) return
   emitValue(selectedValues.value.filter((item) => item !== value))
   emit('tag-remove', value)
@@ -187,7 +187,7 @@ function handleTriggerKeydown(event: KeyboardEvent): void {
 
   if (event.key === 'Enter' || event.key === ' ') {
     event.preventDefault()
-    toggleDropdown()
+    toggleSelect()
   }
 
   if (event.key === 'Escape') {
@@ -196,7 +196,7 @@ function handleTriggerKeydown(event: KeyboardEvent): void {
 }
 
 function handleClickOutside(event: MouseEvent): void {
-  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
+  if (selectRef.value && !selectRef.value.contains(event.target as Node)) {
     setOpen(false)
   }
 }
@@ -211,27 +211,27 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="dropdownRef" :class="dropdownClasses">
+  <div ref="selectRef" :class="selectClasses">
     <div
-      class="dropdown-trigger"
+      class="select-trigger"
       role="combobox"
       tabindex="0"
       aria-haspopup="listbox"
       :aria-expanded="isOpen"
       :aria-disabled="disabled ? 'true' : undefined"
       :aria-invalid="status === 'error' ? 'true' : undefined"
-      @click="toggleDropdown"
+      @click="toggleSelect"
       @keydown="handleTriggerKeydown"
     >
-      <div class="dropdown-selection">
-        <span v-if="!isMultiple" class="dropdown-value">{{ selectedLabel }}</span>
+      <div class="select-selection">
+        <span v-if="!isMultiple" class="select-value">{{ selectedLabel }}</span>
         <template v-else>
-          <span v-if="!hasValue && !isTagsMode" class="dropdown-placeholder">{{ placeholder }}</span>
-          <span v-for="item in visibleSelectedItems" :key="item.value" class="dropdown-tag">
-            <span class="dropdown-tag-label">{{ item.label }}</span>
+          <span v-if="!hasValue && !isTagsMode" class="select-placeholder">{{ placeholder }}</span>
+          <span v-for="item in visibleSelectedItems" :key="item.value" class="select-tag">
+            <span class="select-tag-label">{{ item.label }}</span>
             <button
               v-if="isInteractive"
-              class="dropdown-tag-close"
+              class="select-tag-close"
               type="button"
               aria-label="移除标签"
               @click.stop="removeValue(item.value)"
@@ -239,14 +239,14 @@ onBeforeUnmount(() => {
               ×
             </button>
           </span>
-          <span v-if="hiddenTagCount > 0" class="dropdown-tag dropdown-tag-more">
+          <span v-if="hiddenTagCount > 0" class="select-tag select-tag-more">
             +{{ hiddenTagCount }}
           </span>
           <input
             v-if="isTagsMode"
             ref="tagInputRef"
             v-model="tagInputValue"
-            class="dropdown-tag-input"
+            class="select-tag-input"
             type="text"
             :placeholder="hasValue ? '' : placeholder"
             :disabled="disabled"
@@ -259,7 +259,7 @@ onBeforeUnmount(() => {
 
       <button
         v-if="showClear"
-        class="dropdown-clear"
+        class="select-clear"
         type="button"
         aria-label="清空选择"
         @click.stop="handleClear"
@@ -268,7 +268,7 @@ onBeforeUnmount(() => {
       </button>
 
       <svg
-        class="dropdown-arrow"
+        class="select-arrow"
         :class="{ rotate: isOpen }"
         width="16"
         height="16"
@@ -286,10 +286,10 @@ onBeforeUnmount(() => {
       </svg>
     </div>
 
-    <Transition name="dropdown-menu">
+    <Transition name="select-menu">
       <div
         v-if="isOpen"
-        class="dropdown-menu"
+        class="select-menu"
         role="listbox"
         :aria-multiselectable="isMultiple ? 'true' : undefined"
         @scroll="handleMenuScroll"
@@ -297,17 +297,17 @@ onBeforeUnmount(() => {
         <div
           v-for="option in options"
           :key="option.value"
-          class="dropdown-item"
+          class="select-item"
           :class="{ active: isSelected(option.value), disabled: option.disabled }"
           role="option"
           :aria-selected="isSelected(option.value)"
           :aria-disabled="option.disabled ? 'true' : undefined"
           @click="selectOption(option)"
         >
-          <span class="dropdown-item-label">{{ option.label }}</span>
+          <span class="select-item-label">{{ option.label }}</span>
           <svg
             v-if="isSelected(option.value)"
-            class="dropdown-item-check"
+            class="select-item-check"
             width="16"
             height="16"
             viewBox="0 0 16 16"
@@ -326,14 +326,14 @@ onBeforeUnmount(() => {
       </div>
     </Transition>
 
-    <div v-if="message" class="dropdown-footer">
-      <span class="dropdown-message">{{ message }}</span>
+    <div v-if="message" class="select-footer">
+      <span class="select-message">{{ message }}</span>
     </div>
   </div>
 </template>
 
 <style scoped>
-.dropdown {
+.z-select {
   position: relative;
   display: inline-flex;
   flex-direction: column;
@@ -342,7 +342,7 @@ onBeforeUnmount(() => {
   color: var(--text-color);
 }
 
-.dropdown-trigger {
+.select-trigger {
   width: 100%;
   display: flex;
   align-items: center;
@@ -359,83 +359,83 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
 }
 
-.dropdown-trigger:hover {
+.select-trigger:hover {
   background: var(--hover-bg);
   border-color: color-mix(in srgb, var(--primary-color), black 15%);
 }
 
-.dropdown.open .dropdown-trigger,
-.dropdown-trigger:focus-visible {
+.z-select.open .select-trigger,
+.select-trigger:focus-visible {
   background: var(--active-bg);
   border-color: color-mix(in srgb, var(--primary-color), black 15%);
   box-shadow: 0 0 0 3px var(--primary-light-bg);
 }
 
-.dropdown.is-disabled {
+.z-select.is-disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.dropdown.is-disabled .dropdown-trigger {
+.z-select.is-disabled .select-trigger {
   cursor: not-allowed;
 }
 
-.dropdown.is-readonly .dropdown-trigger {
+.z-select.is-readonly .select-trigger {
   cursor: default;
 }
 
-.dropdown.is-success {
-  --dropdown-status-color: var(--success-color);
-  --dropdown-status-bg: var(--success-light-bg);
+.z-select.is-success {
+  --select-status-color: var(--success-color);
+  --select-status-bg: var(--success-light-bg);
 }
 
-.dropdown.is-warning {
-  --dropdown-status-color: var(--warning-color);
-  --dropdown-status-bg: var(--warning-light-bg);
+.z-select.is-warning {
+  --select-status-color: var(--warning-color);
+  --select-status-bg: var(--warning-light-bg);
 }
 
-.dropdown.is-error {
-  --dropdown-status-color: var(--danger-color);
-  --dropdown-status-bg: var(--danger-light-bg);
+.z-select.is-error {
+  --select-status-color: var(--danger-color);
+  --select-status-bg: var(--danger-light-bg);
 }
 
-.dropdown.is-success .dropdown-trigger,
-.dropdown.is-success .dropdown-trigger:hover,
-.dropdown.is-warning .dropdown-trigger,
-.dropdown.is-warning .dropdown-trigger:hover,
-.dropdown.is-error .dropdown-trigger,
-.dropdown.is-error .dropdown-trigger:hover {
-  border-color: color-mix(in srgb, var(--dropdown-status-color), black 15%);
+.z-select.is-success .select-trigger,
+.z-select.is-success .select-trigger:hover,
+.z-select.is-warning .select-trigger,
+.z-select.is-warning .select-trigger:hover,
+.z-select.is-error .select-trigger,
+.z-select.is-error .select-trigger:hover {
+  border-color: color-mix(in srgb, var(--select-status-color), black 15%);
 }
 
-.dropdown.is-success.open .dropdown-trigger,
-.dropdown.is-success .dropdown-trigger:focus-visible,
-.dropdown.is-warning.open .dropdown-trigger,
-.dropdown.is-warning .dropdown-trigger:focus-visible,
-.dropdown.is-error.open .dropdown-trigger,
-.dropdown.is-error .dropdown-trigger:focus-visible {
-  box-shadow: 0 0 0 3px var(--dropdown-status-bg);
+.z-select.is-success.open .select-trigger,
+.z-select.is-success .select-trigger:focus-visible,
+.z-select.is-warning.open .select-trigger,
+.z-select.is-warning .select-trigger:focus-visible,
+.z-select.is-error.open .select-trigger,
+.z-select.is-error .select-trigger:focus-visible {
+  box-shadow: 0 0 0 3px var(--select-status-bg);
 }
 
-.dropdown--small .dropdown-trigger {
+.select--small .select-trigger {
   min-height: 28px;
   padding: 3px 10px;
   font-size: 12px;
 }
 
-.dropdown--medium .dropdown-trigger {
+.select--medium .select-trigger {
   min-height: 34px;
   padding: 5px 12px;
   font-size: 14px;
 }
 
-.dropdown--large .dropdown-trigger {
+.select--large .select-trigger {
   min-height: 40px;
   padding: 8px 14px;
   font-size: 15px;
 }
 
-.dropdown-selection {
+.select-selection {
   flex: 1;
   display: flex;
   align-items: center;
@@ -444,8 +444,8 @@ onBeforeUnmount(() => {
   min-width: 0;
 }
 
-.dropdown-value,
-.dropdown-placeholder {
+.select-value,
+.select-placeholder {
   flex: 1;
   text-align: left;
   white-space: nowrap;
@@ -453,11 +453,11 @@ onBeforeUnmount(() => {
   text-overflow: ellipsis;
 }
 
-.dropdown-placeholder {
+.select-placeholder {
   color: var(--placeholder-color);
 }
 
-.dropdown-tag {
+.select-tag {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -472,20 +472,20 @@ onBeforeUnmount(() => {
   line-height: 1;
 }
 
-.dropdown-tag-label {
+.select-tag-label {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.dropdown-tag-more {
+.select-tag-more {
   color: var(--text-secondary);
   border-color: color-mix(in srgb, var(--text-secondary), transparent 70%);
   background: color-mix(in srgb, var(--text-secondary), transparent 88%);
 }
 
-.dropdown-tag-close {
+.select-tag-close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -503,12 +503,12 @@ onBeforeUnmount(() => {
   transition: all 0.2s;
 }
 
-.dropdown-tag-close:hover {
+.select-tag-close:hover {
   background: color-mix(in srgb, currentColor, transparent 85%);
   opacity: 1;
 }
 
-.dropdown-tag-input {
+.select-tag-input {
   flex: 1;
   min-width: 72px;
   border: none;
@@ -519,11 +519,11 @@ onBeforeUnmount(() => {
   line-height: 1.5;
 }
 
-.dropdown-tag-input::placeholder {
+.select-tag-input::placeholder {
   color: var(--placeholder-color);
 }
 
-.dropdown-clear {
+.select-clear {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -540,22 +540,22 @@ onBeforeUnmount(() => {
   transition: all 0.2s;
 }
 
-.dropdown-clear:hover {
+.select-clear:hover {
   background: var(--hover-bg);
   color: var(--primary-color);
 }
 
-.dropdown-arrow {
+.select-arrow {
   flex-shrink: 0;
   color: var(--text-secondary);
   transition: transform 0.2s;
 }
 
-.dropdown-arrow.rotate {
+.select-arrow.rotate {
   transform: rotate(180deg);
 }
 
-.dropdown-menu {
+.select-menu {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
@@ -571,11 +571,11 @@ onBeforeUnmount(() => {
   overflow-y: auto;
 }
 
-:global(html.dark) .dropdown-menu {
+:global(html.dark) .select-menu {
   background: rgba(48, 48, 48, 0.98);
 }
 
-.dropdown-item {
+.select-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -588,38 +588,38 @@ onBeforeUnmount(() => {
   user-select: none;
 }
 
-.dropdown-item:hover {
+.select-item:hover {
   background: var(--hover-bg);
 }
 
-.dropdown-item.active {
+.select-item.active {
   background: var(--active-bg);
   color: var(--primary-color);
   font-weight: 500;
 }
 
-.dropdown-item.disabled {
+.select-item.disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.dropdown-item.disabled:hover {
+.select-item.disabled:hover {
   background: transparent;
 }
 
-.dropdown-item-label {
+.select-item-label {
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.dropdown-item-check {
+.select-item-check {
   flex-shrink: 0;
   color: var(--primary-color);
 }
 
-.dropdown-footer {
+.select-footer {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -629,32 +629,32 @@ onBeforeUnmount(() => {
   line-height: 1.4;
 }
 
-.dropdown-message {
+.select-message {
   flex: 1;
   min-width: 0;
 }
 
-.dropdown.is-success .dropdown-message {
+.z-select.is-success .select-message {
   color: var(--success-color);
 }
 
-.dropdown.is-warning .dropdown-message {
+.z-select.is-warning .select-message {
   color: var(--warning-color);
 }
 
-.dropdown.is-error .dropdown-message {
+.z-select.is-error .select-message {
   color: var(--danger-color);
 }
 
-.dropdown-menu-enter-active {
-  animation: dropdown-in 0.15s ease-out;
+.select-menu-enter-active {
+  animation: select-in 0.15s ease-out;
 }
 
-.dropdown-menu-leave-active {
-  animation: dropdown-out 0.1s ease-in;
+.select-menu-leave-active {
+  animation: select-out 0.1s ease-in;
 }
 
-@keyframes dropdown-in {
+@keyframes select-in {
   from {
     opacity: 0;
     transform: translateY(-4px);
@@ -665,7 +665,7 @@ onBeforeUnmount(() => {
   }
 }
 
-@keyframes dropdown-out {
+@keyframes select-out {
   from {
     opacity: 1;
     transform: translateY(0);

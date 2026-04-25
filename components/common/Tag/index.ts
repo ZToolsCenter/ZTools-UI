@@ -1,1 +1,1 @@
-export { default as Tag } from './Tag.vue'
+export { default as Tag, default as ZTag } from './Tag.vue'

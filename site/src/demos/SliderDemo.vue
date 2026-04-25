@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Slider } from 'ztools-ui-components/common/Slider'
+import { ZSlider } from 'ztools-ui-components/common/Slider'
 
 const value = ref(50)
 </script>
@@ -10,7 +10,7 @@ const value = ref(50)
     <p>滑块控件，支持 v-model 双向绑定、自定义范围和格式化。</p>
     <div class="demo-box">
       <div style="width: 300px">
-        <Slider v-model="value" :min="0" :max="100" :step="1" />
+        <ZSlider v-model="value" :min="0" :max="100" :step="1" />
       </div>
       <span class="demo-value">当前值: {{ value }}</span>
     </div>

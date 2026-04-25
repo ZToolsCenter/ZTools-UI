@@ -1,1 +1,1 @@
-export { default as HotkeyInput } from './HotkeyInput.vue'
+export { default as HotkeyInput, default as ZHotkeyInput } from './HotkeyInput.vue'

@@ -1,2 +1,2 @@
-export { default as TagDropdown } from './TagDropdown.vue'
+export { default as TagDropdown, default as ZTagDropdown } from './TagDropdown.vue'
 export * from './TagDropdown'

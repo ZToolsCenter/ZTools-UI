@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Checkbox } from 'ztools-ui-components/common/Checkbox'
+import { ZCheckbox } from 'ztools-ui-components/common/Checkbox'
 
 type CheckboxDemoVariant = 'basic' | 'indeterminate' | 'disabled'
 
@@ -22,8 +22,8 @@ const indeterminate = ref(true)
     <template v-if="props.variant === 'basic'">
       <div class="checkbox-demo__column">
         <div class="checkbox-demo__row">
-          <Checkbox v-model="checked">启用插件</Checkbox>
-          <Checkbox :model-value="false">未选中</Checkbox>
+          <ZCheckbox v-model="checked">启用插件</ZCheckbox>
+          <ZCheckbox :model-value="false">未选中</ZCheckbox>
         </div>
         <span class="checkbox-demo__value">当前值: {{ checked }}</span>
       </div>
@@ -31,15 +31,15 @@ const indeterminate = ref(true)
 
     <template v-else-if="props.variant === 'indeterminate'">
       <div class="checkbox-demo__column">
-        <Checkbox v-model="indeterminate" indeterminate>部分选中</Checkbox>
+        <ZCheckbox v-model="indeterminate" indeterminate>部分选中</ZCheckbox>
         <span class="checkbox-demo__value">用于树形或批量选择的半选状态</span>
       </div>
     </template>
 
     <template v-else-if="props.variant === 'disabled'">
       <div class="checkbox-demo__row">
-        <Checkbox :model-value="true" disabled>已选禁用</Checkbox>
-        <Checkbox :model-value="false" disabled>未选禁用</Checkbox>
+        <ZCheckbox :model-value="true" disabled>已选禁用</ZCheckbox>
+        <ZCheckbox :model-value="false" disabled>未选禁用</ZCheckbox>
       </div>
     </template>
   </div>

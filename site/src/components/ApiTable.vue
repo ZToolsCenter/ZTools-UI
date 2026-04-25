@@ -34,12 +34,12 @@ const hasApi = (data?: any[]): boolean => {
         <tbody>
           <tr v-for="prop in props" :key="prop.name">
             <td class="prop-name">
-              <code>{{ prop.name }}</code>
+              <span class="api-token">{{ prop.name }}</span>
               <span v-if="prop.required" class="required-badge">必填</span>
             </td>
             <td class="prop-type"><span class="type-token">{{ prop.type }}</span></td>
             <td class="prop-default">
-              <code v-if="prop.default">{{ prop.default }}</code>
+              <span v-if="prop.default" class="api-token">{{ prop.default }}</span>
               <span v-else class="empty">-</span>
             </td>
             <td class="prop-description">
@@ -63,7 +63,7 @@ const hasApi = (data?: any[]): boolean => {
         </thead>
         <tbody>
           <tr v-for="slot in slots" :key="slot.name">
-            <td class="slot-name"><code>{{ slot.name }}</code></td>
+            <td class="slot-name"><span class="api-token">{{ slot.name }}</span></td>
             <td class="slot-description">
               {{ slot.description }}
               <span v-if="slot.since" class="since-badge">{{ slot.since }}</span>
@@ -86,8 +86,8 @@ const hasApi = (data?: any[]): boolean => {
         </thead>
         <tbody>
           <tr v-for="emit in emits" :key="emit.name">
-            <td class="emit-name"><code>{{ emit.name }}</code></td>
-            <td class="emit-signature"><code>{{ emit.signature }}</code></td>
+            <td class="emit-name"><span class="api-token">{{ emit.name }}</span></td>
+            <td class="emit-signature"><span class="api-token">{{ emit.signature }}</span></td>
             <td class="emit-description">
               {{ emit.description }}
               <span v-if="emit.since" class="since-badge">{{ emit.since }}</span>
@@ -162,16 +162,7 @@ const hasApi = (data?: any[]): boolean => {
   border-bottom: none;
 }
 
-.api-table code {
-  background: var(--site-panel-muted-bg);
-  border: 1px solid var(--site-border);
-  border-radius: 4px;
-  padding: 2px 6px;
-  font-size: 12px;
-  font-family: 'Monaco', 'Menlo', monospace;
-  color: var(--primary-color);
-}
-
+.api-token,
 .type-token {
   display: inline-block;
   background: var(--site-panel-muted-bg);
@@ -180,7 +171,7 @@ const hasApi = (data?: any[]): boolean => {
   padding: 2px 6px;
   font-size: 12px;
   font-family: 'Monaco', 'Menlo', monospace;
-  color: var(--primary-color);
+  color: var(--site-text);
 }
 
 .prop-name,

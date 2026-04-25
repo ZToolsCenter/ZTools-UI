@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { DetailPanel } from 'ztools-ui-components/common/DetailPanel'
-import { ShortcutEditor } from 'ztools-ui-components/common/ShortcutEditor'
+import { ZDetailPanel } from 'ztools-ui-components/common/DetailPanel'
+import { ZShortcutEditor } from 'ztools-ui-components/common/ShortcutEditor'
 
 const showEditor = ref(false)
 </script>
@@ -13,12 +13,12 @@ const showEditor = ref(false)
       <button class="btn" @click="showEditor = true">打开编辑器</button>
     </div>
     <div style="position: relative; height: 400px; margin-top: 12px; border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden;">
-      <DetailPanel title="快捷键管理" @back="showEditor = false">
+      <ZDetailPanel title="快捷键管理" @back="showEditor = false">
         <div style="padding: 24px;">
           <p>DetailPanel 内容区域，可滚动。</p>
           <p style="margin-top: 8px;">点击返回按钮可关闭面板。</p>
         </div>
-      </DetailPanel>
+      </ZDetailPanel>
     </div>
   </div>
 </template>

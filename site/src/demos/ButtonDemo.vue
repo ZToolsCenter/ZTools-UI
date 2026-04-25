@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Button } from 'ztools-ui-components/common/Button'
+import { ZButton } from 'ztools-ui-components/common/Button'
 
 type ButtonDemoVariant =
   | 'basic'
@@ -48,105 +48,105 @@ function handleAction(action: string) {
   <div class="button-demo">
     <template v-if="props.variant === 'basic'">
       <div class="button-demo__row">
-        <Button>默认按钮</Button>
-        <Button type="primary">主要按钮</Button>
-        <Button type="success">成功按钮</Button>
-        <Button type="warning">警告按钮</Button>
-        <Button type="danger">危险按钮</Button>
+        <ZButton>默认按钮</ZButton>
+        <ZButton type="primary">主要按钮</ZButton>
+        <ZButton type="success">成功按钮</ZButton>
+        <ZButton type="warning">警告按钮</ZButton>
+        <ZButton type="danger">危险按钮</ZButton>
       </div>
-      <Button block type="primary">块级按钮</Button>
+      <ZButton block type="primary">块级按钮</ZButton>
     </template>
 
     <template v-else-if="props.variant === 'dashed'">
       <div class="button-demo__row">
-        <Button class="button-demo__dashed">默认虚线</Button>
-        <Button class="button-demo__dashed button-demo__dashed--primary">主要虚线</Button>
-        <Button class="button-demo__dashed button-demo__dashed--danger">危险虚线</Button>
+        <ZButton class="button-demo__dashed">默认虚线</ZButton>
+        <ZButton class="button-demo__dashed button-demo__dashed--primary">主要虚线</ZButton>
+        <ZButton class="button-demo__dashed button-demo__dashed--danger">危险虚线</ZButton>
       </div>
     </template>
 
     <template v-else-if="props.variant === 'size'">
       <div class="button-demo__row button-demo__row--align-end">
-        <Button size="small">Small</Button>
-        <Button size="medium" type="primary">Medium</Button>
-        <Button size="large" type="success">Large</Button>
+        <ZButton size="small">Small</ZButton>
+        <ZButton size="medium" type="primary">Medium</ZButton>
+        <ZButton size="large" type="success">Large</ZButton>
       </div>
     </template>
 
     <template v-else-if="props.variant === 'text'">
       <div class="button-demo__row">
-        <Button type="text">文字按钮</Button>
-        <Button type="text">查看详情</Button>
-        <Button type="text">移除</Button>
+        <ZButton type="text">文字按钮</ZButton>
+        <ZButton type="text">查看详情</ZButton>
+        <ZButton type="text">移除</ZButton>
       </div>
     </template>
 
     <template v-else-if="props.variant === 'label'">
       <div class="button-demo__row">
-        <Button type="primary">
+        <ZButton type="primary">
           <span class="button-demo__compound">
             <span>发布</span>
             <span class="button-demo__pill button-demo__pill--light">Beta</span>
           </span>
-        </Button>
-        <Button>
+        </ZButton>
+        <ZButton>
           <span class="button-demo__compound">
             <span>消息</span>
             <span class="button-demo__pill">12</span>
           </span>
-        </Button>
-        <Button type="success">
+        </ZButton>
+        <ZButton type="success">
           <span class="button-demo__compound">
             <span>同步</span>
             <span class="button-demo__pill button-demo__pill--success">已启用</span>
           </span>
-        </Button>
+        </ZButton>
       </div>
     </template>
 
     <template v-else-if="props.variant === 'disabled'">
       <div class="button-demo__row">
-        <Button disabled>默认禁用</Button>
-        <Button type="primary" disabled>主要禁用</Button>
-        <Button type="text" disabled>文字禁用</Button>
+        <ZButton disabled>默认禁用</ZButton>
+        <ZButton type="primary" disabled>主要禁用</ZButton>
+        <ZButton type="text" disabled>文字禁用</ZButton>
       </div>
     </template>
 
     <template v-else-if="props.variant === 'icon'">
       <div class="button-demo__row">
-        <Button type="primary">
+        <ZButton type="primary">
           <template #icon>
             <svg class="button-demo__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M8 2v8m0 0 3-3m-3 3L5 7m-2 5h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </template>
           下载
-        </Button>
-        <Button>
+        </ZButton>
+        <ZButton>
           <template #icon>
             <svg class="button-demo__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M7 3h6M7 8h6M7 13h6M3 3h.01M3 8h.01M3 13h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
             </svg>
           </template>
           列表
-        </Button>
-        <Button type="success">
+        </ZButton>
+        <ZButton type="success">
           <template #icon>
             <svg class="button-demo__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="m3.5 8 3 3 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </template>
           已完成
-        </Button>
+        </ZButton>
       </div>
     </template>
 
     <template v-else-if="props.variant === 'event'">
       <div class="button-demo__column">
         <div class="button-demo__row">
-          <Button @click="handleAction('保存')">保存</Button>
-          <Button type="primary" @click="handleAction('发布')">发布</Button>
-          <Button type="danger" @click="handleAction('删除')">删除</Button>
+          <ZButton @click="handleAction('保存')">保存</ZButton>
+          <ZButton type="primary" @click="handleAction('发布')">发布</ZButton>
+          <ZButton type="danger" @click="handleAction('删除')">删除</ZButton>
         </div>
         <div class="button-demo__status">
           <span>触发次数：{{ clickCount }}</span>
@@ -157,40 +157,40 @@ function handleAction(action: string) {
 
     <template v-else-if="props.variant === 'shape'">
       <div class="button-demo__row">
-        <Button class="button-demo__round" type="primary">圆角按钮</Button>
-        <Button class="button-demo__round" type="success">胶囊按钮</Button>
-        <Button class="button-demo__circle" type="primary" aria-label="添加">
+        <ZButton class="button-demo__round" type="primary">圆角按钮</ZButton>
+        <ZButton class="button-demo__round" type="success">胶囊按钮</ZButton>
+        <ZButton class="button-demo__circle" type="primary" aria-label="添加">
           <template #icon>
             <svg class="button-demo__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
             </svg>
           </template>
-        </Button>
+        </ZButton>
       </div>
     </template>
 
     <template v-else-if="props.variant === 'transparent'">
       <div class="button-demo__surface">
         <div class="button-demo__row">
-          <Button class="button-demo__transparent">默认透明</Button>
-          <Button class="button-demo__transparent button-demo__transparent--primary">主要透明</Button>
-          <Button class="button-demo__transparent button-demo__transparent--danger">危险透明</Button>
+          <ZButton class="button-demo__transparent">默认透明</ZButton>
+          <ZButton class="button-demo__transparent button-demo__transparent--primary">主要透明</ZButton>
+          <ZButton class="button-demo__transparent button-demo__transparent--danger">危险透明</ZButton>
         </div>
       </div>
     </template>
 
     <template v-else-if="props.variant === 'loading'">
       <div class="button-demo__row">
-        <Button :loading="loading" type="primary" @click="handleLoading">提交</Button>
-        <Button loading>同步中</Button>
+        <ZButton :loading="loading" type="primary" @click="handleLoading">提交</ZButton>
+        <ZButton loading>同步中</ZButton>
       </div>
     </template>
 
     <template v-else-if="props.variant === 'group'">
       <div class="button-demo__group">
-        <Button class="button-demo__group-item">上一步</Button>
-        <Button class="button-demo__group-item button-demo__group-item--active">处理中</Button>
-        <Button class="button-demo__group-item">下一步</Button>
+        <ZButton class="button-demo__group-item">上一步</ZButton>
+        <ZButton class="button-demo__group-item button-demo__group-item--active">处理中</ZButton>
+        <ZButton class="button-demo__group-item">下一步</ZButton>
       </div>
     </template>
   </div>

@@ -1,6 +1,6 @@
 # ztools-ui 使用说明
 
-`ztools-ui` 是一个面向 ZTools 插件场景的 Vue 3 UI 组件库，提供了插件详情、快捷键录制、下拉选择、提示弹窗等能力。
+`ztools-ui` 是一个面向 ZTools 插件场景的 Vue 3 UI 组件库，提供了插件详情、快捷键录制、选择器、提示弹窗等能力。
 
 ## 功能概览
 
@@ -52,33 +52,33 @@ createApp(App).use(router).use(ZToolsUI).mount('#app')
 
 安装后会全局注册以下组件：
 
-- `AdaptiveIcon`
-- `Button`
-- `Checkbox`
-- `ColorPicker`
-- `CommandCard`
-- `CommandTag`
-- `ConfirmDialog`
-- `DetailPanel`
-- `Dropdown`
-- `FeatureCard`
-- `HotkeyInput`
-- `Input`
-- `PluginDetail`
-- `Radio`
-- `ShortcutEditor`
-- `Slider`
-- `Switch`
-- `Tag`
-- `TagDropdown`
-- `Toast`
+- `ZAdaptiveIcon`
+- `ZButton`
+- `ZCheckbox`
+- `ZColorPicker`
+- `ZCommandCard`
+- `ZCommandTag`
+- `ZConfirmDialog`
+- `ZDetailPanel`
+- `ZSelect`
+- `ZFeatureCard`
+- `ZHotkeyInput`
+- `ZInput`
+- `ZPluginDetail`
+- `ZRadio`
+- `ZShortcutEditor`
+- `ZSlider`
+- `ZSwitch`
+- `ZTag`
+- `ZTagDropdown`
+- `ZToast`
 
 ### 2. 局部按需引入
 
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Dropdown, useToast } from 'ztools-ui'
+import { ZSelect, useToast } from 'ztools-ui'
 
 const { success } = useToast()
 
@@ -94,7 +94,7 @@ function handleChange() {
 </script>
 
 <template>
-  <Dropdown v-model="value" :options="options" clearable @change="handleChange" />
+  <ZSelect v-model="value" :options="options" clearable @change="handleChange" />
 </template>
 ```
 
@@ -184,41 +184,41 @@ createApp(App).mount('#app')
 
 | 组件 | 说明 | 依赖 |
 | --- | --- | --- |
-| `DetailPanel` | 通用详情页容器，适合带返回按钮的右侧面板 | 无强宿主依赖 |
+| `ZDetailPanel` | 通用详情页容器，适合带返回按钮的右侧面板 | 无强宿主依赖 |
 
 ### 表单与交互
 
 | 组件 | 说明 | 依赖 |
 | --- | --- | --- |
-| `Button` | 基础按钮组件，支持类型、尺寸、loading 和 block | 无 |
-| `Input` | 基础输入框，支持 `v-model`、清空按钮、前后缀插槽 | 无 |
-| `Dropdown` | 下拉选择组件，支持单选、多选、清空、验证状态和 tag 输入 | 无 |
-| `ColorPicker` | 基于原生输入实现的颜色选择器 | 无 |
-| `Checkbox` | 基础复选框组件，支持半选状态 | 无 |
-| `Radio` | 基础单选框组件，适合互斥选择 | 无 |
-| `Switch` | 基础开关组件，支持文案与尺寸 | 无 |
-| `Slider` | 滑块输入组件 | 无 |
-| `TagDropdown` | 标签型操作菜单 | 无 |
-| `HotkeyInput` | 录制快捷键输入框 | `window.ztools.internal` |
-| `ShortcutEditor` | 快捷键编辑面板，内部组合了 `HotkeyInput` | `window.ztools.internal` |
+| `ZButton` | 基础按钮组件，支持类型、尺寸、loading 和 block | 无 |
+| `ZInput` | 基础输入框，支持 `v-model`、清空按钮、前后缀插槽 | 无 |
+| `ZSelect` | 选择器组件，支持单选、多选、清空、验证状态和 tag 输入 | 无 |
+| `ZColorPicker` | 基于原生输入实现的颜色选择器 | 无 |
+| `ZCheckbox` | 基础复选框组件，支持半选状态 | 无 |
+| `ZRadio` | 基础单选框组件，适合互斥选择 | 无 |
+| `ZSwitch` | 基础开关组件，支持文案与尺寸 | 无 |
+| `ZSlider` | 滑块输入组件 | 无 |
+| `ZTagDropdown` | 标签型操作菜单 | 无 |
+| `ZHotkeyInput` | 录制快捷键输入框 | `window.ztools.internal` |
+| `ZShortcutEditor` | 快捷键编辑面板，内部组合了 `ZHotkeyInput` | `window.ztools.internal` |
 
 ### 展示与业务组件
 
 | 组件 | 说明 | 依赖 |
 | --- | --- | --- |
-| `AdaptiveIcon` | 根据图标分析结果做深浅色自适应显示 | 建议提供 `window.ztools.internal.analyzeImage` |
-| `Tag` | 轻量标签组件，支持状态色、圆角和关闭操作 | 无 |
-| `CommandCard` | 命令卡片，适合展示应用、命令或系统项 | 无强宿主依赖 |
-| `CommandTag` | 命令标签展示 | 无 |
-| `FeatureCard` | 功能卡片展示 | 无 |
-| `PluginDetail` | 插件详情面板，含 README、数据、内存、操作区等 | 强依赖 ZTools 宿主 API |
+| `ZAdaptiveIcon` | 根据图标分析结果做深浅色自适应显示 | 建议提供 `window.ztools.internal.analyzeImage` |
+| `ZTag` | 轻量标签组件，支持状态色、圆角和关闭操作 | 无 |
+| `ZCommandCard` | 命令卡片，适合展示应用、命令或系统项 | 无强宿主依赖 |
+| `ZCommandTag` | 命令标签展示 | 无 |
+| `ZFeatureCard` | 功能卡片展示 | 无 |
+| `ZPluginDetail` | 插件详情面板，含 README、数据、内存、操作区等 | 强依赖 ZTools 宿主 API |
 
 ### 反馈类组件
 
 | 组件 | 说明 | 依赖 |
 | --- | --- | --- |
-| `Toast` | 全局提示组件 | 通常搭配 `useToast()` |
-| `ConfirmDialog` | 确认弹窗组件 | 通常搭配 `useConfirmDialog()` |
+| `ZToast` | 全局提示组件 | 通常搭配 `useToast()` |
+| `ZConfirmDialog` | 确认弹窗组件 | 通常搭配 `useConfirmDialog()` |
 
 ## Composables
 
@@ -329,7 +329,7 @@ const result = weightedSearch(list, keyword, [
 
 ```vue
 <script setup lang="ts">
-import { Toast, useToast } from 'ztools-ui'
+import { ZToast, useToast } from 'ztools-ui'
 
 const { success, error } = useToast()
 
@@ -344,7 +344,7 @@ function handleSave() {
 
 <template>
   <button @click="handleSave">保存</button>
-  <Toast />
+  <ZToast />
 </template>
 ```
 
@@ -352,7 +352,7 @@ function handleSave() {
 
 ```vue
 <script setup lang="ts">
-import { ConfirmDialog, useConfirmDialog } from 'ztools-ui'
+import { ZConfirmDialog, useConfirmDialog } from 'ztools-ui'
 
 const { confirm } = useConfirmDialog()
 
@@ -370,7 +370,7 @@ async function handleDelete() {
 
 <template>
   <button @click="handleDelete">删除</button>
-  <ConfirmDialog />
+  <ZConfirmDialog />
 </template>
 ```
 
@@ -388,8 +388,8 @@ async function handleDelete() {
 
 ## 使用建议
 
-1. 普通基础组件（如 `Dropdown`、`Slider`、`CommandTag`）可以直接在 Vue 3 项目中使用。
-2. ZTools 宿主相关组件（如 `PluginDetail`、`HotkeyInput`、`ShortcutEditor`）建议只在 ZTools 插件运行环境中使用。
+1. 普通基础组件（如 `ZSelect`、`ZSlider`、`ZCommandTag`）可以直接在 Vue 3 项目中使用。
+2. ZTools 宿主相关组件（如 `ZPluginDetail`、`ZHotkeyInput`、`ZShortcutEditor`）建议只在 ZTools 插件运行环境中使用。
 3. 如果你只想使用组件样式能力，优先按需引入组件并统一引入 `ztools-ui/style`。
 
 ## 本地构建

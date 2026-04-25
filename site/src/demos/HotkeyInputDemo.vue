@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { HotkeyInput } from 'ztools-ui-components/common/HotkeyInput'
+import { ZHotkeyInput } from 'ztools-ui-components/common/HotkeyInput'
 
 const shortcut = ref('')
 </script>
@@ -9,7 +9,7 @@ const shortcut = ref('')
   <div class="demo-section">
     <p>快捷键录制输入框。点击后按下组合键即可录制。</p>
     <div class="demo-box">
-      <HotkeyInput v-model="shortcut" platform="win32" />
+      <ZHotkeyInput v-model="shortcut" platform="win32" />
       <span class="demo-value">当前值: {{ shortcut || '未设置' }}</span>
     </div>
   </div>
