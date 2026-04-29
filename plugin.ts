@@ -8,6 +8,7 @@ import { ZCommandCard } from './components/common/CommandCard'
 import { ZCommandTag } from './components/common/CommandTag'
 import { ZConfirmDialog } from './components/common/ConfirmDialog'
 import { ZDetailPanel } from './components/common/DetailPanel'
+import { ZPopover } from './components/common/Popover'
 import { ZSelect } from './components/common/Select'
 import { ZFeatureCard } from './components/common/FeatureCard'
 import { ZHotkeyInput } from './components/common/HotkeyInput'
@@ -30,6 +31,7 @@ const components = {
   ZCommandTag,
   ZConfirmDialog,
   ZDetailPanel,
+  ZPopover,
   ZSelect,
   ZFeatureCard,
   ZHotkeyInput,

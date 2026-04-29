@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { ZSelect } from 'ztools-ui-components/common/Select'
 import type { SelectValueType } from 'ztools-ui-components/common/Select'
 
-type SelectDemoVariant = 'basic' | 'multiple' | 'clearable' | 'size' | 'status' | 'scroll' | 'tags'
+type SelectDemoVariant = 'basic' | 'multiple' | 'clearable' | 'size' | 'status' | 'scroll' | 'tags' | 'placement'
 
 const props = withDefaults(
   defineProps<{
@@ -16,13 +16,19 @@ const props = withDefaults(
 
 const selected = ref('blue')
 const clearableSelected = ref('purple')
-const multipleSelected = ref<ZSelectValueType[]>(['blue', 'green', 'orange'])
-const limitedSelected = ref<ZSelectValueType[]>(['blue', 'purple', 'green', 'orange'])
-const tagValues = ref<ZSelectValueType[]>(['设计', '效率'])
+const multipleSelected = ref<SelectValueType[]>(['blue', 'green', 'orange'])
+const limitedSelected = ref<SelectValueType[]>(['blue', 'purple', 'green', 'orange'])
+const tagValues = ref<SelectValueType[]>(['设计', '效率'])
 const sizeValue = ref('medium')
 const statusValue = ref('')
 const scrollValue = ref('option-1')
 const scrollCount = ref(0)
+const placementStartValue = ref('blue')
+const placementCenterValue = ref('purple')
+const placementEndValue = ref('green')
+const placementBottomStartValue = ref('pink')
+const autoAdjustValue = ref('orange')
+const fixedPlacementValue = ref('red')
 
 const options = [
   { label: '蓝色 (Blue)', value: 'blue' },
@@ -122,6 +128,54 @@ function handleScroll(): void {
         <span class="select-demo__value">标签: {{ tagValues.join(', ') }}</span>
       </div>
     </template>
+
+    <template v-else-if="props.variant === 'placement'">
+      <div class="select-demo__column select-demo__column--stretch">
+        <div class="select-demo__placement-grid">
+          <div class="select-demo__placement-item">
+            <span class="select-demo__caption">top-start</span>
+            <ZSelect v-model="placementStartValue" :options="options" placement="top-start" placeholder="顶部起点" />
+          </div>
+          <div class="select-demo__placement-item">
+            <span class="select-demo__caption">bottom</span>
+            <ZSelect v-model="placementCenterValue" :options="options" placement="bottom" placeholder="底部居中" />
+          </div>
+          <div class="select-demo__placement-item">
+            <span class="select-demo__caption">top-end</span>
+            <ZSelect v-model="placementEndValue" :options="options" placement="top-end" placeholder="顶部终点" />
+          </div>
+          <div class="select-demo__placement-item">
+            <span class="select-demo__caption">bottom-start</span>
+            <ZSelect
+              v-model="placementBottomStartValue"
+              :options="options"
+              placement="bottom-start"
+              placeholder="底部起点"
+            />
+          </div>
+        </div>
+
+        <div class="select-demo__placement-edge">
+          <span class="select-demo__caption">靠近右侧时，right-start 会按需翻转或保持原方向</span>
+          <div class="select-demo__placement-edge-row">
+            <div class="select-demo__placement-item select-demo__placement-item--edge">
+              <span class="select-demo__caption">autoAdjustPlacement=true</span>
+              <ZSelect v-model="autoAdjustValue" :options="options" placement="right-start" placeholder="自动纠正" />
+            </div>
+            <div class="select-demo__placement-item select-demo__placement-item--edge">
+              <span class="select-demo__caption">autoAdjustPlacement=false</span>
+              <ZSelect
+                v-model="fixedPlacementValue"
+                :options="options"
+                placement="right-start"
+                :auto-adjust-placement="false"
+                placeholder="保持原方向"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -132,6 +186,11 @@ function handleScroll(): void {
   flex-direction: column;
   align-items: flex-start;
   gap: 12px;
+}
+
+.select-demo__column--stretch {
+  width: 100%;
+  align-items: stretch;
 }
 
 .select-demo__row {
@@ -148,6 +207,41 @@ function handleScroll(): void {
   align-items: flex-end;
 }
 
+.select-demo__placement-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.select-demo__placement-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--control-border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--control-bg), transparent 10%);
+}
+
+.select-demo__placement-item--edge {
+  width: min(220px, 100%);
+}
+
+.select-demo__placement-edge {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.select-demo__placement-edge-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 12px;
+  justify-content: end;
+  width: 100%;
+}
+
+.select-demo__caption,
 .select-demo__value {
   font-size: 13px;
   color: var(--text-secondary);

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useOverlayPosition } from '../shared/useOverlayPosition'
 import type { SelectEmits, SelectOption, SelectProps, SelectValueType } from './Select'
 
 const props = withDefaults(defineProps<SelectProps>(), {
@@ -10,19 +11,25 @@ const props = withDefaults(defineProps<SelectProps>(), {
   readonly: false,
   size: 'medium',
   message: '',
-  mode: 'default'
+  mode: 'default',
+  placement: 'bottom-start',
+  autoAdjustPlacement: true,
+  to: 'body'
 })
 
 const emit = defineEmits<SelectEmits>()
 
 const isOpen = ref(false)
-const selectRef = ref<HTMLElement>()
-const tagInputRef = ref<HTMLInputElement>()
+const selectRef = ref<HTMLElement | null>(null)
+const triggerRef = ref<HTMLElement | null>(null)
+const panelRef = ref<HTMLElement | null>(null)
+const tagInputRef = ref<HTMLInputElement | null>(null)
 const tagInputValue = ref('')
 
 const isTagsMode = computed(() => props.mode === 'tags')
 const isMultiple = computed(() => props.multiple || isTagsMode.value)
 const isInteractive = computed(() => !props.disabled && !props.readonly)
+const teleportTarget = computed(() => (props.to === false ? 'body' : props.to ?? 'body'))
 
 const selectClasses = computed(() => [
   'z-select',
@@ -80,6 +87,20 @@ const hiddenTagCount = computed(() => selectedItems.value.length - visibleSelect
 const hasValue = computed(() => selectedValues.value.length > 0)
 const showClear = computed(() => props.clearable && isInteractive.value && hasValue.value)
 
+const { resolvedPlacement, panelStyle, containsTarget, scheduleUpdate } = useOverlayPosition({
+  visible: computed(() => isOpen.value),
+  triggerRef: selectRef,
+  anchorRef: triggerRef,
+  panelRef,
+  placement: computed(() => props.placement),
+  autoAdjustPlacement: computed(() => props.autoAdjustPlacement),
+  width: computed(() => 'trigger')
+})
+
+function scheduleOverlayUpdate(): void {
+  nextTick(() => scheduleUpdate())
+}
+
 function setOpen(visible: boolean): void {
   if (isOpen.value === visible) return
   isOpen.value = visible
@@ -121,6 +142,7 @@ function selectOption(option: SelectOption): void {
       : [...selectedValues.value, option.value]
     emitValue(nextValues)
     focusTagInput()
+    scheduleOverlayUpdate()
     return
   }
 
@@ -133,6 +155,7 @@ function removeValue(value: SelectValueType): void {
   emitValue(selectedValues.value.filter((item) => item !== value))
   emit('tag-remove', value)
   focusTagInput()
+  scheduleOverlayUpdate()
 }
 
 function handleClear(): void {
@@ -140,6 +163,7 @@ function handleClear(): void {
   emitValue(emptyValue)
   emit('clear')
   tagInputValue.value = ''
+  scheduleOverlayUpdate()
 }
 
 function handleMenuScroll(event: Event): void {
@@ -166,6 +190,7 @@ function commitTagInput(): void {
 
   tagInputValue.value = ''
   setOpen(true)
+  scheduleOverlayUpdate()
 }
 
 function handleTagInputKeydown(event: KeyboardEvent): void {
@@ -179,6 +204,12 @@ function handleTagInputKeydown(event: KeyboardEvent): void {
 
   if (event.key === 'Backspace' && tagInputValue.value === '' && selectedValues.value.length > 0) {
     removeValue(selectedValues.value[selectedValues.value.length - 1])
+    return
+  }
+
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    setOpen(false)
   }
 }
 
@@ -188,6 +219,7 @@ function handleTriggerKeydown(event: KeyboardEvent): void {
   if (event.key === 'Enter' || event.key === ' ') {
     event.preventDefault()
     toggleSelect()
+    return
   }
 
   if (event.key === 'Escape') {
@@ -195,24 +227,45 @@ function handleTriggerKeydown(event: KeyboardEvent): void {
   }
 }
 
-function handleClickOutside(event: MouseEvent): void {
-  if (selectRef.value && !selectRef.value.contains(event.target as Node)) {
+function handleDocumentPointerDown(event: PointerEvent): void {
+  if (!isOpen.value || containsTarget(event.target)) {
+    return
+  }
+
+  setOpen(false)
+}
+
+function handleDocumentKeydown(event: KeyboardEvent): void {
+  if (isOpen.value && event.key === 'Escape') {
     setOpen(false)
   }
 }
 
+watch(
+  () => [props.modelValue, tagInputValue.value, props.options.length] as const,
+  () => {
+    if (isOpen.value) {
+      scheduleOverlayUpdate()
+    }
+  },
+  { flush: 'post' }
+)
+
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
+  document.addEventListener('pointerdown', handleDocumentPointerDown)
+  document.addEventListener('keydown', handleDocumentKeydown)
 })
 
 onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('pointerdown', handleDocumentPointerDown)
+  document.removeEventListener('keydown', handleDocumentKeydown)
 })
 </script>
 
 <template>
   <div ref="selectRef" :class="selectClasses">
     <div
+      ref="triggerRef"
       class="select-trigger"
       role="combobox"
       tabindex="0"
@@ -286,45 +339,50 @@ onBeforeUnmount(() => {
       </svg>
     </div>
 
-    <Transition name="select-menu">
-      <div
-        v-if="isOpen"
-        class="select-menu"
-        role="listbox"
-        :aria-multiselectable="isMultiple ? 'true' : undefined"
-        @scroll="handleMenuScroll"
-      >
+    <Teleport :to="teleportTarget" :disabled="props.to === false">
+      <Transition name="select-menu">
         <div
-          v-for="option in options"
-          :key="option.value"
-          class="select-item"
-          :class="{ active: isSelected(option.value), disabled: option.disabled }"
-          role="option"
-          :aria-selected="isSelected(option.value)"
-          :aria-disabled="option.disabled ? 'true' : undefined"
-          @click="selectOption(option)"
+          v-if="isOpen"
+          ref="panelRef"
+          class="select-menu"
+          :data-placement="resolvedPlacement"
+          :style="panelStyle"
+          role="listbox"
+          :aria-multiselectable="isMultiple ? 'true' : undefined"
+          @scroll="handleMenuScroll"
         >
-          <span class="select-item-label">{{ option.label }}</span>
-          <svg
-            v-if="isSelected(option.value)"
-            class="select-item-check"
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+          <div
+            v-for="option in options"
+            :key="option.value"
+            class="select-item"
+            :class="{ active: isSelected(option.value), disabled: option.disabled }"
+            role="option"
+            :aria-selected="isSelected(option.value)"
+            :aria-disabled="option.disabled ? 'true' : undefined"
+            @click="selectOption(option)"
           >
-            <path
-              d="M13 4L6 11L3 8"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
+            <span class="select-item-label">{{ option.label }}</span>
+            <svg
+              v-if="isSelected(option.value)"
+              class="select-item-check"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M13 4L6 11L3 8"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
         </div>
-      </div>
-    </Transition>
+      </Transition>
+    </Teleport>
 
     <div v-if="message" class="select-footer">
       <span class="select-message">{{ message }}</span>
@@ -556,19 +614,19 @@ onBeforeUnmount(() => {
 }
 
 .select-menu {
-  position: absolute;
-  top: calc(100% + 4px);
+  position: fixed;
   left: 0;
-  right: 0;
+  top: 0;
+  z-index: 10000;
+  min-width: 150px;
+  max-height: 300px;
+  overflow-y: auto;
+  visibility: hidden;
   background: rgba(255, 255, 255, 0.98);
   border: 2px solid var(--control-border);
   border-radius: 6px;
   backdrop-filter: blur(100px) saturate(200%) brightness(110%);
   -webkit-backdrop-filter: blur(100px) saturate(200%) brightness(110%);
-  overflow: hidden;
-  z-index: 1000;
-  max-height: 300px;
-  overflow-y: auto;
 }
 
 :global(html.dark) .select-menu {

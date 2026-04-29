@@ -21,15 +21,15 @@ export default defineConfig({
   ],
   build: {
     emptyOutDir: true,
-    cssCodeSplit: true,
+    cssCodeSplit: false,
     lib: {
       entry: {
         index: resolvePath('./index.ts'),
-        resolver: resolvePath('./resolver.ts'),
-        style: resolvePath('./style.ts')
+        resolver: resolvePath('./resolver.ts')
       },
       formats: ['es'],
-      fileName: (_format, entryName): string => `${entryName}.js`
+      fileName: (_format, entryName): string => `${entryName}.js`,
+      cssFileName: 'style'
     },
     rollupOptions: {
       external: ['vue', 'vue-router'],

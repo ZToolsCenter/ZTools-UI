@@ -7,6 +7,7 @@ import SliderDemo from '../../demos/SliderDemo.vue'
 import SliderDemoSource from '../../demos/SliderDemo.vue?raw'
 import InputDemo from '../../demos/InputDemo.vue'
 import ColorPickerDemo from '../../demos/ColorPickerDemo.vue'
+import PopoverDemo from '../../demos/PopoverDemo.vue'
 import CheckboxDemo from '../../demos/CheckboxDemo.vue'
 import RadioDemo from '../../demos/RadioDemo.vue'
 import SwitchDemo from '../../demos/SwitchDemo.vue'
@@ -106,6 +107,12 @@ import { ZInput } from 'ztools-ui-components/common/Input'`
 const colorPickerDemoScript = `import { ZColorPicker } from 'ztools-ui-components/common/ColorPicker'`
 const colorPickerModelDemoScript = `import { ref } from 'vue'
 import { ZColorPicker } from 'ztools-ui-components/common/ColorPicker'`
+const popoverDemoScript = `import { ZButton } from 'ztools-ui-components/common/Button'
+import { ZPopover } from 'ztools-ui-components/common/Popover'`
+const popoverOnlyDemoScript = `import { ZPopover } from 'ztools-ui-components/common/Popover'`
+const popoverModelDemoScript = `import { ref } from 'vue'
+import { ZButton } from 'ztools-ui-components/common/Button'
+import { ZPopover } from 'ztools-ui-components/common/Popover'`
 const checkboxDemoScript = `import { ZCheckbox } from 'ztools-ui-components/common/Checkbox'`
 const checkboxModelDemoScript = `import { ref } from 'vue'
 import { ZCheckbox } from 'ztools-ui-components/common/Checkbox'`
@@ -555,7 +562,7 @@ const colorPickerDemoVariants = [
   {
     variant: 'basic',
     title: '基础用法',
-    description: '可同时使用原生颜色面板和文本输入框编辑颜色值。',
+    description: '可同时使用颜色面板和文本输入框编辑颜色值。',
     sourceCode: createDemoSource(
       `
         <div class="demo-row">
@@ -608,6 +615,48 @@ const colorPickerDemoVariants = [
     )
   },
   {
+    variant: 'alpha',
+    title: '透明通道',
+    description: '设置 show-alpha 后可在颜色面板中调整透明度，并支持 HEX、RGBA、HSL 格式切换。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-row">
+          <ZColorPicker v-model="color" show-alpha />
+          <span>当前颜色: {{ color }}</span>
+        </div>
+      `,
+      `
+        ${colorPickerModelDemoScript}
+
+        const color = ref('#8b5cf680')
+      `
+    )
+  },
+  {
+    variant: 'placement',
+    title: '弹出位置',
+    description: '与 Popover 共用 placement 体系，支持 12 个方向，并默认根据视口空间自动纠正。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <div class="demo-row">
+            <ZColorPicker v-model="color" placement="top-start" :show-input="false" />
+            <ZColorPicker v-model="color" placement="top" :show-input="false" />
+            <ZColorPicker v-model="color" placement="top-end" :show-input="false" />
+            <ZColorPicker v-model="color" placement="bottom-start" :show-input="false" />
+            <ZColorPicker v-model="color" placement="bottom" :show-input="false" />
+            <ZColorPicker v-model="color" placement="bottom-end" :show-input="false" />
+          </div>
+        </div>
+      `,
+      `
+        ${colorPickerModelDemoScript}
+
+        const color = ref('#f97316')
+      `
+    )
+  },
+  {
     variant: 'disabled',
     title: '禁用',
     description: '禁用后颜色面板和文本输入都不可交互。',
@@ -619,6 +668,359 @@ const colorPickerDemoVariants = [
         </div>
       `,
       colorPickerDemoScript
+    )
+  }
+] satisfies readonly VariantDemoConfig<string>[]
+
+const popoverDemoVariants = [
+  {
+    variant: 'basic',
+    title: '基础用法',
+    description: '默认使用 hover 触发，适合承载轻量提示和上下文说明。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <ZPopover show-arrow keep-alive-on-hover>
+            <template #trigger>
+              <ZButton type="primary">悬停查看</ZButton>
+            </template>
+            这是一个基础 Popover，可用于补充说明、轻量提示和上下文内容。
+          </ZPopover>
+          <span>默认触发方式为 hover。</span>
+        </div>
+      `,
+      popoverDemoScript
+    )
+  },
+  {
+    variant: 'trigger',
+    title: '触发方式',
+    description: '支持 hover、click、focus、manual 四种触发模式。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-row">
+          <ZPopover show-arrow keep-alive-on-hover>
+            <template #trigger>
+              <ZButton>hover</ZButton>
+            </template>
+            鼠标移入触发区域时打开。
+          </ZPopover>
+
+          <ZPopover trigger="click" show-arrow>
+            <template #trigger>
+              <ZButton>click</ZButton>
+            </template>
+            点击触发区域切换显示状态。
+          </ZPopover>
+
+          <ZPopover trigger="focus" show-arrow>
+            <template #trigger>
+              <ZButton>focus</ZButton>
+            </template>
+            聚焦 trigger 或其内部可聚焦元素时显示。
+          </ZPopover>
+
+          <ZPopover trigger="manual" :show="manualShow" show-arrow>
+            <template #trigger>
+              <ZButton @click="manualShow = !manualShow">manual</ZButton>
+            </template>
+            手动模式只响应外部 show 状态。
+          </ZPopover>
+        </div>
+      `,
+      `
+        ${popoverModelDemoScript}
+
+        const manualShow = ref(false)
+      `
+    )
+  },
+  {
+    variant: 'placement',
+    title: '12 个方向',
+    description: '通过 placement 控制弹出方向，默认会根据视口空间自动纠正。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column" style="width: min(100%, 640px); gap: 12px;">
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(5, minmax(92px, 1fr));
+              gap: 12px;
+              align-items: center;
+            "
+          >
+            <div aria-hidden="true"></div>
+            <ZPopover placement="top-start" show-arrow keep-alive-on-hover>
+              <template #trigger>
+                <button type="button" style="width: 100%; min-height: 40px; padding: 8px 10px;">top-start</button>
+              </template>
+              当前 placement: top-start
+            </ZPopover>
+            <ZPopover placement="top" show-arrow keep-alive-on-hover>
+              <template #trigger>
+                <button type="button" style="width: 100%; min-height: 40px; padding: 8px 10px;">top</button>
+              </template>
+              当前 placement: top
+            </ZPopover>
+            <ZPopover placement="top-end" show-arrow keep-alive-on-hover>
+              <template #trigger>
+                <button type="button" style="width: 100%; min-height: 40px; padding: 8px 10px;">top-end</button>
+              </template>
+              当前 placement: top-end
+            </ZPopover>
+            <div aria-hidden="true"></div>
+
+            <ZPopover placement="left-start" show-arrow keep-alive-on-hover>
+              <template #trigger>
+                <button type="button" style="width: 100%; min-height: 40px; padding: 8px 10px;">left-start</button>
+              </template>
+              当前 placement: left-start
+            </ZPopover>
+            <div aria-hidden="true"></div>
+            <div aria-hidden="true"></div>
+            <div aria-hidden="true"></div>
+            <ZPopover placement="right-start" show-arrow keep-alive-on-hover>
+              <template #trigger>
+                <button type="button" style="width: 100%; min-height: 40px; padding: 8px 10px;">right-start</button>
+              </template>
+              当前 placement: right-start
+            </ZPopover>
+
+            <ZPopover placement="left" show-arrow keep-alive-on-hover>
+              <template #trigger>
+                <button type="button" style="width: 100%; min-height: 40px; padding: 8px 10px;">left</button>
+              </template>
+              当前 placement: left
+            </ZPopover>
+            <div aria-hidden="true"></div>
+            <div
+              style="
+                min-height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px dashed var(--control-border);
+                border-radius: 10px;
+                color: var(--text-secondary);
+                font-size: 12px;
+              "
+            >
+              Popover
+            </div>
+            <div aria-hidden="true"></div>
+            <ZPopover placement="right" show-arrow keep-alive-on-hover>
+              <template #trigger>
+                <button type="button" style="width: 100%; min-height: 40px; padding: 8px 10px;">right</button>
+              </template>
+              当前 placement: right
+            </ZPopover>
+
+            <ZPopover placement="left-end" show-arrow keep-alive-on-hover>
+              <template #trigger>
+                <button type="button" style="width: 100%; min-height: 40px; padding: 8px 10px;">left-end</button>
+              </template>
+              当前 placement: left-end
+            </ZPopover>
+            <div aria-hidden="true"></div>
+            <div aria-hidden="true"></div>
+            <div aria-hidden="true"></div>
+            <ZPopover placement="right-end" show-arrow keep-alive-on-hover>
+              <template #trigger>
+                <button type="button" style="width: 100%; min-height: 40px; padding: 8px 10px;">right-end</button>
+              </template>
+              当前 placement: right-end
+            </ZPopover>
+
+            <div aria-hidden="true"></div>
+            <ZPopover placement="bottom-start" show-arrow keep-alive-on-hover>
+              <template #trigger>
+                <button type="button" style="width: 100%; min-height: 40px; padding: 8px 10px;">bottom-start</button>
+              </template>
+              当前 placement: bottom-start
+            </ZPopover>
+            <ZPopover placement="bottom" show-arrow keep-alive-on-hover>
+              <template #trigger>
+                <button type="button" style="width: 100%; min-height: 40px; padding: 8px 10px;">bottom</button>
+              </template>
+              当前 placement: bottom
+            </ZPopover>
+            <ZPopover placement="bottom-end" show-arrow keep-alive-on-hover>
+              <template #trigger>
+                <button type="button" style="width: 100%; min-height: 40px; padding: 8px 10px;">bottom-end</button>
+              </template>
+              当前 placement: bottom-end
+            </ZPopover>
+            <div aria-hidden="true"></div>
+          </div>
+        </div>
+      `,
+      popoverOnlyDemoScript
+    )
+  },
+  {
+    variant: 'header-footer',
+    title: '头部与底部区域',
+    description: '通过 header、footer 插槽组织结构化内容，并支持对应 class/style。',
+    sourceCode: createDemoSource(
+      `
+        <ZPopover
+          trigger="click"
+          show-arrow
+          header-class="is-accent"
+          :header-style="{ fontWeight: 600 }"
+          :footer-style="{ color: 'var(--primary-color)' }"
+        >
+          <template #trigger>
+            <ZButton>打开结构化内容</ZButton>
+          </template>
+          <template #header>
+            标题区域
+          </template>
+          默认内容区支持任意插槽内容，也可以继续放表单、说明文字或操作入口。
+          <template #footer>
+            底部区域已应用 footer-style。
+          </template>
+        </ZPopover>
+      `,
+      popoverDemoScript
+    )
+  },
+  {
+    variant: 'controlled',
+    title: '受控显示',
+    description: '传入 show 后进入受控模式，通过 update:show 与 clickoutside 管理状态。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <ZPopover
+            trigger="click"
+            :show="visible"
+            show-arrow
+            @update:show="visible = $event"
+            @clickoutside="clickoutsideCount += 1"
+          >
+            <template #trigger>
+              <ZButton>{{ visible ? '关闭' : '打开' }}受控浮层</ZButton>
+            </template>
+            当前显示状态由外部 show 控制，点击外部也会通过事件通知父组件。
+          </ZPopover>
+          <span>show: {{ visible ? 'true' : 'false' }} / clickoutside: {{ clickoutsideCount }}</span>
+        </div>
+      `,
+      `
+        ${popoverModelDemoScript}
+
+        const visible = ref(false)
+        const clickoutsideCount = ref(0)
+      `
+    )
+  },
+  {
+    variant: 'manual-position',
+    title: '手动定位',
+    description: '同时传入 x 和 y 后，浮层会忽略 trigger 锚点并按视口坐标定位。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <div class="demo-row">
+            <ZButton @click="toggleManualPosition">{{ visible ? '关闭' : '打开' }}手动定位</ZButton>
+            <button type="button" @click="move">移动位置</button>
+          </div>
+          <span>x: {{ x }} / y: {{ y }}</span>
+          <ZPopover trigger="manual" :show="visible" :x="x" :y="y" show-arrow>
+            传入 x 和 y 后，会忽略 trigger 锚点并按视口坐标定位。
+          </ZPopover>
+        </div>
+      `,
+      `
+        ${popoverModelDemoScript}
+
+        const visible = ref(false)
+        const x = ref(220)
+        const y = ref(180)
+
+        function toggleManualPosition(): void {
+          visible.value = !visible.value
+        }
+
+        function move(): void {
+          x.value += 24
+          y.value += 16
+          visible.value = true
+        }
+      `
+    )
+  },
+  {
+    variant: 'width-arrow-overlap',
+    title: '宽度、箭头与重叠',
+    description: '支持 width="trigger"、固定宽度、show-arrow、overlap 和 to=false。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <div class="demo-row">
+            <ZPopover trigger="click" width="trigger" show-arrow>
+              <template #trigger>
+                <ZButton>width=&quot;trigger&quot;</ZButton>
+              </template>
+              面板宽度会与触发元素保持一致。
+            </ZPopover>
+
+            <ZPopover trigger="click" :width="280" show-arrow>
+              <template #trigger>
+                <ZButton>固定 280px</ZButton>
+              </template>
+              也可以直接传入数值宽度。
+            </ZPopover>
+          </div>
+
+          <ZPopover trigger="click" overlap :to="false" show-arrow>
+            <template #trigger>
+              <button type="button">overlap + to=false</button>
+            </template>
+            浮层会留在当前层级渲染，并与触发元素边缘贴合。
+          </ZPopover>
+        </div>
+      `,
+      popoverDemoScript
+    )
+  },
+  {
+    variant: 'raw-scrollable',
+    title: 'Raw 与滚动',
+    description: 'raw 模式只保留行为层，scrollable 可为内容区提供滚动能力。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-row">
+          <ZPopover trigger="click" raw>
+            <template #trigger>
+              <ZButton>Raw 模式</ZButton>
+            </template>
+            <div style="width: 240px; padding: 14px 16px; border-radius: 12px; background: var(--control-bg); border: 1px solid var(--control-border);">
+              自定义内容
+            </div>
+          </ZPopover>
+
+          <ZPopover trigger="click" scrollable show-arrow>
+            <template #trigger>
+              <ZButton>可滚动内容</ZButton>
+            </template>
+            <template #header>
+              更新记录
+            </template>
+            <div v-for="item in items" :key="item">{{ item }}</div>
+            <template #footer>
+              滚动不影响 outside click 与浮层交互。
+            </template>
+          </ZPopover>
+        </div>
+      `,
+      `
+        ${popoverModelDemoScript}
+
+        const items = Array.from({ length: 14 }, (_, index) => '滚动内容 ' + (index + 1))
+      `
     )
   }
 ] satisfies readonly VariantDemoConfig<string>[]
@@ -831,8 +1233,8 @@ const selectDemoVariants = [
       `
         ${selectModelDemoScript}
 
-        const multipleSelected = ref<ZSelectValueType[]>(['blue', 'green', 'orange'])
-        const limitedSelected = ref<ZSelectValueType[]>(['blue', 'purple', 'green', 'orange'])
+        const multipleSelected = ref<SelectValueType[]>(['blue', 'green', 'orange'])
+        const limitedSelected = ref<SelectValueType[]>(['blue', 'purple', 'green', 'orange'])
         const options = [
           { label: '蓝色 (Blue)', value: 'blue' },
           { label: '紫色 (Purple)', value: 'purple' },
@@ -960,12 +1362,54 @@ const selectDemoVariants = [
       `
         ${selectModelDemoScript}
 
-        const tagValues = ref<ZSelectValueType[]>(['设计', '效率'])
+        const tagValues = ref<SelectValueType[]>(['设计', '效率'])
         const tagOptions = [
           { label: '设计', value: '设计' },
           { label: '开发', value: '开发' },
           { label: '效率', value: '效率' },
           { label: '自动化', value: '自动化' }
+        ]
+      `
+    )
+  },
+  {
+    variant: 'placement',
+    title: '弹层定位',
+    description: '支持与 Popover 一致的 placement 体系，并可通过 autoAdjustPlacement 控制视口边缘自动纠正。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <div class="demo-row">
+            <ZSelect v-model="startValue" :options="options" placement="top-start" placeholder="top-start" />
+            <ZSelect v-model="centerValue" :options="options" placement="bottom" placeholder="bottom" />
+            <ZSelect v-model="endValue" :options="options" placement="top-end" placeholder="top-end" />
+          </div>
+          <div class="demo-row" style="justify-content: flex-end; width: 100%;">
+            <ZSelect v-model="autoAdjustValue" :options="options" placement="right-start" placeholder="自动纠正" />
+            <ZSelect
+              v-model="fixedPlacementValue"
+              :options="options"
+              placement="right-start"
+              :auto-adjust-placement="false"
+              placeholder="保持原方向"
+            />
+          </div>
+        </div>
+      `,
+      `
+        ${selectModelDemoScript}
+
+        const startValue = ref('blue')
+        const centerValue = ref('purple')
+        const endValue = ref('green')
+        const autoAdjustValue = ref('orange')
+        const fixedPlacementValue = ref('red')
+        const options = [
+          { label: '蓝色 (Blue)', value: 'blue' },
+          { label: '紫色 (Purple)', value: 'purple' },
+          { label: '绿色 (Green)', value: 'green' },
+          { label: '橙色 (Orange)', value: 'orange' },
+          { label: '红色 (Red)', value: 'red' }
         ]
       `
     )
@@ -1406,7 +1850,7 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
     group: 'input',
     zhName: '颜色选择器',
     enName: 'ColorPicker',
-    description: '基于原生 color input 的颜色选择器，支持文本输入联动。',
+    description: '颜色面板选择器，支持文本输入联动、透明通道，以及与 Popover 一致的 12 方位弹层定位。',
     demos: createVariantDemos(ColorPickerDemo, colorPickerDemoVariants),
     api: {
       props: [
@@ -1432,6 +1876,13 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
           since: '1.0.0'
         },
         {
+          name: 'showAlpha',
+          type: 'boolean',
+          default: 'false',
+          description: '是否在颜色面板中显示透明通道控制，支持 HEX、RGBA、HSL 格式',
+          since: '1.0.0'
+        },
+        {
           name: 'placeholder',
           type: 'string',
           default: '#000000',
@@ -1443,6 +1894,20 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
           type: "'small' | 'medium' | 'large'",
           default: 'medium',
           description: '选择器尺寸',
+          since: '1.0.0'
+        },
+        {
+          name: 'placement',
+          type: "'top-start' | 'top' | 'top-end' | 'right-start' | 'right' | 'right-end' | 'bottom-start' | 'bottom' | 'bottom-end' | 'left-start' | 'left' | 'left-end'",
+          default: 'bottom-start',
+          description: '颜色面板弹出位置，取值与 Popover 的 placement 完全一致',
+          since: '1.0.0'
+        },
+        {
+          name: 'autoAdjustPlacement',
+          type: 'boolean',
+          default: 'true',
+          description: '是否根据视口空间自动翻转或修正颜色面板位置；关闭后始终按 placement 原值定位',
           since: '1.0.0'
         }
       ],
@@ -1754,6 +2219,27 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
           type: "'default' | 'tags'",
           default: 'default',
           description: '选择器模式，tags 模式允许输入并创建自定义标签',
+          since: '1.0.0'
+        },
+        {
+          name: 'placement',
+          type: "'top-start' | 'top' | 'top-end' | 'right-start' | 'right' | 'right-end' | 'bottom-start' | 'bottom' | 'bottom-end' | 'left-start' | 'left' | 'left-end'",
+          default: 'bottom-start',
+          description: '下拉菜单弹出位置，默认会根据视口空间自动纠正',
+          since: '1.0.0'
+        },
+        {
+          name: 'autoAdjustPlacement',
+          type: 'boolean',
+          default: 'true',
+          description: '是否根据视口空间自动翻转或修正下拉菜单位置',
+          since: '1.0.0'
+        },
+        {
+          name: 'to',
+          type: 'string | HTMLElement | false',
+          default: 'body',
+          description: 'Teleport 目标，设为 false 时菜单留在原位置渲染',
           since: '1.0.0'
         }
       ],
@@ -2293,6 +2779,166 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
           name: 'cancel',
           signature: '() => void',
           description: '点击取消按钮或遮罩时触发',
+          since: '1.0.0'
+        }
+      ]
+    }
+  },
+
+  popover: {
+    id: 'popover',
+    group: 'feedback',
+    zhName: '浮层',
+    enName: 'Popover',
+    description: '通用浮层组件，支持 trigger 插槽触发、受控显示、12 个方向定位、Teleport 和结构化内容区域。',
+    demos: createVariantDemos(PopoverDemo, popoverDemoVariants),
+    api: {
+      props: [
+        {
+          name: 'trigger',
+          type: "'hover' | 'click' | 'focus' | 'manual'",
+          default: 'hover',
+          description: '触发方式，manual 模式下仅响应外部 show 状态',
+          since: '1.0.0'
+        },
+        {
+          name: 'show',
+          type: 'boolean',
+          description: '受控显示状态，传入后组件不再维护内部显示状态',
+          since: '1.0.0'
+        },
+        {
+          name: 'placement',
+          type: "'top-start' | 'top' | 'top-end' | 'right-start' | 'right' | 'right-end' | 'bottom-start' | 'bottom' | 'bottom-end' | 'left-start' | 'left' | 'left-end'",
+          default: 'top',
+          description: '浮层弹出方向，默认会结合视口空间自动纠正',
+          since: '1.0.0'
+        },
+        {
+          name: 'overlap',
+          type: 'boolean',
+          default: 'false',
+          description: '是否让浮层与触发元素边缘重叠贴合',
+          since: '1.0.0'
+        },
+        {
+          name: 'raw',
+          type: 'boolean',
+          default: 'false',
+          description: '是否关闭默认卡片样式，仅保留浮层行为与定位',
+          since: '1.0.0'
+        },
+        {
+          name: 'scrollable',
+          type: 'boolean',
+          default: 'false',
+          description: '是否为默认内容区启用滚动容器',
+          since: '1.0.0'
+        },
+        {
+          name: 'showArrow',
+          type: 'boolean',
+          default: 'false',
+          description: '是否显示指向触发元素的箭头',
+          since: '1.0.0'
+        },
+        {
+          name: 'to',
+          type: 'string | HTMLElement | false',
+          default: 'body',
+          description: 'Teleport 目标，设为 false 时内容留在原位置渲染',
+          since: '1.0.0'
+        },
+        {
+          name: 'width',
+          type: "number | 'trigger'",
+          description: '浮层宽度，可传固定宽度或跟随 trigger 宽度',
+          since: '1.0.0'
+        },
+        {
+          name: 'x',
+          type: 'number',
+          description: '手动定位时的横向视口坐标，需要与 y 一起使用',
+          since: '1.0.0'
+        },
+        {
+          name: 'y',
+          type: 'number',
+          description: '手动定位时的纵向视口坐标，需要与 x 一起使用',
+          since: '1.0.0'
+        },
+        {
+          name: 'zIndex',
+          type: 'number',
+          default: '10000',
+          description: '浮层的 z-index',
+          since: '1.0.0'
+        },
+        {
+          name: 'keepAliveOnHover',
+          type: 'boolean',
+          default: 'false',
+          description: 'hover 模式下鼠标从 trigger 移入 panel 时是否保持显示',
+          since: '1.0.0'
+        },
+        {
+          name: 'headerClass',
+          type: 'string',
+          description: 'header 区域容器类名',
+          since: '1.0.0'
+        },
+        {
+          name: 'headerStyle',
+          type: 'string | Record<string, string | number>',
+          description: 'header 区域容器样式',
+          since: '1.0.0'
+        },
+        {
+          name: 'footerClass',
+          type: 'string',
+          description: 'footer 区域容器类名',
+          since: '1.0.0'
+        },
+        {
+          name: 'footerStyle',
+          type: 'string | Record<string, string | number>',
+          description: 'footer 区域容器样式',
+          since: '1.0.0'
+        }
+      ],
+      slots: [
+        {
+          name: 'trigger',
+          description: '触发浮层的元素内容',
+          since: '1.0.0'
+        },
+        {
+          name: 'header',
+          description: '可选头部区域',
+          since: '1.0.0'
+        },
+        {
+          name: 'default',
+          description: '浮层主体内容',
+          since: '1.0.0'
+        },
+        {
+          name: 'footer',
+          description: '可选底部区域',
+          since: '1.0.0'
+        }
+      ],
+      emits: [
+        {
+          name: 'update:show',
+          signature: '(value: boolean) => void',
+          description: '显示状态变化时触发',
+          since: '1.0.0'
+        },
+        {
+          name: 'clickoutside',
+          signature: '(event: PointerEvent) => void',
+          description: '点击浮层外部区域时触发',
           since: '1.0.0'
         }
       ]

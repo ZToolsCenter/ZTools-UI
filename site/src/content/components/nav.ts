@@ -34,6 +34,7 @@ export const componentIndex: ComponentIndexEntry[] = [
   { id: 'adaptive-icon', zhName: '自适应图标', enName: 'AdaptiveIcon', group: 'display' },
   { id: 'toast', zhName: '轻提示', enName: 'Toast', group: 'feedback' },
   { id: 'confirm-dialog', zhName: '确认弹窗', enName: 'ConfirmDialog', group: 'feedback' },
+  { id: 'popover', zhName: '浮层', enName: 'Popover', group: 'feedback' },
   { id: 'tag-dropdown', zhName: '标签下拉菜单', enName: 'TagDropdown', group: 'feedback' },
   { id: 'detail-panel', zhName: '详情面板', enName: 'DetailPanel', group: 'host' },
   { id: 'shortcut-editor', zhName: '快捷键编辑', enName: 'ShortcutEditor', group: 'host' },

@@ -1,3 +1,5 @@
+import type { PopoverPlacement, PopoverTeleportTarget } from '../Popover'
+
 export type SelectValueType = string | number
 export type SelectModelValue = SelectValueType | SelectValueType[]
 export type SelectSize = 'small' | 'medium' | 'large'
@@ -23,6 +25,9 @@ export interface SelectProps {
   message?: string
   maxTagCount?: number
   mode?: SelectMode
+  placement?: PopoverPlacement
+  autoAdjustPlacement?: boolean
+  to?: PopoverTeleportTarget
 }
 
 export interface SelectEmits {

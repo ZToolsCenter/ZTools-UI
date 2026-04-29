@@ -12,13 +12,13 @@ npm install ztools-ui
 
 ## 引入样式
 
-在入口文件中引入组件库的样式和 UnoCSS：
+在入口文件中引入组件库的统一样式入口：
 
 ```ts
-import 'ztools-ui/style'
+import 'ztools-ui/style.css'
 ```
 
-> `style` 入口会自动加载全局 CSS 变量、主题系统和 UnoCSS 运行时。
+> `ztools-ui/style.css` 会统一加载全局 CSS 变量、主题系统、UnoCSS 规则和组件样式；`ztools-ui/style` 仍保留为兼容别名。
 
 ## 注册组件
 
@@ -27,7 +27,7 @@ import 'ztools-ui/style'
 ```ts
 import { createApp } from 'vue'
 import ZToolsUI from 'ztools-ui'
-import 'ztools-ui/style'
+import 'ztools-ui/style.css'
 
 const app = createApp(App)
 app.use(ZToolsUI)

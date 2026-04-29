@@ -1,6 +1,7 @@
 export * from './Button'
 export * from './Checkbox'
 export * from './ColorPicker'
+export * from './Popover'
 export * from './Select'
 export * from './HotkeyInput'
 export * from './Input'

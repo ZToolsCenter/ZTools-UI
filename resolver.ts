@@ -7,6 +7,7 @@ const componentNames = [
   'ZCommandTag',
   'ZConfirmDialog',
   'ZDetailPanel',
+  'ZPopover',
   'ZSelect',
   'ZFeatureCard',
   'ZHotkeyInput',
@@ -41,7 +42,7 @@ export function ZToolsUIResolver(options: ZToolsUIResolverOptions = {}) {
       return {
         name,
         from: 'ztools-ui',
-        sideEffects: importStyle ? 'ztools-ui/style' : undefined
+        sideEffects: importStyle ? 'ztools-ui/style.css' : undefined
       }
     }
   }

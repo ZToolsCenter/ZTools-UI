@@ -33,7 +33,7 @@ npm install ztools-ui vue vue-router
 当前包提供 3 个公开入口：
 
 - `ztools-ui`：组件、composables、utils、插件安装入口
-- `ztools-ui/style`：全局样式与 UnoCSS 样式入口
+- `ztools-ui/style`：导入样式入口
 - `ztools-ui/resolver`：自动导入组件解析器
 
 ## 快速开始
@@ -193,7 +193,7 @@ createApp(App).mount('#app')
 | `ZButton` | 基础按钮组件，支持类型、尺寸、loading 和 block | 无 |
 | `ZInput` | 基础输入框，支持 `v-model`、清空按钮、前后缀插槽 | 无 |
 | `ZSelect` | 选择器组件，支持单选、多选、清空、验证状态和 tag 输入 | 无 |
-| `ZColorPicker` | 基于原生输入实现的颜色选择器 | 无 |
+| `ZColorPicker` | 颜色面板选择器，支持文本输入联动 | 无 |
 | `ZCheckbox` | 基础复选框组件，支持半选状态 | 无 |
 | `ZRadio` | 基础单选框组件，适合互斥选择 | 无 |
 | `ZSwitch` | 基础开关组件，支持文案与尺寸 | 无 |
@@ -380,6 +380,7 @@ async function handleDelete() {
 
 - UnoCSS 生成样式
 - 全局基础样式
+- 组件样式
 
 建议：
 
@@ -411,5 +412,5 @@ ztools-ui/
 ├─ index.ts       # 主入口
 ├─ plugin.ts      # install 注册入口
 ├─ resolver.ts    # 自动导入解析器
-└─ style.ts       # 样式入口
+└─ assets/styles/  # 样式入口
 ```

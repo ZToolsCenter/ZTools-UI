@@ -30,7 +30,6 @@
     "index.ts",
     "plugin.ts",
     "resolver.ts",
-    "style.ts",
     "vite.config.ts",
     "uno.config.ts",
     "assets/**/*.ts",

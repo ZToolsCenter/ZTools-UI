@@ -14,10 +14,8 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./style": {
-      "types": "./dist/style.d.ts",
-      "import": "./dist/style.js"
-    },
+    "./style.css": "./dist/style.css",
+    "./style": "./dist/style.css",
     "./resolver": {
       "types": "./dist/resolver.d.ts",
       "import": "./dist/resolver.js"
