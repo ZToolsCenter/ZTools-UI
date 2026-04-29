@@ -1,3 +1,4 @@
+export * from './Pagination'
 export * from './Button'
 export * from './Checkbox'
 export * from './ColorPicker'

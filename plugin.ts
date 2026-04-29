@@ -1,5 +1,6 @@
 import type { App, Component, Plugin } from 'vue'
 
+import { ZPagination } from './components/common/Pagination'
 import { ZAdaptiveIcon } from './components/common/AdaptiveIcon'
 import { ZButton } from './components/common/Button'
 import { ZCheckbox } from './components/common/Checkbox'
@@ -23,6 +24,7 @@ import { ZTagDropdown } from './components/common/TagDropdown'
 import { ZToast } from './components/common/Toast'
 
 const components = {
+  ZPagination,
   ZAdaptiveIcon,
   ZButton,
   ZCheckbox,

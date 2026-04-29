@@ -1,4 +1,5 @@
 const componentNames = [
+  'ZPagination',
   'ZAdaptiveIcon',
   'ZButton',
   'ZCheckbox',

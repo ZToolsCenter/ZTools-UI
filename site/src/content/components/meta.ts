@@ -34,6 +34,8 @@ import ShortcutEditorDemo from '../../demos/ShortcutEditorDemo.vue'
 import ShortcutEditorDemoSource from '../../demos/ShortcutEditorDemo.vue?raw'
 import PluginDetailDemo from '../../demos/PluginDetailDemo.vue'
 import PluginDetailDemoSource from '../../demos/PluginDetailDemo.vue?raw'
+import PaginationDemo from '../../demos/PaginationDemo.vue'
+import PaginationDemoSource from '../../demos/PaginationDemo.vue?raw'
 
 const componentDemoSources = new Map<Component, string>([
   [SelectDemo, SelectDemoSource],
@@ -48,7 +50,8 @@ const componentDemoSources = new Map<Component, string>([
   [TagDropdownDemo, TagDropdownDemoSource],
   [DetailPanelDemo, DetailPanelDemoSource],
   [ShortcutEditorDemo, ShortcutEditorDemoSource],
-  [PluginDetailDemo, PluginDetailDemoSource]
+  [PluginDetailDemo, PluginDetailDemoSource],
+  [PaginationDemo, PaginationDemoSource]
 ])
 
 interface SfcSourceBlock {
@@ -129,6 +132,9 @@ const selectDemoScript = `import { ZSelect } from 'ztools-ui-components/common/S
 const selectModelDemoScript = `import { ref } from 'vue'
 import { ZSelect } from 'ztools-ui-components/common/Select'
 import type { SelectValueType } from 'ztools-ui-components/common/Select'`
+const paginationDemoScript = `import { ZPagination } from 'ztools-ui-components/common/Pagination'`
+const paginationModelDemoScript = `import { ref } from 'vue'
+import { ZPagination } from 'ztools-ui-components/common/Pagination'`
 
 const buttonDemoVariants = [
   {
@@ -1562,6 +1568,180 @@ function resolveNormalizedDemoSource(source: string | undefined): string | undef
   normalizedDemoSourceCache.set(source, normalizedSource)
   return normalizedSource
 }
+
+const paginationDemoVariants = [
+  {
+    variant: 'basic',
+    title: '基础用法',
+    description: '支持受控（v-model:page）与非受控（default-page）两种模式，通过 item-count 自动计算总页数。',
+    sourceCode: createDemoSource(
+      `
+        <div class="pagination-demo">
+          <div class="pagination-demo__column">
+            <span class="pagination-demo__label">受控模式</span>
+            <ZPagination :page="page" :item-count="200" @update:page="page = $event" />
+            <span class="pagination-demo__value">当前页: {{ page }}</span>
+          </div>
+          <div class="pagination-demo__column">
+            <span class="pagination-demo__label">非受控模式（defaultPage）</span>
+            <ZPagination :default-page="3" :item-count="200" />
+          </div>
+        </div>
+      `,
+      paginationModelDemoScript + `
+
+const page = ref(1)`
+    )
+  },
+  {
+    variant: 'simple',
+    title: '简单模式',
+    description: '设置 simple 仅显示上一页、页码指示器和下一页，适合空间有限的场景。',
+    sourceCode: createDemoSource(
+      `
+        <ZPagination simple :page="page" :item-count="200" @update:page="page = $event" />
+        <span class="pagination-demo__value">当前页: {{ page }}</span>
+      `,
+      paginationModelDemoScript + `
+
+const page = ref(3)`
+    )
+  },
+  {
+    variant: 'size-picker',
+    title: '每页条数选择',
+    description: '通过 show-size-picker 开启条数选择器，使用 page-sizes 自定义可选项，支持 number 或 { label, value } 格式。',
+    sourceCode: createDemoSource(
+      `
+        <div class="pagination-demo">
+          <div class="pagination-demo__column">
+            <span class="pagination-demo__label">选择每页条数</span>
+            <ZPagination
+              show-size-picker
+              :page="page"
+              :page-size="pageSize"
+              :page-sizes="[5, 10, 20, 50]"
+              :item-count="200"
+              @update:page="page = $event"
+              @update:page-size="pageSize = $event"
+            />
+            <span class="pagination-demo__value">当前页: {{ page }}，每页 {{ pageSize }} 条</span>
+          </div>
+          <div class="pagination-demo__column">
+            <span class="pagination-demo__label">自定义标签</span>
+            <ZPagination
+              show-size-picker
+              :page="page2"
+              :page-size="pageSize2"
+              :page-sizes="[{ label: '少 / 10', value: 10 }, { label: '中 / 20', value: 20 }, { label: '多 / 50', value: 50 }]"
+              :item-count="200"
+              @update:page="page2 = $event"
+              @update:page-size="pageSize2 = $event"
+            />
+          </div>
+        </div>
+      `,
+      paginationModelDemoScript + `
+
+const page = ref(5)
+const pageSize = ref(10)
+const page2 = ref(2)
+const pageSize2 = ref(20)`
+    )
+  },
+  {
+    variant: 'quick-jumper',
+    title: '快速跳转',
+    description: '设置 show-quick-jumper 显示快速跳转控件，默认使用下拉菜单，可通过 show-quick-jump-dropdown 切换为输入框模式。',
+    sourceCode: createDemoSource(
+      `
+        <div class="pagination-demo">
+          <div class="pagination-demo__column">
+            <span class="pagination-demo__label">输入框模式</span>
+            <ZPagination
+              show-quick-jumper
+              :show-quick-jump-dropdown="false"
+              :page="page"
+              :item-count="200"
+              @update:page="page = $event"
+            />
+          </div>
+          <div class="pagination-demo__column">
+            <span class="pagination-demo__label">下拉菜单模式（默认）</span>
+            <ZPagination
+              show-quick-jumper
+              :page="page2"
+              :item-count="200"
+              @update:page="page2 = $event"
+            />
+          </div>
+        </div>
+      `,
+      paginationModelDemoScript + `
+
+const page = ref(4)
+const page2 = ref(1)`
+    )
+  },
+  {
+    variant: 'disabled',
+    title: '禁用状态',
+    description: '设置 disabled 禁用所有交互。',
+    sourceCode: createDemoSource(
+      `
+        <ZPagination disabled :page="3" :item-count="200" />
+      `,
+      paginationDemoScript
+    )
+  },
+  {
+    variant: 'size',
+    title: '尺寸',
+    description: '支持 small、medium、large 三种尺寸。',
+    sourceCode: createDemoSource(
+      `
+        <div class="pagination-demo">
+          <ZPagination size="small" :page="2" :item-count="100" />
+          <ZPagination size="medium" :page="2" :item-count="100" />
+          <ZPagination size="large" :page="2" :item-count="100" />
+        </div>
+      `,
+      paginationDemoScript
+    )
+  },
+  {
+    variant: 'display-order',
+    title: '展示顺序',
+    description: '通过 display-order 自定义页码、条数选择器和快速跳转的排列顺序，也可隐藏某些区块。',
+    sourceCode: createDemoSource(
+      `
+        <div class="pagination-demo">
+          <span class="pagination-demo__label">默认: pages → size-picker → quick-jumper</span>
+          <ZPagination show-size-picker show-quick-jumper :page="1" :item-count="200" />
+
+          <span class="pagination-demo__label">自定义: quick-jumper → pages → size-picker</span>
+          <ZPagination
+            show-size-picker
+            show-quick-jumper
+            :display-order="['quick-jumper', 'pages', 'size-picker']"
+            :page="1"
+            :item-count="200"
+          />
+
+          <span class="pagination-demo__label">仅页码</span>
+          <ZPagination
+            show-size-picker
+            show-quick-jumper
+            :display-order="['pages']"
+            :page="1"
+            :item-count="200"
+          />
+        </div>
+      `,
+      paginationDemoScript
+    )
+  }
+]
 
 function createVariantDemos<TVariant extends string>(
   component: Component,
@@ -3229,6 +3409,190 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
           name: 'tab-switch',
           signature: '(tabId: TabId) => void',
           description: '切换标签页时触发',
+          since: '1.0.0'
+        }
+      ]
+    }
+  },
+
+  pagination: {
+    id: 'pagination',
+    group: 'input',
+    zhName: '分页',
+    enName: 'Pagination',
+    description: '用于数据列表分页浏览的控件，支持受控/非受控、每页条数选择、快速跳转和简单模式。',
+    demos: createVariantDemos(PaginationDemo, paginationDemoVariants),
+    api: {
+      props: [
+        {
+          name: 'page',
+          type: 'number',
+          description: '受控模式下的当前页，配合 update:page 事件使用',
+          since: '1.0.0'
+        },
+        {
+          name: 'default-page',
+          type: 'number',
+          default: '1',
+          description: '非受控模式下的当前页',
+          since: '1.0.0'
+        },
+        {
+          name: 'page-size',
+          type: 'number',
+          description: '受控模式下的分页大小，配合 update:page-size 事件使用',
+          since: '1.0.0'
+        },
+        {
+          name: 'default-page-size',
+          type: 'number',
+          default: '10',
+          description: '非受控模式下的分页大小',
+          since: '1.0.0'
+        },
+        {
+          name: 'item-count',
+          type: 'number',
+          description: '数据总条数，设置后将自动计算总页数（优先于 page-count）',
+          since: '1.0.0'
+        },
+        {
+          name: 'page-count',
+          type: 'number',
+          default: '1',
+          description: '总页数，仅在未设置 item-count 时生效',
+          since: '1.0.0'
+        },
+        {
+          name: 'page-slot',
+          type: 'number',
+          default: '9',
+          description: '页码按钮最大显示个数（含省略号）',
+          since: '1.0.0'
+        },
+        {
+          name: 'page-sizes',
+          type: 'Array<number | PaginationSizeOption>',
+          default: '[10]',
+          description: '每页条数可选项，支持纯数字或 { label, value } 格式',
+          since: '1.0.0'
+        },
+        {
+          name: 'show-size-picker',
+          type: 'boolean',
+          default: 'false',
+          description: '是否显示每页条数选择器',
+          since: '1.0.0'
+        },
+        {
+          name: 'show-quick-jumper',
+          type: 'boolean',
+          default: 'false',
+          description: '是否显示快速跳转',
+          since: '1.0.0'
+        },
+        {
+          name: 'show-quick-jump-dropdown',
+          type: 'boolean',
+          default: 'true',
+          description: '快速跳转是否使用下拉菜单（≤200 页时），设为 false 使用输入框',
+          since: '1.0.0'
+        },
+        {
+          name: 'display-order',
+          type: "Array<'pages' | 'size-picker' | 'quick-jumper'>",
+          default: "['pages', 'size-picker', 'quick-jumper']",
+          description: '各区块的展示顺序，未列出的区块不渲染',
+          since: '1.0.0'
+        },
+        {
+          name: 'size',
+          type: "'small' | 'medium' | 'large'",
+          default: 'medium',
+          description: '分页按钮的尺寸',
+          since: '1.0.0'
+        },
+        {
+          name: 'simple',
+          type: 'boolean',
+          default: 'false',
+          description: '是否显示为简单分页，仅保留上一页、页码指示器和下一页',
+          since: '1.0.0'
+        },
+        {
+          name: 'disabled',
+          type: 'boolean',
+          default: 'false',
+          description: '是否禁用',
+          since: '1.0.0'
+        },
+        {
+          name: 'prefix',
+          type: '(info: PaginationInfo) => VNodeChild',
+          description: '分页前缀渲染函数',
+          since: '1.0.0'
+        },
+        {
+          name: 'suffix',
+          type: '(info: PaginationInfo) => VNodeChild',
+          description: '分页后缀渲染函数',
+          since: '1.0.0'
+        },
+        {
+          name: 'prev',
+          type: '(info: PaginationInfo) => VNodeChild',
+          description: '自定义上一页按钮内容',
+          since: '1.0.0'
+        },
+        {
+          name: 'next',
+          type: '(info: PaginationInfo) => VNodeChild',
+          description: '自定义下一页按钮内容',
+          since: '1.0.0'
+        },
+        {
+          name: 'goto',
+          type: '(info: PaginationInfo) => VNodeChild',
+          description: '自定义快速跳转的提示文本',
+          since: '1.0.0'
+        },
+        {
+          name: 'label',
+          type: 'PaginationRenderLabel',
+          description: '自定义每一项（页码、前后页、省略号）的渲染内容',
+          since: '1.0.0'
+        },
+        {
+          name: 'select-props',
+          type: 'Record<string, any>',
+          description: '透传给条数选择器的额外属性',
+          since: '1.0.0'
+        },
+        {
+          name: 'scrollbar-props',
+          type: 'Record<string, any>',
+          description: '透传给滚动条的属性',
+          since: '1.0.0'
+        },
+        {
+          name: 'to',
+          type: 'string | HTMLElement | false',
+          default: 'body',
+          description: '弹出菜单的容器节点，false 时留在原位',
+          since: '1.0.0'
+        }
+      ],
+      emits: [
+        {
+          name: 'update:page',
+          signature: '(page: number) => void',
+          description: '当前页变化时触发，用于 v-model:page',
+          since: '1.0.0'
+        },
+        {
+          name: 'update:pageSize',
+          signature: '(pageSize: number) => void',
+          description: '分页大小变化时触发，用于 v-model:page-size',
           since: '1.0.0'
         }
       ]

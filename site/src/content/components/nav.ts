@@ -27,6 +27,7 @@ export const componentIndex: ComponentIndexEntry[] = [
   { id: 'select', zhName: '选择器', enName: 'Select', group: 'input' },
   { id: 'slider', zhName: '滑块', enName: 'Slider', group: 'input' },
   { id: 'hotkey-input', zhName: '快捷键录制', enName: 'HotkeyInput', group: 'input' },
+  { id: 'pagination', zhName: '分页', enName: 'Pagination', group: 'input' },
   { id: 'tag', zhName: '标签', enName: 'Tag', group: 'display' },
   { id: 'command-card', zhName: '指令卡片', enName: 'CommandCard', group: 'display' },
   { id: 'command-tag', zhName: '指令标签', enName: 'CommandTag', group: 'display' },
