@@ -41,6 +41,7 @@ export default defineConfig({
           items: [
             { text: '介绍', link: '/docs/introduction' },
             { text: '快速上手', link: '/docs/getting-started' },
+            { text: '受控与非受控', link: '/docs/controlled-uncontrolled' },
             { text: '主题系统', link: '/docs/theme' }
           ]
         }

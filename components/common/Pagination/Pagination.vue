@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import type { PaginationProps, PaginationEmits, PaginationInfo } from './Pagination'
+import { computed, defineComponent, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import type { PropType, VNodeChild } from 'vue'
+import { ZSelect } from '../Select'
+import type { SelectModelValue, SelectOption } from '../Select'
+import type { PaginationEmits, PaginationInfo, PaginationProps } from './Pagination'
 
 const props = withDefaults(defineProps<PaginationProps>(), {
   defaultPage: 1,
   defaultPageSize: 10,
   pageCount: 1,
   pageSizes: () => [10],
-  pageSlot: 9,
+  pageSlot: 'auto',
   showSizePicker: false,
   showQuickJumper: false,
   showQuickJumpDropdown: true,
@@ -18,6 +21,37 @@ const props = withDefaults(defineProps<PaginationProps>(), {
 })
 
 const emit = defineEmits<PaginationEmits>()
+
+const RenderVNodeChild = defineComponent({
+  name: 'RenderVNodeChild',
+  props: {
+    content: {
+      type: null as unknown as PropType<VNodeChild>,
+      default: null
+    }
+  },
+  setup(renderProps) {
+    return () => {
+      if (renderProps.content == null || renderProps.content === false) {
+        return null
+      }
+
+      return renderProps.content as VNodeChild
+    }
+  }
+})
+
+const MIN_LEADING_PAGE_COUNT = 3
+const MIN_ADAPTIVE_PAGE_SLOT = MIN_LEADING_PAGE_COUNT + 2
+const DEFAULT_AUTO_PAGE_SLOT = 9
+const MEASURE_TOLERANCE = 4
+const RECOVERY_BUFFER = 12
+const DEFAULT_PAGE_ITEM_WIDTH = 36
+
+const paginationRef = ref<HTMLElement | null>(null)
+let resizeObserver: ResizeObserver | null = null
+let measureFrame: number | null = null
+let measurePending = false
 
 // --- Controlled / Uncontrolled state ---
 
@@ -49,7 +83,26 @@ const totalPageCount = computed(() => {
     const count = Math.ceil(props.itemCount / currentPageSize.value)
     return count > 0 ? count : 1
   }
+
   return props.pageCount > 0 ? props.pageCount : 1
+})
+
+const maxPageSlot = computed(() => {
+  if (props.pageSlot === 'auto' || props.pageSlot === undefined) {
+    return DEFAULT_AUTO_PAGE_SLOT
+  }
+
+  const normalizedSlot = Math.floor(Number(props.pageSlot))
+  return Number.isFinite(normalizedSlot) ? Math.max(1, normalizedSlot) : DEFAULT_AUTO_PAGE_SLOT
+})
+
+const isAutoPageSlot = computed(() => props.pageSlot === 'auto' || props.pageSlot === undefined)
+const minAdaptivePageSlot = computed(() => Math.min(maxPageSlot.value, MIN_ADAPTIVE_PAGE_SLOT))
+const adaptivePageSlot = ref(maxPageSlot.value)
+const effectivePageSlot = computed(() => {
+  if (props.simple || !isAutoPageSlot.value) return maxPageSlot.value
+
+  return Math.min(maxPageSlot.value, Math.max(minAdaptivePageSlot.value, adaptivePageSlot.value))
 })
 
 const paginationInfo = computed<PaginationInfo>(() => {
@@ -59,6 +112,7 @@ const paginationInfo = computed<PaginationInfo>(() => {
   const endIndex = props.itemCount
     ? Math.min(currentPage.value * currentPageSize.value, props.itemCount)
     : 0
+
   return {
     page: currentPage.value,
     pageSize: currentPageSize.value,
@@ -76,57 +130,150 @@ interface PageItem {
   value?: number
 }
 
+function createPageItem(value: number): PageItem {
+  return {
+    type: 'page',
+    value
+  }
+}
+
+function createEllipsisItem(leftPage: number, rightPage: number): PageItem {
+  const minPage = Math.min(leftPage, rightPage)
+  const maxPage = Math.max(leftPage, rightPage)
+  const value = maxPage - minPage > 1
+    ? Math.min(maxPage - 1, Math.max(minPage + 1, Math.floor((minPage + maxPage) / 2)))
+    : undefined
+
+  return {
+    type: 'ellipsis',
+    value
+  }
+}
+
+function pushPageRange(items: PageItem[], start: number, end: number): void {
+  for (let page = start; page <= end; page += 1) {
+    items.push(createPageItem(page))
+  }
+}
+
+function createCompactPageItems(page: number, pageCount: number, slot: number): PageItem[] {
+  if (slot <= 1) {
+    return [createPageItem(page)]
+  }
+
+  if (slot === 2) {
+    return [createPageItem(1), createPageItem(pageCount)]
+  }
+
+  if (slot === 3) {
+    if (page <= 2) {
+      return [createPageItem(1), createPageItem(2), createPageItem(pageCount)]
+    }
+
+    if (page >= pageCount - 1) {
+      return [createPageItem(1), createPageItem(pageCount - 1), createPageItem(pageCount)]
+    }
+
+    return [createPageItem(1), createEllipsisItem(1, pageCount), createPageItem(pageCount)]
+  }
+
+  if (slot === 4) {
+    if (page <= 2) {
+      return [createPageItem(1), createPageItem(2), createEllipsisItem(2, pageCount), createPageItem(pageCount)]
+    }
+
+    if (page >= pageCount - 1) {
+      return [createPageItem(1), createEllipsisItem(1, pageCount - 1), createPageItem(pageCount - 1), createPageItem(pageCount)]
+    }
+
+    return [createPageItem(1), createPageItem(2), createEllipsisItem(2, pageCount), createPageItem(pageCount)]
+  }
+
+  return [
+    createPageItem(1),
+    createPageItem(2),
+    createPageItem(3),
+    createEllipsisItem(3, pageCount),
+    createPageItem(pageCount)
+  ]
+}
+
+function createStandardPageItems(page: number, pageCount: number, slot: number): PageItem[] {
+  const items: PageItem[] = []
+
+  if (page < slot - 2) {
+    pushPageRange(items, 1, slot - 2)
+    items.push(createEllipsisItem(slot - 2, pageCount))
+    items.push(createPageItem(pageCount))
+    return items
+  }
+
+  if (page > pageCount - slot + 3) {
+    items.push(createPageItem(1))
+    items.push(createEllipsisItem(1, pageCount - slot + 3))
+    pushPageRange(items, pageCount - slot + 3, pageCount)
+    return items
+  }
+
+  const middleCount = slot - 4
+  const leftCount = Math.floor(middleCount / 2)
+  const rightCount = middleCount - leftCount - 1
+
+  let middleStart = page - leftCount
+  let middleEnd = page + rightCount
+
+  if (middleStart < 2) {
+    middleEnd += 2 - middleStart
+    middleStart = 2
+  }
+
+  if (middleEnd > pageCount - 1) {
+    middleStart -= middleEnd - (pageCount - 1)
+    middleEnd = pageCount - 1
+  }
+
+  items.push(createPageItem(1))
+  items.push(createEllipsisItem(1, middleStart))
+  pushPageRange(items, middleStart, middleEnd)
+  items.push(createEllipsisItem(middleEnd, pageCount))
+  items.push(createPageItem(pageCount))
+
+  return items
+}
+
 const pageItems = computed<PageItem[]>(() => {
   const page = currentPage.value
   const pageCount = totalPageCount.value
-  const slot = props.pageSlot
+  const slot = effectivePageSlot.value
 
   if (pageCount <= slot) {
-    return Array.from({ length: pageCount }, (_, i) => ({
-      type: 'page' as const,
-      value: i + 1
-    }))
+    return Array.from({ length: pageCount }, (_, index) => createPageItem(index + 1))
   }
 
-  const items: PageItem[] = []
-  const sidePages = Math.max(1, Math.floor((slot - 4) / 2))
-
-  items.push({ type: 'page', value: 1 })
-
-  let left = Math.max(2, page - sidePages)
-  let right = Math.min(pageCount - 1, page + sidePages)
-
-  if (page - sidePages <= 2) {
-    right = Math.min(pageCount - 1, left + slot - 3)
-  }
-  if (page + sidePages >= pageCount - 1) {
-    left = Math.max(2, right - slot + 3)
+  if (slot <= MIN_ADAPTIVE_PAGE_SLOT) {
+    return createCompactPageItems(page, pageCount, slot)
   }
 
-  if (left > 2) {
-    items.push({ type: 'ellipsis', value: Math.max(2, page - slot + 4) })
-  }
-  for (let i = left; i <= right; i++) {
-    items.push({ type: 'page', value: i })
-  }
-  if (right < pageCount - 1) {
-    items.push({ type: 'ellipsis', value: Math.min(pageCount - 1, page + slot - 4) })
-  }
-
-  items.push({ type: 'page', value: pageCount })
-
-  return items
+  return createStandardPageItems(page, pageCount, slot)
 })
 
 // --- Size picker options ---
 
-const pageSizeOptions = computed(() => {
+const pageSizeOptions = computed<SelectOption[]>(() => {
   return (props.pageSizes ?? [10]).map((item) => {
     if (typeof item === 'number') {
       return { label: `${item} 条/页`, value: item }
     }
+
     return { label: item.label, value: item.value }
   })
+})
+
+const quickJumpOptions = computed<SelectOption[]>(() => {
+  return Array.from({ length: totalPageCount.value }, (_, index) => ({
+    label: String(index + 1),
+    value: index + 1
+  }))
 })
 
 // --- Quick jumper ---
@@ -140,8 +287,10 @@ function handleJumpInput(event: Event): void {
 
 function handleJump(): void {
   if (jumpPage.value === null) return
+
   const page = jumpPage.value
   jumpPage.value = null
+
   if (page >= 1 && page <= totalPageCount.value) {
     handlePageChange(page)
   }
@@ -157,6 +306,7 @@ function handlePageChange(page: number): void {
   if (props.page === undefined) {
     currentPage.value = page
   }
+
   emit('update:page', page)
 }
 
@@ -167,7 +317,7 @@ function handlePageSizeChange(size: number): void {
   if (props.pageSize === undefined) {
     currentPageSize.value = size
   }
-  // Reset to first page when size changes
+
   const newPageCount = props.itemCount
     ? Math.max(1, Math.ceil((props.itemCount ?? 0) / size))
     : props.pageCount
@@ -176,17 +326,189 @@ function handlePageSizeChange(size: number): void {
   if (props.page === undefined) {
     currentPage.value = newPage
   }
+
   emit('update:pageSize', size)
+
   if (newPage !== currentPage.value) {
     emit('update:page', newPage)
   }
 }
 
-function handleEllipsisClick(value: number | undefined): void {
-  if (value !== undefined) {
-    handlePageChange(value)
+function handleEllipsisSelect(value: SelectModelValue): void {
+  const page = Array.isArray(value) ? Number(value[0]) : Number(value)
+
+  if (!Number.isFinite(page)) {
+    return
+  }
+
+  handlePageChange(page)
+}
+
+// --- Adaptive measurement ---
+
+function getAveragePageItemWidth(): number {
+  const root = paginationRef.value
+  const pagesElement = root?.querySelector<HTMLElement>('.zt-pagination__pages')
+
+  if (!pagesElement) return DEFAULT_PAGE_ITEM_WIDTH
+
+  const pageButtons = Array.from(
+    pagesElement.querySelectorAll<HTMLElement>('.zt-pagination__btn--page, .zt-pagination__btn--ellipsis')
+  )
+
+  if (!pageButtons.length) return DEFAULT_PAGE_ITEM_WIDTH
+
+  const totalWidth = pageButtons.reduce((sum, button) => sum + button.getBoundingClientRect().width, 0)
+  const styles = window.getComputedStyle(pagesElement)
+  const gap = Number.parseFloat(styles.columnGap || styles.gap || '0') || 0
+
+  return totalWidth / pageButtons.length + gap
+}
+
+function setAdaptivePageSlot(nextSlot: number): void {
+  const normalizedSlot = Math.min(
+    maxPageSlot.value,
+    Math.max(minAdaptivePageSlot.value, Math.floor(nextSlot))
+  )
+
+  if (normalizedSlot === adaptivePageSlot.value) return
+
+  adaptivePageSlot.value = normalizedSlot
+  scheduleMeasure()
+}
+
+function measureAdaptivePageSlot(): void {
+  const root = paginationRef.value
+  if (!root) return
+
+  if (props.simple || !isAutoPageSlot.value) {
+    adaptivePageSlot.value = maxPageSlot.value
+    return
+  }
+
+  if (adaptivePageSlot.value > maxPageSlot.value || adaptivePageSlot.value < minAdaptivePageSlot.value) {
+    adaptivePageSlot.value = Math.min(
+      maxPageSlot.value,
+      Math.max(minAdaptivePageSlot.value, adaptivePageSlot.value)
+    )
+  }
+
+  const parentWidth = root.parentElement?.getBoundingClientRect().width ?? 0
+  const rootWidth = root.getBoundingClientRect().width
+  const availableWidth = parentWidth > 0 ? parentWidth : rootWidth
+
+  if (availableWidth <= 0) return
+
+  const contentWidth = Math.max(root.scrollWidth, rootWidth)
+  const overflowWidth = contentWidth - availableWidth
+
+  if (overflowWidth > MEASURE_TOLERANCE && adaptivePageSlot.value > minAdaptivePageSlot.value) {
+    const averagePageItemWidth = getAveragePageItemWidth()
+    const reduceBy = Math.max(1, Math.ceil(overflowWidth / averagePageItemWidth))
+    setAdaptivePageSlot(adaptivePageSlot.value - reduceBy)
+    return
+  }
+
+  const spareWidth = availableWidth - contentWidth
+
+  if (spareWidth > RECOVERY_BUFFER && adaptivePageSlot.value < maxPageSlot.value) {
+    const averagePageItemWidth = getAveragePageItemWidth()
+    const expandBy = Math.floor((spareWidth - RECOVERY_BUFFER) / averagePageItemWidth)
+
+    if (expandBy >= 1) {
+      setAdaptivePageSlot(adaptivePageSlot.value + expandBy)
+    }
   }
 }
+
+function scheduleMeasure(): void {
+  if (measurePending) return
+
+  measurePending = true
+
+  nextTick(() => {
+    if (!measurePending) return
+
+    if (measureFrame !== null) {
+      cancelAnimationFrame(measureFrame)
+    }
+
+    measureFrame = requestAnimationFrame(() => {
+      measurePending = false
+      measureFrame = null
+      measureAdaptivePageSlot()
+    })
+  })
+}
+
+onMounted(() => {
+  const root = paginationRef.value
+
+  if (typeof ResizeObserver !== 'undefined' && root) {
+    resizeObserver = new ResizeObserver(() => {
+      scheduleMeasure()
+    })
+    resizeObserver.observe(root)
+
+    if (root.parentElement) {
+      resizeObserver.observe(root.parentElement)
+    }
+  } else {
+    window.addEventListener('resize', scheduleMeasure)
+  }
+
+  scheduleMeasure()
+})
+
+watch(
+  [maxPageSlot, minAdaptivePageSlot, isAutoPageSlot],
+  () => {
+    adaptivePageSlot.value = Math.min(
+      maxPageSlot.value,
+      Math.max(minAdaptivePageSlot.value, adaptivePageSlot.value)
+    )
+    scheduleMeasure()
+  },
+  { flush: 'post' }
+)
+
+watch(
+  () => [
+    props.pageSlot,
+    props.size,
+    props.simple,
+    props.showSizePicker,
+    props.showQuickJumper,
+    props.showQuickJumpDropdown,
+    props.displayOrder.join('|'),
+    props.itemCount ?? -1,
+    props.pageCount,
+    currentPage.value,
+    currentPageSize.value,
+    totalPageCount.value,
+    pageSizeOptions.value.map((item) => `${item.value}:${item.label}`).join('|')
+  ],
+  () => {
+    scheduleMeasure()
+  },
+  { flush: 'post' }
+)
+
+onBeforeUnmount(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+    resizeObserver = null
+  }
+
+  window.removeEventListener('resize', scheduleMeasure)
+
+  if (measureFrame !== null) {
+    cancelAnimationFrame(measureFrame)
+    measureFrame = null
+  }
+
+  measurePending = false
+})
 
 // --- Size class ---
 
@@ -194,16 +516,48 @@ const sizeClass = computed(() => `zt-pagination--${props.size}`)
 
 const sizePickerClass = computed(() => {
   const map: Record<string, string> = {
-    small: 'zt-pagination__size-select--small',
-    medium: 'zt-pagination__size-select--medium',
-    large: 'zt-pagination__size-select--large'
+    small: 'zt-pagination__select--small',
+    medium: 'zt-pagination__select--medium',
+    large: 'zt-pagination__select--large'
   }
+
   return map[props.size] || map.medium
 })
+
+const selectProps = computed(() => props.selectProps ?? {})
+
+const quickJumpSelectProps = computed(() => {
+  const baseProps = {
+    size: props.size,
+    disabled: props.disabled,
+    placement: 'top-end' as const,
+    to: props.to
+  }
+
+  return {
+    ...baseProps,
+    ...selectProps.value,
+    class: undefined
+  }
+})
+
+const ellipsisSelectProps = computed(() => {
+  const { modelValue, options, disabled, class: className, ...rest } = quickJumpSelectProps.value as Record<string, unknown>
+
+  void modelValue
+  void options
+  void disabled
+  void className
+
+  return rest
+})
+
+const sizePickerSelectProps = computed(() => quickJumpSelectProps.value)
 </script>
 
 <template>
   <div
+    ref="paginationRef"
     :class="[
       'zt-pagination',
       sizeClass,
@@ -213,19 +567,15 @@ const sizePickerClass = computed(() => {
       }
     ]"
   >
-    <!-- Simple mode: prev + indicator + next -->
     <template v-if="simple">
       <button
         class="zt-pagination__btn zt-pagination__btn--prev"
         :disabled="disabled || currentPage <= 1"
         @click="handlePageChange(currentPage - 1)"
       >
-        <component
-          v-if="prev"
-          :is="prev(paginationInfo)"
-        />
+        <RenderVNodeChild v-if="prev" :content="prev(paginationInfo)" />
         <svg v-else viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
-          <path d="M10.5 3L5.5 8l5 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10.5 3L5.5 8l5 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </button>
 
@@ -238,63 +588,67 @@ const sizePickerClass = computed(() => {
         :disabled="disabled || currentPage >= totalPageCount"
         @click="handlePageChange(currentPage + 1)"
       >
-        <component
-          v-if="next"
-          :is="next(paginationInfo)"
-        />
+        <RenderVNodeChild v-if="next" :content="next(paginationInfo)" />
         <svg v-else viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
-          <path d="M5.5 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5.5 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </button>
     </template>
 
-    <!-- Full mode: render sections in display-order -->
     <template v-else>
       <template v-for="section in displayOrder" :key="section">
-        <!-- Pages section -->
         <div v-if="section === 'pages'" class="zt-pagination__pages">
-          <!-- Prefix -->
           <span v-if="prefix" class="zt-pagination__prefix">
-            <component :is="prefix(paginationInfo)" />
+            <RenderVNodeChild :content="prefix(paginationInfo)" />
           </span>
 
-          <!-- Prev button -->
           <button
             class="zt-pagination__btn zt-pagination__btn--prev"
             :disabled="disabled || currentPage <= 1"
             @click="handlePageChange(currentPage - 1)"
           >
-            <component
-              v-if="prev"
-              :is="prev(paginationInfo)"
-            />
+            <RenderVNodeChild v-if="prev" :content="prev(paginationInfo)" />
             <svg v-else viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
-              <path d="M10.5 3L5.5 8l5 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10.5 3L5.5 8l5 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </button>
 
-          <!-- Page items -->
-          <template v-for="item in pageItems" :key="item.type === 'ellipsis' ? `ellipsis-${item.value}` : `page-${item.value}`">
-            <!-- Ellipsis -->
-            <button
+          <template
+            v-for="item in pageItems"
+            :key="item.type === 'ellipsis' ? `ellipsis-${item.value}` : `page-${item.value}`"
+          >
+            <ZSelect
               v-if="item.type === 'ellipsis'"
-              class="zt-pagination__btn zt-pagination__btn--ellipsis"
+              v-bind="ellipsisSelectProps"
+              :class="['zt-pagination__ellipsis-select', sizePickerClass]"
+              :model-value="currentPage"
+              :options="quickJumpOptions"
               :disabled="disabled"
-              @click="handleEllipsisClick(item.value)"
-              :title="item.value !== undefined ? `跳至第 ${item.value} 页` : undefined"
+              @update:model-value="handleEllipsisSelect"
             >
-              <component
-                v-if="label"
-                :is="label({ ...paginationInfo, type: 'ellipsis', value: item.value })"
-              />
-              <svg v-else viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
-                <circle cx="3.5" cy="8" r="1.25" />
-                <circle cx="8" cy="8" r="1.25" />
-                <circle cx="12.5" cy="8" r="1.25" />
-              </svg>
-            </button>
+              <template #trigger="{ triggerProps, setTriggerRef, visible, disabled: triggerDisabled }">
+                <button
+                  :ref="setTriggerRef"
+                  v-bind="triggerProps"
+                  type="button"
+                  class="zt-pagination__btn zt-pagination__btn--ellipsis"
+                  :class="{ 'zt-pagination__btn--ellipsis-open': visible }"
+                  :disabled="triggerDisabled"
+                  title="选择要前往的页面"
+                >
+                  <RenderVNodeChild
+                    v-if="label"
+                    :content="label({ ...paginationInfo, type: 'ellipsis', value: item.value })"
+                  />
+                  <svg v-else viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
+                    <circle cx="3.5" cy="8" r="1.25" />
+                    <circle cx="8" cy="8" r="1.25" />
+                    <circle cx="12.5" cy="8" r="1.25" />
+                  </svg>
+                </button>
+              </template>
+            </ZSelect>
 
-            <!-- Page number -->
             <button
               v-else
               class="zt-pagination__btn zt-pagination__btn--page"
@@ -302,76 +656,52 @@ const sizePickerClass = computed(() => {
               :disabled="disabled"
               @click="handlePageChange(item.value!)"
             >
-              <component
+              <RenderVNodeChild
                 v-if="label"
-                :is="label({ ...paginationInfo, type: 'page', value: item.value })"
+                :content="label({ ...paginationInfo, type: 'page', value: item.value })"
               />
               <span v-else>{{ item.value }}</span>
             </button>
           </template>
 
-          <!-- Next button -->
           <button
             class="zt-pagination__btn zt-pagination__btn--next"
             :disabled="disabled || currentPage >= totalPageCount"
             @click="handlePageChange(currentPage + 1)"
           >
-            <component
-              v-if="next"
-              :is="next(paginationInfo)"
-            />
+            <RenderVNodeChild v-if="next" :content="next(paginationInfo)" />
             <svg v-else viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
-              <path d="M5.5 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M5.5 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </button>
 
-          <!-- Suffix -->
           <span v-if="suffix" class="zt-pagination__suffix">
-            <component :is="suffix(paginationInfo)" />
+            <RenderVNodeChild :content="suffix(paginationInfo)" />
           </span>
         </div>
 
-        <!-- Size picker section -->
         <div v-if="section === 'size-picker' && showSizePicker" class="zt-pagination__size-picker">
-          <select
-            :class="['zt-pagination__size-select', sizePickerClass]"
-            :value="currentPageSize"
-            :disabled="disabled"
-            @change="handlePageSizeChange(Number(($event.target as HTMLSelectElement).value))"
-          >
-            <option
-              v-for="option in pageSizeOptions"
-              :key="option.value"
-              :value="option.value"
-            >
-              {{ option.label }}
-            </option>
-          </select>
+          <ZSelect
+            v-bind="sizePickerSelectProps"
+            :class="['zt-pagination__select', sizePickerClass]"
+            :model-value="currentPageSize"
+            :options="pageSizeOptions"
+            @update:model-value="handlePageSizeChange(Number($event))"
+          />
         </div>
 
-        <!-- Quick jumper section -->
         <div v-if="section === 'quick-jumper' && showQuickJumper" class="zt-pagination__quick-jumper">
-          <component
-            v-if="goto"
-            :is="goto(paginationInfo)"
-          />
+          <RenderVNodeChild v-if="goto" :content="goto(paginationInfo)" />
           <span v-else class="zt-pagination__quick-jumper-label">跳至</span>
 
           <template v-if="showQuickJumpDropdown && totalPageCount <= 200">
-            <select
-              :class="['zt-pagination__size-select', sizePickerClass]"
-              :value="currentPage"
-              :disabled="disabled"
-              @change="handlePageChange(Number(($event.target as HTMLSelectElement).value))"
-            >
-              <option
-                v-for="p in totalPageCount"
-                :key="p"
-                :value="p"
-              >
-                {{ p }}
-              </option>
-            </select>
+            <ZSelect
+              v-bind="quickJumpSelectProps"
+              :class="['zt-pagination__select', sizePickerClass]"
+              :model-value="currentPage"
+              :options="quickJumpOptions"
+              @update:model-value="handlePageChange(Number($event))"
+            />
           </template>
           <template v-else>
             <input
@@ -398,6 +728,10 @@ const sizePickerClass = computed(() => {
   align-items: center;
   gap: 8px;
   user-select: none;
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .zt-pagination--small {
@@ -408,7 +742,6 @@ const sizePickerClass = computed(() => {
   gap: 12px;
 }
 
-/* --- Pages section --- */
 .zt-pagination__pages {
   display: inline-flex;
   align-items: center;
@@ -429,7 +762,6 @@ const sizePickerClass = computed(() => {
   align-items: center;
 }
 
-/* --- Buttons --- */
 .zt-pagination__btn {
   display: inline-flex;
   align-items: center;
@@ -494,19 +826,23 @@ const sizePickerClass = computed(() => {
   color: var(--text-on-primary);
 }
 
-/* Ellipsis button */
+.zt-pagination__ellipsis-select {
+  min-width: 0;
+}
+
 .zt-pagination__btn--ellipsis {
   border-color: transparent;
   background: transparent;
   cursor: pointer;
 }
 
-.zt-pagination__btn--ellipsis:hover:not(:disabled) {
-  background: var(--hover-bg);
+.zt-pagination__btn--ellipsis:hover:not(:disabled),
+.zt-pagination__btn--ellipsis-open {
+  background: var(--active-bg);
   border-color: var(--control-border);
+  color: var(--primary-color);
 }
 
-/* --- Simple mode --- */
 .zt-pagination__simple-indicator {
   display: inline-flex;
   align-items: center;
@@ -526,59 +862,35 @@ const sizePickerClass = computed(() => {
   padding: 0 10px;
 }
 
-/* --- Size picker --- */
 .zt-pagination__size-picker {
   display: inline-flex;
   align-items: center;
 }
 
-.zt-pagination__size-select {
-  height: 32px;
-  padding: 0 24px 0 8px;
-  border: 2px solid var(--control-border);
-  border-radius: 6px;
-  background: var(--control-bg);
-  color: var(--text-color);
+.zt-pagination__select {
+  min-width: 0;
+}
+
+.zt-pagination__select :deep(.select-trigger) {
+  min-height: 32px;
+  padding: 0 12px;
   font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-  outline: none;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='12' height='12'%3E%3Cpath d='M4 6l4 4 4-4' stroke='gray' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 4px center;
 }
 
-.zt-pagination__size-select:hover:not(:disabled) {
-  background-color: var(--hover-bg);
-  border-color: color-mix(in srgb, var(--primary-color), black 15%);
-}
-
-.zt-pagination__size-select:focus {
-  box-shadow: 0 0 0 3px var(--primary-light-bg);
-  border-color: color-mix(in srgb, var(--primary-color), black 15%);
-}
-
-.zt-pagination__size-select:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.zt-pagination__size-select--small {
-  height: 26px;
+.zt-pagination__select--small :deep(.select-trigger) {
+  min-height: 26px;
+  padding: 0 10px;
   font-size: 11px;
   border-radius: 4px;
-  padding: 0 20px 0 6px;
 }
 
-.zt-pagination__size-select--large {
-  height: 38px;
+.zt-pagination__select--large :deep(.select-trigger) {
+  min-height: 38px;
+  padding: 0 14px;
   font-size: 15px;
   border-radius: 8px;
-  padding: 0 28px 0 10px;
 }
 
-/* --- Quick jumper --- */
 .zt-pagination__quick-jumper {
   display: inline-flex;
   align-items: center;
@@ -598,10 +910,7 @@ const sizePickerClass = computed(() => {
   font-size: 15px;
 }
 
-.zt-pagination__quick-jumper-label {
-  color: var(--text-secondary);
-}
-
+.zt-pagination__quick-jumper-label,
 .zt-pagination__quick-jumper-suffix {
   color: var(--text-secondary);
 }
@@ -650,7 +959,6 @@ const sizePickerClass = computed(() => {
   cursor: not-allowed;
 }
 
-/* Remove number input spinners */
 .zt-pagination__quick-jumper-input::-webkit-outer-spin-button,
 .zt-pagination__quick-jumper-input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -661,7 +969,6 @@ const sizePickerClass = computed(() => {
   -moz-appearance: textfield;
 }
 
-/* --- Disabled state --- */
 .zt-pagination--disabled {
   pointer-events: none;
 }

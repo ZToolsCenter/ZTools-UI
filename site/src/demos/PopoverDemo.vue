@@ -9,7 +9,6 @@ type PopoverDemoVariant =
   | 'trigger'
   | 'placement'
   | 'header-footer'
-  | 'controlled'
   | 'manual-position'
   | 'width-arrow-overlap'
   | 'raw-scrollable'
@@ -24,8 +23,6 @@ const props = withDefaults(
 )
 
 const manualShow = ref(false)
-const controlledShow = ref(false)
-const controlledClickoutsideCount = ref(0)
 const manualPositionShow = ref(false)
 const manualX = ref(0)
 const manualY = ref(0)
@@ -41,14 +38,6 @@ const placementGrid: PlacementGridCell[][] = [
 ]
 
 const scrollItems = Array.from({ length: 14 }, (_, index) => `滚动内容 ${index + 1}`)
-
-function handleControlledUpdate(value: boolean): void {
-  controlledShow.value = value
-}
-
-function handleControlledClickoutside(): void {
-  controlledClickoutsideCount.value += 1
-}
 
 function toggleManualPosition(event?: MouseEvent): void {
   if (manualPositionShow.value) {
@@ -157,29 +146,6 @@ function nudgeManualPosition(): void {
           底部区域已应用 footer-style。
         </template>
       </ZPopover>
-    </template>
-
-    <template v-else-if="props.variant === 'controlled'">
-      <div class="popover-demo__column">
-        <ZPopover
-          trigger="click"
-          :show="controlledShow"
-          show-arrow
-          @update:show="handleControlledUpdate"
-          @clickoutside="handleControlledClickoutside"
-        >
-          <template #trigger>
-            <ZButton>{{ controlledShow ? '关闭' : '打开' }}受控浮层</ZButton>
-          </template>
-          当前显示状态由外部 show 控制，点击外部也会通过事件通知父组件。
-          <template #footer>
-            <button class="popover-demo__text-button" type="button" @click="controlledShow = false">关闭</button>
-          </template>
-        </ZPopover>
-        <span class="popover-demo__value">
-          show: {{ controlledShow ? 'true' : 'false' }} / clickoutside: {{ controlledClickoutsideCount }}
-        </span>
-      </div>
     </template>
 
     <template v-else-if="props.variant === 'manual-position'">
@@ -352,25 +318,9 @@ function nudgeManualPosition(): void {
   color: var(--text-secondary);
 }
 
-.popover-demo__text-button {
-  border: 1px solid var(--control-border);
-  border-radius: 8px;
-  background: var(--control-bg);
-  color: var(--primary-color);
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
-  padding: 8px 12px;
-  font-size: 13px;
-}
-
 .popover-demo__stretch-trigger {
   width: 220px;
   justify-content: flex-start;
-}
-
-.popover-demo__text-button:hover {
-  background: var(--hover-bg);
-  border-color: color-mix(in srgb, var(--primary-color), black 15%);
 }
 
 .popover-demo__header-accent {
@@ -440,4 +390,3 @@ function nudgeManualPosition(): void {
   }
 }
 </style>
-

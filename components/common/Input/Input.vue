@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useAttrs } from 'vue'
+import { computed, ref, useAttrs, watch } from 'vue'
 
 defineOptions({
   inheritAttrs: false
@@ -12,7 +12,8 @@ type InputStatus = 'success' | 'warning' | 'error'
 type NativeInputElement = HTMLInputElement | HTMLTextAreaElement
 
 interface Props {
-  modelValue: InputValue
+  modelValue?: InputValue
+  defaultModelValue?: InputValue
   type?: InputType
   placeholder?: string
   disabled?: boolean
@@ -26,6 +27,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  defaultModelValue: '',
   type: 'text',
   placeholder: '',
   disabled: false,
@@ -51,8 +53,20 @@ const emit = defineEmits<{
 }>()
 
 const attrs = useAttrs()
+const uncontrolledValue = ref<InputValue>(props.modelValue ?? props.defaultModelValue)
+
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (value !== undefined) {
+      uncontrolledValue.value = value
+    }
+  }
+)
+
+const mergedValue = computed<InputValue>(() => (props.modelValue !== undefined ? props.modelValue : uncontrolledValue.value))
 const isTextarea = computed(() => props.type === 'textarea')
-const valueText = computed(() => `${props.modelValue}`)
+const valueText = computed(() => `${mergedValue.value}`)
 const valueLength = computed(() => valueText.value.length)
 const showClear = computed(() => props.clearable && !props.disabled && !props.readonly && valueLength.value > 0)
 const wordLimitText = computed(() => {
@@ -87,10 +101,23 @@ function getEventValue(event: Event): string {
   return (event.target as NativeInputElement).value
 }
 
-function handleInput(event: Event): void {
-  const value = normalizeValue(getEventValue(event))
+function updateValue(value: InputValue): void {
+  if (props.modelValue === undefined) {
+    uncontrolledValue.value = value
+  }
+
   emit('update:modelValue', value)
+}
+
+function handleInput(event: Event): void {
+  const target = event.target as NativeInputElement
+  const value = normalizeValue(getEventValue(event))
+  updateValue(value)
   emit('input', value)
+
+  if (props.modelValue !== undefined) {
+    target.value = String(mergedValue.value)
+  }
 }
 
 function handleChange(event: Event): void {
@@ -98,7 +125,7 @@ function handleChange(event: Event): void {
 }
 
 function handleClear(): void {
-  emit('update:modelValue', '')
+  updateValue('')
   emit('change', '')
   emit('clear')
 }
@@ -122,7 +149,7 @@ function handleBlur(event: FocusEvent): void {
         v-if="isTextarea"
         v-bind="attrs"
         class="zt-input__inner zt-input__textarea"
-        :value="modelValue"
+        :value="mergedValue"
         :placeholder="placeholder"
         :disabled="disabled"
         :readonly="readonly"
@@ -137,7 +164,7 @@ function handleBlur(event: FocusEvent): void {
         v-else
         v-bind="attrs"
         class="zt-input__inner"
-        :value="modelValue"
+        :value="mergedValue"
         :type="type"
         :placeholder="placeholder"
         :disabled="disabled"

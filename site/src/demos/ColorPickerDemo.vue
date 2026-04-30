@@ -51,33 +51,31 @@ const placementColor = ref('#f97316')
     </template>
 
     <template v-else-if="props.variant === 'placement'">
-      <div class="color-picker-demo__column">
-        <span class="color-picker-demo__value">placement 与 Popover 保持一致，默认会在视口边缘自动纠正位置。</span>
-        <div class="color-picker-demo__grid">
-          <div class="color-picker-demo__placement-item">
-            <span>top-start</span>
-            <ZColorPicker v-model="placementColor" placement="top-start" :show-input="false" />
-          </div>
-          <div class="color-picker-demo__placement-item">
-            <span>top</span>
-            <ZColorPicker v-model="placementColor" placement="top" :show-input="false" />
-          </div>
-          <div class="color-picker-demo__placement-item">
-            <span>top-end</span>
-            <ZColorPicker v-model="placementColor" placement="top-end" :show-input="false" />
-          </div>
-          <div class="color-picker-demo__placement-item">
-            <span>bottom-start</span>
-            <ZColorPicker v-model="placementColor" placement="bottom-start" :show-input="false" />
-          </div>
-          <div class="color-picker-demo__placement-item">
-            <span>bottom</span>
-            <ZColorPicker v-model="placementColor" placement="bottom" :show-input="false" />
-          </div>
-          <div class="color-picker-demo__placement-item">
-            <span>bottom-end</span>
-            <ZColorPicker v-model="placementColor" placement="bottom-end" :show-input="false" />
-          </div>
+      <span class="color-picker-demo__value">placement 与 Popover 保持一致，默认会在视口边缘自动纠正位置。</span>
+      <div class="color-picker-demo__grid">
+        <div class="color-picker-demo__placement-item">
+          <span>top-start</span>
+          <ZColorPicker v-model="placementColor" placement="top-start" :show-input="false" />
+        </div>
+        <div class="color-picker-demo__placement-item">
+          <span>top</span>
+          <ZColorPicker v-model="placementColor" placement="top" :show-input="false" />
+        </div>
+        <div class="color-picker-demo__placement-item">
+          <span>top-end</span>
+          <ZColorPicker v-model="placementColor" placement="top-end" :show-input="false" />
+        </div>
+        <div class="color-picker-demo__placement-item">
+          <span>bottom-start</span>
+          <ZColorPicker v-model="placementColor" placement="bottom-start" :show-input="false" />
+        </div>
+        <div class="color-picker-demo__placement-item">
+          <span>bottom</span>
+          <ZColorPicker v-model="placementColor" placement="bottom" :show-input="false" />
+        </div>
+        <div class="color-picker-demo__placement-item">
+          <span>bottom-end</span>
+          <ZColorPicker v-model="placementColor" placement="bottom-end" :show-input="false" />
         </div>
       </div>
     </template>

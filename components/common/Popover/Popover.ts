@@ -20,6 +20,7 @@ export type PopoverSegmentStyle = string | Record<string, string | number>
 export interface PopoverProps {
   trigger?: PopoverTrigger
   show?: boolean
+  defaultShow?: boolean
   placement?: PopoverPlacement
   overlap?: boolean
   raw?: boolean

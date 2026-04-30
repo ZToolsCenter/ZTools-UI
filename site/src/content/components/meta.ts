@@ -132,9 +132,22 @@ const selectDemoScript = `import { ZSelect } from 'ztools-ui-components/common/S
 const selectModelDemoScript = `import { ref } from 'vue'
 import { ZSelect } from 'ztools-ui-components/common/Select'
 import type { SelectValueType } from 'ztools-ui-components/common/Select'`
+const selectCustomTriggerDemoScript = `import { ref } from 'vue'
+import { ZSelect } from 'ztools-ui-components/common/Select'
+
+const value = ref('green')
+const options = [
+  { label: '蓝色 (Blue)', value: 'blue' },
+  { label: '紫色 (Purple)', value: 'purple' },
+  { label: '绿色 (Green)', value: 'green' },
+  { label: '橙色 (Orange)', value: 'orange' }
+]`
 const paginationDemoScript = `import { ZPagination } from 'ztools-ui-components/common/Pagination'`
 const paginationModelDemoScript = `import { ref } from 'vue'
 import { ZPagination } from 'ztools-ui-components/common/Pagination'`
+const paginationCustomDemoScript = `import { ref } from 'vue'
+import { ZPagination } from 'ztools-ui-components/common/Pagination'
+import type { PaginationInfo } from 'ztools-ui-components/common/Pagination'`
 
 const buttonDemoVariants = [
   {
@@ -568,16 +581,17 @@ const colorPickerDemoVariants = [
   {
     variant: 'basic',
     title: '基础用法',
-    description: '可同时使用颜色面板和文本输入框编辑颜色值。',
+    description: '支持 v-model 双向绑定颜色值。',
     sourceCode: createDemoSource(
       `
-        <div class="demo-row">
+        <div class="color-picker-demo__row">
           <ZColorPicker v-model="color" />
-          <span>当前颜色: {{ color }}</span>
+          <span class="color-picker-demo__value">当前颜色: {{ color }}</span>
         </div>
       `,
       `
-        ${colorPickerModelDemoScript}
+        import { ref } from 'vue'
+        import { ZColorPicker } from 'ztools-ui-components/common/ColorPicker'
 
         const color = ref('#0284c7')
       `
@@ -589,14 +603,15 @@ const colorPickerDemoVariants = [
     description: '支持 small、medium、large 三种尺寸。',
     sourceCode: createDemoSource(
       `
-        <div class="demo-column">
+        <div class="color-picker-demo__row">
           <ZColorPicker v-model="color" size="small" />
           <ZColorPicker v-model="color" size="medium" />
           <ZColorPicker v-model="color" size="large" />
         </div>
       `,
       `
-        ${colorPickerModelDemoScript}
+        import { ref } from 'vue'
+        import { ZColorPicker } from 'ztools-ui-components/common/ColorPicker'
 
         const color = ref('#0284c7')
       `
@@ -608,13 +623,14 @@ const colorPickerDemoVariants = [
     description: '设置 show-input 为 false，仅保留颜色选择入口。',
     sourceCode: createDemoSource(
       `
-        <div class="demo-row">
+        <div class="color-picker-demo__row">
           <ZColorPicker v-model="color" :show-input="false" />
-          <span>当前颜色: {{ color }}</span>
+          <span class="color-picker-demo__value">当前颜色: {{ color }}</span>
         </div>
       `,
       `
-        ${colorPickerModelDemoScript}
+        import { ref } from 'vue'
+        import { ZColorPicker } from 'ztools-ui-components/common/ColorPicker'
 
         const color = ref('#16a34a')
       `
@@ -626,13 +642,14 @@ const colorPickerDemoVariants = [
     description: '设置 show-alpha 后可在颜色面板中调整透明度，并支持 HEX、RGBA、HSL 格式切换。',
     sourceCode: createDemoSource(
       `
-        <div class="demo-row">
+        <div class="color-picker-demo__row">
           <ZColorPicker v-model="color" show-alpha />
-          <span>当前颜色: {{ color }}</span>
+          <span class="color-picker-demo__value">当前颜色: {{ color }}</span>
         </div>
       `,
       `
-        ${colorPickerModelDemoScript}
+        import { ref } from 'vue'
+        import { ZColorPicker } from 'ztools-ui-components/common/ColorPicker'
 
         const color = ref('#8b5cf680')
       `
@@ -644,19 +661,36 @@ const colorPickerDemoVariants = [
     description: '与 Popover 共用 placement 体系，支持 12 个方向，并默认根据视口空间自动纠正。',
     sourceCode: createDemoSource(
       `
-        <div class="demo-column">
-          <div class="demo-row">
+        <div class="color-picker-demo__grid">
+          <div class="color-picker-demo__placement-item">
+            <span>top-start</span>
             <ZColorPicker v-model="color" placement="top-start" :show-input="false" />
+          </div>
+          <div class="color-picker-demo__placement-item">
+            <span>top</span>
             <ZColorPicker v-model="color" placement="top" :show-input="false" />
+          </div>
+          <div class="color-picker-demo__placement-item">
+            <span>top-end</span>
             <ZColorPicker v-model="color" placement="top-end" :show-input="false" />
+          </div>
+          <div class="color-picker-demo__placement-item">
+            <span>bottom-start</span>
             <ZColorPicker v-model="color" placement="bottom-start" :show-input="false" />
+          </div>
+          <div class="color-picker-demo__placement-item">
+            <span>bottom</span>
             <ZColorPicker v-model="color" placement="bottom" :show-input="false" />
+          </div>
+          <div class="color-picker-demo__placement-item">
+            <span>bottom-end</span>
             <ZColorPicker v-model="color" placement="bottom-end" :show-input="false" />
           </div>
         </div>
       `,
       `
-        ${colorPickerModelDemoScript}
+        import { ref } from 'vue'
+        import { ZColorPicker } from 'ztools-ui-components/common/ColorPicker'
 
         const color = ref('#f97316')
       `
@@ -668,12 +702,14 @@ const colorPickerDemoVariants = [
     description: '禁用后颜色面板和文本输入都不可交互。',
     sourceCode: createDemoSource(
       `
-        <div class="demo-row">
+        <div class="color-picker-demo__row">
           <ZColorPicker model-value="#94a3b8" disabled />
           <ZColorPicker model-value="#64748b" :show-input="false" disabled />
         </div>
       `,
-      colorPickerDemoScript
+      `
+        import { ZColorPicker } from 'ztools-ui-components/common/ColorPicker'
+      `
     )
   }
 ] satisfies readonly VariantDemoConfig<string>[]
@@ -890,36 +926,6 @@ const popoverDemoVariants = [
         </ZPopover>
       `,
       popoverDemoScript
-    )
-  },
-  {
-    variant: 'controlled',
-    title: '受控显示',
-    description: '传入 show 后进入受控模式，通过 update:show 与 clickoutside 管理状态。',
-    sourceCode: createDemoSource(
-      `
-        <div class="demo-column">
-          <ZPopover
-            trigger="click"
-            :show="visible"
-            show-arrow
-            @update:show="visible = $event"
-            @clickoutside="clickoutsideCount += 1"
-          >
-            <template #trigger>
-              <ZButton>{{ visible ? '关闭' : '打开' }}受控浮层</ZButton>
-            </template>
-            当前显示状态由外部 show 控制，点击外部也会通过事件通知父组件。
-          </ZPopover>
-          <span>show: {{ visible ? 'true' : 'false' }} / clickoutside: {{ clickoutsideCount }}</span>
-        </div>
-      `,
-      `
-        ${popoverModelDemoScript}
-
-        const visible = ref(false)
-        const clickoutsideCount = ref(0)
-      `
     )
   },
   {
@@ -1196,18 +1202,19 @@ const selectDemoVariants = [
   {
     variant: 'basic',
     title: '基础用法',
-    description: '通过 v-model 绑定当前选中值，options 提供可选项。',
+    description: '通过 v-model 绑定选中值。',
     sourceCode: createDemoSource(
       `
-        <div class="demo-column">
+        <div class="select-demo__column">
           <ZSelect v-model="selected" :options="options" placeholder="选择主题色" />
-          <span>当前值: {{ selected }}</span>
+          <span class="select-demo__value">当前值: {{ selected ?? '未选择' }}</span>
         </div>
       `,
       `
-        ${selectModelDemoScript}
+        import { ref } from 'vue'
+        import { ZSelect } from 'ztools-ui-components/common/Select'
 
-        const selected = ref('blue')
+        const selected = ref<string | null>('blue')
         const options = [
           { label: '蓝色 (Blue)', value: 'blue' },
           { label: '紫色 (Purple)', value: 'purple' },
@@ -1223,7 +1230,7 @@ const selectDemoVariants = [
     description: 'multiple 开启多选，maxTagCount 可控制已选标签展示数量。',
     sourceCode: createDemoSource(
       `
-        <div class="demo-column">
+        <div class="select-demo__column">
           <ZSelect v-model="multipleSelected" :options="options" multiple clearable placeholder="选择多个颜色" />
           <ZSelect
             v-model="limitedSelected"
@@ -1233,11 +1240,13 @@ const selectDemoVariants = [
             :max-tag-count="2"
             placeholder="最多显示 2 个标签"
           />
-          <span>多选值: {{ multipleSelected.join(', ') }}</span>
+          <span class="select-demo__value">多选值: {{ multipleSelected.join(', ') }}</span>
         </div>
       `,
       `
-        ${selectModelDemoScript}
+        import { ref } from 'vue'
+        import { ZSelect } from 'ztools-ui-components/common/Select'
+        import type { SelectValueType } from 'ztools-ui-components/common/Select'
 
         const multipleSelected = ref<SelectValueType[]>(['blue', 'green', 'orange'])
         const limitedSelected = ref<SelectValueType[]>(['blue', 'purple', 'green', 'orange'])
@@ -1253,18 +1262,19 @@ const selectDemoVariants = [
   {
     variant: 'clearable',
     title: '可清空',
-    description: '设置 clearable 后，有选中值时显示清空按钮。',
+    description: '单选清空后会发出 null。',
     sourceCode: createDemoSource(
       `
-        <div class="demo-column">
+        <div class="select-demo__column">
           <ZSelect v-model="selected" :options="options" clearable placeholder="可清空选择" />
-          <span>当前值: {{ selected || '未选择' }}</span>
+          <span class="select-demo__value">当前值: {{ selected ?? '未选择' }}</span>
         </div>
       `,
       `
-        ${selectModelDemoScript}
+        import { ref } from 'vue'
+        import { ZSelect } from 'ztools-ui-components/common/Select'
 
-        const selected = ref('purple')
+        const selected = ref<string | null>('purple')
         const options = [
           { label: '蓝色 (Blue)', value: 'blue' },
           { label: '紫色 (Purple)', value: 'purple' },
@@ -1310,9 +1320,10 @@ const selectDemoVariants = [
         </div>
       `,
       `
-        ${selectModelDemoScript}
+        import { ref } from 'vue'
+        import { ZSelect } from 'ztools-ui-components/common/Select'
 
-        const value = ref('')
+        const value = ref<string | null>(null)
         const options = [
           { label: '蓝色 (Blue)', value: 'blue' },
           { label: '紫色 (Purple)', value: 'purple' },
@@ -1333,7 +1344,8 @@ const selectDemoVariants = [
         </div>
       `,
       `
-        ${selectModelDemoScript}
+        import { ref } from 'vue'
+        import { ZSelect } from 'ztools-ui-components/common/Select'
 
         const scrollValue = ref('option-1')
         const scrollCount = ref(0)
@@ -1379,6 +1391,33 @@ const selectDemoVariants = [
     )
   },
   {
+    variant: 'custom-trigger',
+    title: '自定义触发器',
+    description: '通过 trigger 插槽接管触发器 UI，Select 继续负责展开、定位与选项选择。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <ZSelect v-model="value" :options="options" placeholder="选择主题色">
+            <template #trigger="{ triggerProps, setTriggerRef, visible, selectedLabel }">
+              <button
+                :ref="setTriggerRef"
+                v-bind="triggerProps"
+                type="button"
+                class="custom-select-trigger"
+                :class="{ 'custom-select-trigger--open': visible }"
+              >
+                <span>{{ selectedLabel }}</span>
+                <span>{{ visible ? '▴' : '▾' }}</span>
+              </button>
+            </template>
+          </ZSelect>
+          <span>当前值: {{ value }}</span>
+        </div>
+      `,
+      selectCustomTriggerDemoScript
+    )
+  },
+  {
     variant: 'placement',
     title: '弹层定位',
     description: '支持与 Popover 一致的 placement 体系，并可通过 autoAdjustPlacement 控制视口边缘自动纠正。',
@@ -1389,6 +1428,9 @@ const selectDemoVariants = [
             <ZSelect v-model="startValue" :options="options" placement="top-start" placeholder="top-start" />
             <ZSelect v-model="centerValue" :options="options" placement="bottom" placeholder="bottom" />
             <ZSelect v-model="endValue" :options="options" placement="top-end" placeholder="top-end" />
+          </div>
+          <div class="demo-row">
+            <ZSelect v-model="bottomStartValue" :options="options" placement="bottom-start" placeholder="bottom-start" />
           </div>
           <div class="demo-row" style="justify-content: flex-end; width: 100%;">
             <ZSelect v-model="autoAdjustValue" :options="options" placement="right-start" placeholder="自动纠正" />
@@ -1403,11 +1445,13 @@ const selectDemoVariants = [
         </div>
       `,
       `
-        ${selectModelDemoScript}
+        import { ref } from 'vue'
+        import { ZSelect } from 'ztools-ui-components/common/Select'
 
         const startValue = ref('blue')
         const centerValue = ref('purple')
         const endValue = ref('green')
+        const bottomStartValue = ref('pink')
         const autoAdjustValue = ref('orange')
         const fixedPlacementValue = ref('red')
         const options = [
@@ -1415,13 +1459,13 @@ const selectDemoVariants = [
           { label: '紫色 (Purple)', value: 'purple' },
           { label: '绿色 (Green)', value: 'green' },
           { label: '橙色 (Orange)', value: 'orange' },
-          { label: '红色 (Red)', value: 'red' }
+          { label: '红色 (Red)', value: 'red' },
+          { label: '粉色 (Pink)', value: 'pink' }
         ]
       `
     )
   }
 ] satisfies readonly VariantDemoConfig<string>[]
-
 const tagDemoVariants = [
   {
     variant: 'type',
@@ -1573,19 +1617,12 @@ const paginationDemoVariants = [
   {
     variant: 'basic',
     title: '基础用法',
-    description: '支持受控（v-model:page）与非受控（default-page）两种模式，通过 item-count 自动计算总页数。',
+    description: '通过 v-model:page 绑定当前页，item-count 自动计算总页数。页码中的 ... 会打开页码下拉，选择后才会跳转。',
     sourceCode: createDemoSource(
       `
-        <div class="pagination-demo">
-          <div class="pagination-demo__column">
-            <span class="pagination-demo__label">受控模式</span>
-            <ZPagination :page="page" :item-count="200" @update:page="page = $event" />
-            <span class="pagination-demo__value">当前页: {{ page }}</span>
-          </div>
-          <div class="pagination-demo__column">
-            <span class="pagination-demo__label">非受控模式（defaultPage）</span>
-            <ZPagination :default-page="3" :item-count="200" />
-          </div>
+        <div class="pagination-demo__column">
+          <ZPagination :page="page" :item-count="200" @update:page="page = $event" />
+          <span class="pagination-demo__value">点击 ... 会打开页码下拉，选择后跳转。当前页: {{ page }}</span>
         </div>
       `,
       paginationModelDemoScript + `
@@ -1652,7 +1689,7 @@ const pageSize2 = ref(20)`
   {
     variant: 'quick-jumper',
     title: '快速跳转',
-    description: '设置 show-quick-jumper 显示快速跳转控件，默认使用下拉菜单，可通过 show-quick-jump-dropdown 切换为输入框模式。',
+    description: '设置 show-quick-jumper 显示快速跳转控件，默认使用下拉菜单；页码中的 ... 也会打开同一组页码选项，选择后再跳转。可通过 show-quick-jump-dropdown 切换为输入框模式。',
     sourceCode: createDemoSource(
       `
         <div class="pagination-demo">
@@ -1707,6 +1744,43 @@ const page2 = ref(1)`
         </div>
       `,
       paginationDemoScript
+    )
+  },
+  {
+    variant: 'custom',
+    title: '自定义文案',
+    description: '通过 prefix、suffix、goto、prev、next 自定义业务文案，适合结果列表或后台管理场景。紧凑页码中的 ... 会先展开页码下拉，再由用户选择目标页。',
+    sourceCode: createDemoSource(
+      `
+        <div class="pagination-demo">
+          <div class="pagination-demo__column">
+            <span class="pagination-demo__label">结果列表</span>
+            <ZPagination
+              show-quick-jumper
+              :page="page"
+              :page-size="pageSize"
+              :page-slot="3"
+              :item-count="278"
+              :prefix="renderPrefix"
+              :suffix="renderSuffix"
+              :goto="renderGoto"
+              :prev="renderPrev"
+              :next="renderNext"
+              @update:page="page = $event"
+            />
+          </div>
+        </div>
+      `,
+      paginationCustomDemoScript + `
+
+const page = ref(6)
+const pageSize = ref(10)
+
+const renderPrefix = (info: PaginationInfo) => '共 ' + info.itemCount + ' 条'
+const renderSuffix = (info: PaginationInfo) => info.startIndex + '-' + info.endIndex
+const renderGoto = () => '前往'
+const renderPrev = () => '上一页'
+const renderNext = () => '下一页'`
     )
   },
   {
@@ -1899,8 +1973,14 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'modelValue',
           type: 'string | number',
-          description: '输入框当前值',
-          required: true,
+          description: '受控值。传入且不为 undefined 时组件进入受控模式。',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultModelValue',
+          type: 'string | number',
+          default: "''",
+          description: '非受控模式的初始值；未传 modelValue 或其为 undefined 时生效。',
           since: '1.0.0'
         },
         {
@@ -1988,7 +2068,7 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'update:modelValue',
           signature: '(value: string | number) => void',
-          description: '输入值变化时触发',
+          description: '值变化时始终触发；非受控模式下组件会同步更新内部状态。',
           since: '1.0.0'
         },
         {
@@ -2037,8 +2117,14 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'modelValue',
           type: 'string',
-          description: '当前颜色值，推荐使用十六进制色值',
-          required: true,
+          description: '受控颜色值。传入且不为 undefined 时组件进入受控模式。',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultModelValue',
+          type: 'string',
+          default: '#000000',
+          description: '非受控模式的初始颜色值；未传 modelValue 或其为 undefined 时生效。',
           since: '1.0.0'
         },
         {
@@ -2070,6 +2156,19 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
           since: '1.0.0'
         },
         {
+          name: 'show',
+          type: 'boolean',
+          description: '受控显隐状态。传入且不为 undefined 时组件进入受控模式。',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultShow',
+          type: 'boolean',
+          default: 'false',
+          description: '非受控模式的初始展开状态；未传 show 或其为 undefined 时生效。',
+          since: '1.0.0'
+        },
+        {
           name: 'size',
           type: "'small' | 'medium' | 'large'",
           default: 'medium',
@@ -2095,13 +2194,19 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'update:modelValue',
           signature: '(value: string) => void',
-          description: '颜色值变化时触发',
+          description: '颜色值变化时始终触发；非受控模式下组件会同步更新内部状态。',
           since: '1.0.0'
         },
         {
           name: 'change',
           signature: '(value: string) => void',
           description: '颜色值提交变化时触发',
+          since: '1.0.0'
+        },
+        {
+          name: 'update:show',
+          signature: '(value: boolean) => void',
+          description: '面板显隐变化时触发；非受控模式下组件会同步更新内部状态。',
           since: '1.0.0'
         }
       ]
@@ -2120,8 +2225,14 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'modelValue',
           type: 'boolean',
-          description: '是否选中',
-          required: true,
+          description: '受控选中状态。传入且不为 undefined 时组件进入受控模式。',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultModelValue',
+          type: 'boolean',
+          default: 'false',
+          description: '非受控模式的初始选中状态；未传 modelValue 或其为 undefined 时生效。',
           since: '1.0.0'
         },
         {
@@ -2156,7 +2267,7 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'update:modelValue',
           signature: '(value: boolean) => void',
-          description: '选中状态变化时触发',
+          description: '选中状态变化时始终触发；非受控模式下组件会同步更新内部状态。',
           since: '1.0.0'
         },
         {
@@ -2248,8 +2359,13 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'modelValue',
           type: 'boolean',
-          description: '当前开关值',
-          required: true,
+          description: '受控开关值。传入且不为 undefined 时组件进入受控模式。',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultModelValue',
+          type: 'boolean',
+          description: '非受控模式的初始值；未传 modelValue 或其为 undefined 时生效，默认回落为 inactiveValue。',
           since: '1.0.0'
         },
         {
@@ -2297,7 +2413,7 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'update:modelValue',
           signature: '(value: boolean) => void',
-          description: '开关值变化时触发',
+          description: '开关值变化时始终触发；非受控模式下组件会同步更新内部状态。',
           since: '1.0.0'
         },
         {
@@ -2321,9 +2437,14 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
       props: [
         {
           name: 'modelValue',
-          type: 'string | number | Array<string | number>',
-          description: '当前选中的值，多选和 tag 输入模式下为数组',
-          required: true,
+          type: 'string | number | null | Array<string | number>',
+          description: '受控选中值。单选清空值为 null；传入且不为 undefined 时组件进入受控模式。',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultModelValue',
+          type: 'string | number | null | Array<string | number>',
+          description: '非受控模式的初始值；未传 modelValue 或其为 undefined 时生效。注意 undefined 表示非受控，不表示清空。',
           since: '1.0.0'
         },
         {
@@ -2402,6 +2523,19 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
           since: '1.0.0'
         },
         {
+          name: 'show',
+          type: 'boolean',
+          description: '受控显隐状态。传入且不为 undefined 时组件进入受控模式。',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultShow',
+          type: 'boolean',
+          default: 'false',
+          description: '非受控模式的初始展开状态；未传 show 或其为 undefined 时生效。',
+          since: '1.0.0'
+        },
+        {
           name: 'placement',
           type: "'top-start' | 'top' | 'top-end' | 'right-start' | 'right' | 'right-end' | 'bottom-start' | 'bottom' | 'bottom-end' | 'left-start' | 'left' | 'left-end'",
           default: 'bottom-start',
@@ -2423,17 +2557,30 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
           since: '1.0.0'
         }
       ],
+      slots: [
+        {
+          name: 'trigger',
+          description: '自定义触发器 UI。插槽参数提供 visible、selectedLabel、selectedValues、selectedItems、hasValue、disabled、readonly、multiple，以及 triggerProps、setTriggerRef、openMenu、closeMenu、toggleMenu；这些状态都基于合并后的值与显隐状态。',
+          since: '1.0.0'
+        }
+      ],
       emits: [
         {
           name: 'update:modelValue',
-          signature: '(value: string | number | Array<string | number>) => void',
-          description: '选中值变化时触发',
+          signature: '(value: string | number | null | Array<string | number>) => void',
+          description: '选中值变化时始终触发；单选清空发出 null，多选与 tags 清空发出 []。',
           since: '1.0.0'
         },
         {
           name: 'change',
-          signature: '(value: string | number | Array<string | number>) => void',
+          signature: '(value: string | number | null | Array<string | number>) => void',
           description: '选中值变化时触发（与 update:modelValue 同时触发）',
+          since: '1.0.0'
+        },
+        {
+          name: 'update:show',
+          signature: '(value: boolean) => void',
+          description: '下拉菜单显隐变化时触发；非受控模式下组件会同步更新内部状态。',
           since: '1.0.0'
         },
         {
@@ -2488,8 +2635,13 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'modelValue',
           type: 'number',
-          description: '当前值',
-          required: true,
+          description: '受控值。传入且不为 undefined 时组件进入受控模式。',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultModelValue',
+          type: 'number',
+          description: '非受控模式的初始值；未传 modelValue 或其为 undefined 时生效，默认回落为 min。',
           since: '1.0.0'
         },
         {
@@ -2525,7 +2677,7 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'update:modelValue',
           signature: '(value: number) => void',
-          description: '值变化时触发',
+          description: '值变化时始终触发；非受控模式下组件会同步更新内部状态。',
           since: '1.0.0'
         },
         {
@@ -2556,8 +2708,14 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'modelValue',
           type: 'string',
-          description: '当前快捷键字符串，如 "Command+Shift+A" 或 "Command+Command"',
-          required: true,
+          description: '受控快捷键字符串。传入且不为 undefined 时组件进入受控模式。',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultModelValue',
+          type: 'string',
+          default: "''",
+          description: '非受控模式的初始快捷键；未传 modelValue 或其为 undefined 时生效。',
           since: '1.0.0'
         },
         {
@@ -2579,7 +2737,7 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'update:modelValue',
           signature: '(value: string) => void',
-          description: '快捷键变化时触发',
+          description: '快捷键变化时始终触发；非受控模式下组件会同步更新内部状态。',
           since: '1.0.0'
         },
         {
@@ -2868,8 +3026,14 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'visible',
           type: 'boolean',
+          description: '受控显示状态。传入且不为 undefined 时组件进入受控模式。',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultVisible',
+          type: 'boolean',
           default: 'false',
-          description: '是否显示（通常通过 useToast 控制，无需手动设置）',
+          description: '非受控模式的初始显示状态；未传 visible 或其为 undefined 时生效。',
           since: '1.0.0'
         }
       ],
@@ -2877,7 +3041,7 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'update:visible',
           signature: '(value: boolean) => void',
-          description: '显示状态变化时触发',
+          description: '显示状态变化时始终触发；受控模式下自动关闭也只会通知外部，由外部决定是否回写。',
           since: '1.0.0'
         }
       ]
@@ -2893,7 +3057,7 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
     demos: [
       {
         title: '基础用法',
-        description: '通过 v-model:visible 控制显示，type 控制确认按钮样式。',
+        description: '支持 v-model:visible 受控显示，有 info、warning、danger 三种确认类型。',
         component: ConfirmDialogDemo
       }
     ],
@@ -2902,8 +3066,14 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'visible',
           type: 'boolean',
-          description: '是否显示弹窗',
-          required: true,
+          description: '受控显示状态。传入且不为 undefined 时组件进入受控模式。',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultVisible',
+          type: 'boolean',
+          default: 'false',
+          description: '非受控模式的初始显示状态；未传 visible 或其为 undefined 时生效。',
           since: '1.0.0'
         },
         {
@@ -2946,7 +3116,7 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'update:visible',
           signature: '(value: boolean) => void',
-          description: '显示状态变化时触发',
+          description: '显示状态变化时始终触发；点击确认、取消或遮罩关闭时都会发出 false。',
           since: '1.0.0'
         },
         {
@@ -2984,7 +3154,14 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'show',
           type: 'boolean',
-          description: '受控显示状态，传入后组件不再维护内部显示状态',
+          description: '受控显示状态。传入且不为 undefined 时组件进入受控模式。',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultShow',
+          type: 'boolean',
+          default: 'false',
+          description: '非受控模式的初始显示状态；未传 show 或其为 undefined 时生效。',
           since: '1.0.0'
         },
         {
@@ -3112,7 +3289,7 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'update:show',
           signature: '(value: boolean) => void',
-          description: '显示状态变化时触发',
+          description: '显示状态变化时始终触发；非受控模式下组件会同步更新内部状态。',
           since: '1.0.0'
         },
         {
@@ -3465,9 +3642,9 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         },
         {
           name: 'page-slot',
-          type: 'number',
-          default: '9',
-          description: '页码按钮最大显示个数（含省略号）',
+          type: "number | 'auto'",
+          default: "'auto'",
+          description: '页码按钮最大显示个数（含省略号）；默认 auto，会根据容器宽度自适应收缩；传入固定数字后不再参与自适应计算，省略号前最少保留 3 个页码',
           since: '1.0.0'
         },
         {
@@ -3565,7 +3742,7 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
         {
           name: 'select-props',
           type: 'Record<string, any>',
-          description: '透传给条数选择器的额外属性',
+          description: '透传给内部 Select 下拉的额外属性，包括条数选择、快速跳转和省略号页码下拉',
           since: '1.0.0'
         },
         {

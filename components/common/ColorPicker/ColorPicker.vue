@@ -19,16 +19,19 @@ interface HsvColor {
   v: number
 }
 
+const DEFAULT_COLOR_VALUE = '#000000'
+
 const props = withDefaults(defineProps<ColorPickerProps>(), {
+  defaultModelValue: DEFAULT_COLOR_VALUE,
   disabled: false,
   showInput: true,
   showAlpha: false,
+  defaultShow: false,
   size: 'medium',
   placement: 'bottom-start',
   autoAdjustPlacement: true
 })
 
-const isPanelOpen = ref(false)
 const colorValueFormat = ref<ColorValueFormat>('hex')
 const pickerRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
@@ -36,9 +39,32 @@ const panelRef = ref<HTMLElement | null>(null)
 const svPanelRef = ref<HTMLElement | null>(null)
 const hueSliderRef = ref<HTMLElement | null>(null)
 const alphaSliderRef = ref<HTMLElement | null>(null)
+const uncontrolledValue = ref(props.modelValue ?? props.defaultModelValue)
+const uncontrolledShow = ref(props.show ?? props.defaultShow)
 let dragTarget: DragTarget | null = null
 
 const emit = defineEmits<ColorPickerEmits>()
+
+const mergedValue = computed(() => props.modelValue ?? uncontrolledValue.value)
+const mergedShow = computed(() => (props.show === undefined ? uncontrolledShow.value : props.show))
+
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (value !== undefined) {
+      uncontrolledValue.value = value
+    }
+  }
+)
+
+watch(
+  () => props.show,
+  (value) => {
+    if (value !== undefined) {
+      uncontrolledShow.value = value
+    }
+  }
+)
 
 const pickerClasses = computed(() => [
   'zt-color-picker',
@@ -50,7 +76,7 @@ const pickerClasses = computed(() => [
 ])
 
 const { resolvedPlacement, panelStyle, containsTarget, scheduleUpdate } = useOverlayPosition({
-  visible: computed(() => isPanelOpen.value),
+  visible: mergedShow,
   triggerRef: pickerRef,
   anchorRef: computed(() => (props.showInput ? pickerRef.value : triggerRef.value)),
   panelRef,
@@ -59,7 +85,7 @@ const { resolvedPlacement, panelStyle, containsTarget, scheduleUpdate } = useOve
 })
 
 const activeHue = ref(0)
-const rgbaValue = computed(() => parseColor(props.modelValue))
+const rgbaValue = computed(() => parseColor(mergedValue.value))
 const rawHsvValue = computed(() => rgbToHsv(rgbaValue.value.r, rgbaValue.value.g, rgbaValue.value.b))
 const hsvValue = computed(() => ({ ...rawHsvValue.value, h: activeHue.value }))
 const hexColorValue = computed(() => rgbToHex(rgbaValue.value.r, rgbaValue.value.g, rgbaValue.value.b))
@@ -70,7 +96,7 @@ const outputColorValue = computed(() => formatColor(colorValueFormat.value))
 
 const displayColorValue = computed(() => {
   if (!props.showAlpha) {
-    return props.modelValue
+    return mergedValue.value
   }
 
   return outputColorValue.value
@@ -424,12 +450,21 @@ function emitHsvColor(hsv: HsvColor, alpha = alphaValue.value): void {
 }
 
 function updateValue(value: string): void {
+  if (props.modelValue === undefined) {
+    uncontrolledValue.value = value
+  }
+
   emit('update:modelValue', value)
   emit('change', value)
 }
 
 function handleTextInput(event: Event): void {
-  updateValue((event.target as HTMLInputElement).value)
+  const target = event.target as HTMLInputElement
+  updateValue(target.value)
+
+  if (props.modelValue !== undefined) {
+    target.value = displayColorValue.value
+  }
 }
 
 async function copyPanelColor(): Promise<void> {
@@ -446,26 +481,39 @@ function schedulePanelPositionUpdate(): void {
   nextTick(() => scheduleUpdate())
 }
 
+function setShow(visible: boolean): void {
+  if (mergedShow.value === visible) {
+    if (!visible) {
+      stopDrag()
+    }
+    return
+  }
+
+  if (props.show === undefined) {
+    uncontrolledShow.value = visible
+  }
+
+  emit('update:show', visible)
+
+  if (!visible) {
+    stopDrag()
+  }
+}
+
 async function togglePanel(): Promise<void> {
   if (props.disabled) {
     return
   }
 
-  if (isPanelOpen.value) {
-    closePanel()
-    return
-  }
-
-  isPanelOpen.value = true
+  setShow(!mergedShow.value)
 }
 
 function closePanel(): void {
-  isPanelOpen.value = false
-  stopDrag()
+  setShow(false)
 }
 
 function handleDocumentPointerDown(event: PointerEvent): void {
-  if (!isPanelOpen.value || containsTarget(event.target)) {
+  if (!mergedShow.value || containsTarget(event.target)) {
     return
   }
 
@@ -473,7 +521,7 @@ function handleDocumentPointerDown(event: PointerEvent): void {
 }
 
 function handleKeydown(event: KeyboardEvent): void {
-  if (isPanelOpen.value && event.key === 'Escape') {
+  if (mergedShow.value && event.key === 'Escape') {
     closePanel()
   }
 }
@@ -579,7 +627,7 @@ watch(
 )
 
 watch(
-  () => props.modelValue,
+  () => mergedValue.value,
   (value) => {
     const format = detectColorFormat(value)
 
@@ -591,9 +639,9 @@ watch(
 )
 
 watch(
-  () => [props.showAlpha, props.showInput, props.modelValue] as const,
+  () => [props.showAlpha, props.showInput, mergedValue.value, mergedShow.value] as const,
   () => {
-    if (isPanelOpen.value) {
+    if (mergedShow.value) {
       schedulePanelPositionUpdate()
     }
   },
@@ -625,7 +673,7 @@ onBeforeUnmount(() => {
       </button>
       <Teleport to="body">
         <div
-          v-if="isPanelOpen"
+          v-if="mergedShow"
           ref="panelRef"
           class="zt-color-picker__panel"
           :data-placement="resolvedPlacement"

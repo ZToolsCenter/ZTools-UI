@@ -1,6 +1,6 @@
 <template>
   <Transition name="toast">
-    <div v-if="visible" :class="['toast', `toast-${type}`]">
+    <div v-if="mergedVisible" :class="['toast', `toast-${type}`]">
       <div class="toast-icon">
         <svg v-if="type === 'success'" width="20" height="20" viewBox="0 0 20 20" fill="none">
           <path
@@ -30,45 +30,78 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 
 interface Props {
   message: string
   type?: 'success' | 'error' | 'warning' | 'info'
   duration?: number
   visible?: boolean
+  defaultVisible?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'info',
   duration: 3000,
-  visible: false
+  defaultVisible: false
 })
 
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
 }>()
 
-const visible = ref(props.visible)
+const uncontrolledVisible = ref(props.visible ?? props.defaultVisible)
+const mergedVisible = computed(() => (props.visible === undefined ? uncontrolledVisible.value : props.visible))
 let timer: ReturnType<typeof setTimeout> | null = null
 
 watch(
   () => props.visible,
-  (newVal) => {
-    visible.value = newVal
-    if (newVal && props.duration > 0) {
-      // 清除之前的定时器
-      if (timer) {
-        clearTimeout(timer)
-      }
-      // 设置新的定时器
-      timer = setTimeout(() => {
-        visible.value = false
-        emit('update:visible', false)
-      }, props.duration)
+  (value) => {
+    if (value !== undefined) {
+      uncontrolledVisible.value = value
     }
   }
 )
+
+function clearTimer(): void {
+  if (timer) {
+    clearTimeout(timer)
+    timer = null
+  }
+}
+
+function setVisible(visible: boolean): void {
+  if (mergedVisible.value === visible) {
+    return
+  }
+
+  if (props.visible === undefined) {
+    uncontrolledVisible.value = visible
+  }
+
+  emit('update:visible', visible)
+}
+
+watch(
+  () => [mergedVisible.value, props.duration] as const,
+  ([visible, duration]) => {
+    clearTimer()
+
+    if (!visible || duration <= 0) {
+      return
+    }
+
+    timer = setTimeout(() => {
+      timer = null
+      setVisible(false)
+    }, duration)
+  },
+  { immediate: true }
+)
+
+onBeforeUnmount(() => {
+  clearTimer()
+})
 </script>
 
 <style scoped>

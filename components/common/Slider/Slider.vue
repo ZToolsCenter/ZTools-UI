@@ -1,7 +1,7 @@
 <template>
   <div class="slider-wrapper">
     <input
-      :value="modelValue"
+      :value="mergedValue"
       type="range"
       :min="min"
       :max="max"
@@ -15,16 +15,17 @@
       @blur="showTooltip = false"
     />
     <div v-show="showTooltip" class="slider-tooltip" :style="{ left: tooltipPosition }">
-      {{ formatValue(modelValue) }}
+      {{ formatValue(mergedValue) }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 interface Props {
-  modelValue: number
+  modelValue?: number
+  defaultModelValue?: number
   min?: number
   max?: number
   step?: number
@@ -43,26 +44,42 @@ const emit = defineEmits<{
   (e: 'change', value: number): void
 }>()
 
+const uncontrolledValue = ref(props.modelValue ?? props.defaultModelValue ?? props.min)
 const showTooltip = ref(false)
 
-// 处理输入事件
-function handleInput(event: Event): void {
-  const value = Number((event.target as HTMLInputElement).value)
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (value !== undefined) {
+      uncontrolledValue.value = value
+    }
+  }
+)
+
+const mergedValue = computed(() => (props.modelValue !== undefined ? props.modelValue : uncontrolledValue.value))
+
+function updateValue(value: number): void {
+  if (props.modelValue === undefined) {
+    uncontrolledValue.value = value
+  }
+
   emit('update:modelValue', value)
   emit('change', value)
 }
 
-// 格式化显示值
+function handleInput(event: Event): void {
+  const value = Number((event.target as HTMLInputElement).value)
+  updateValue(value)
+}
+
 function formatValue(value: number): string {
   return props.formatter(value)
 }
 
-// 计算 tooltip 位置（实时跟随滑块）
 const tooltipPosition = computed(() => {
-  const percent = (props.modelValue - props.min) / (props.max - props.min) // 归一化到 0-1
-  const thumbWidth = 20 // 滑块手柄宽度
+  const percent = (mergedValue.value - props.min) / (props.max - props.min)
+  const thumbWidth = 20
   const thumbRadius = thumbWidth / 2
-  // 计算：百分比 * (轨道宽度 - 手柄宽度) + 手柄半径
   return `calc(${percent * 100}% * (100% - ${thumbWidth}px) / 100% + ${thumbRadius}px)`
 })
 </script>
@@ -75,9 +92,9 @@ const tooltipPosition = computed(() => {
 
 .slider-tooltip {
   position: absolute;
-  bottom: calc(100% + 8px); /* 定位到滑块上方，留 8px 间距 */
+  bottom: calc(100% + 8px);
   left: 0;
-  transform: translateX(-50%); /* 居中对齐 */
+  transform: translateX(-50%);
   background: var(--primary-color);
   color: white;
   padding: 4px 10px;
@@ -88,7 +105,6 @@ const tooltipPosition = computed(() => {
   pointer-events: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   z-index: 10;
-  /* 移除 transition，实现即时跟随 */
 }
 
 .slider-tooltip::after {
@@ -108,7 +124,7 @@ const tooltipPosition = computed(() => {
   width: 100%;
   -webkit-appearance: none;
   appearance: none;
-  height: 10px; /* 增加轨道高度 */
+  height: 10px;
   border-radius: 5px;
   background: var(--control-bg);
   border: 2px solid var(--control-border);
@@ -130,7 +146,7 @@ const tooltipPosition = computed(() => {
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 20px; /* 增加滑块大小 */
+  width: 20px;
   height: 20px;
   border-radius: 50%;
   background: var(--primary-color);
@@ -151,7 +167,7 @@ const tooltipPosition = computed(() => {
 }
 
 .slider::-moz-range-thumb {
-  width: 20px; /* 增加滑块大小 */
+  width: 20px;
   height: 20px;
   border-radius: 50%;
   background: var(--primary-color);

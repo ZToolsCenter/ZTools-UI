@@ -31,7 +31,7 @@ export interface PaginationProps {
   pageCount?: number
   itemCount?: number
   pageSizes?: Array<number | PaginationSizeOption>
-  pageSlot?: number
+  pageSlot?: number | 'auto'
   showSizePicker?: boolean
   showQuickJumper?: boolean
   showQuickJumpDropdown?: boolean

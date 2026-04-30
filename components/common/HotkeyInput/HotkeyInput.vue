@@ -5,16 +5,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 import { useToast } from '../Toast'
 
 interface Props {
-  modelValue: string
+  modelValue?: string
+  defaultModelValue?: string
   placeholder?: string
   platform?: 'darwin' | 'win32' | 'linux'
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  defaultModelValue: '',
   placeholder: '点击录制快捷键',
   platform: 'darwin'
 })
@@ -35,7 +37,6 @@ const MODIFIER_CODES = [
   'ShiftRight'
 ]
 
-// DOM e.code → Electron accelerator key name
 const CODE_TO_ACCELERATOR: Record<string, string> = {
   Backquote: '`',
   Minus: '-',
@@ -67,7 +68,6 @@ const CODE_TO_ACCELERATOR: Record<string, string> = {
   NumLock: 'Numlock',
   ScrollLock: 'Scrolllock',
   PrintScreen: 'PrintScreen',
-  // Numpad keys
   Numpad0: 'num0',
   Numpad1: 'num1',
   Numpad2: 'num2',
@@ -97,13 +97,23 @@ function isDoubleTapFormat(value: string): boolean {
 
 const { warning } = useToast()
 
+const uncontrolledValue = ref(props.modelValue ?? props.defaultModelValue)
 const isRecording = ref(false)
 const recordedKeys = ref<string[]>([])
-
-// 双击检测状态
 const lastModifierOnlyTap = ref<{ modifier: string; time: number } | null>(null)
 const doubleTapTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const mainKeyPressed = ref(false)
+
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (value !== undefined) {
+      uncontrolledValue.value = value
+    }
+  }
+)
+
+const mergedValue = computed(() => (props.modelValue !== undefined ? props.modelValue : uncontrolledValue.value))
 
 function getModifierName(code: string): string {
   switch (code) {
@@ -131,11 +141,20 @@ const displayHotkey = computed(() => {
     }
     return '请按下快捷键...'
   }
-  if (isDoubleTapFormat(props.modelValue)) {
-    return props.modelValue
+  if (isDoubleTapFormat(mergedValue.value)) {
+    return mergedValue.value
   }
-  return props.modelValue || props.placeholder
+  return mergedValue.value || props.placeholder
 })
+
+function updateValue(value: string): void {
+  if (props.modelValue === undefined) {
+    uncontrolledValue.value = value
+  }
+
+  emit('update:modelValue', value)
+  emit('change', value)
+}
 
 async function startRecording(): Promise<void> {
   isRecording.value = true
@@ -177,8 +196,7 @@ function clearDoubleTapTimer(): void {
 
 function confirmShortcut(shortcut: string): void {
   recordedKeys.value = shortcut.split('+')
-  emit('update:modelValue', shortcut)
-  emit('change', shortcut)
+  updateValue(shortcut)
   stopRecording()
 }
 
@@ -196,7 +214,6 @@ function handleKeyDown(e: KeyboardEvent): void {
 
   if (!isModifierKey) {
     mainKeyPressed.value = true
-    // 按下了非修饰键，取消双击等待
     clearDoubleTapTimer()
     lastModifierOnlyTap.value = null
 
@@ -212,7 +229,6 @@ function handleKeyDown(e: KeyboardEvent): void {
     }
 
     if (!mainKey) {
-      // 不支持的按键，toast 提示并回退
       mainKeyPressed.value = false
       warning(`不支持的按键: ${e.code}`)
       stopRecording()
@@ -232,8 +248,6 @@ function handleKeyUp(e: KeyboardEvent): void {
   const isModifierKey = MODIFIER_CODES.includes(e.code)
 
   if (isModifierKey && !mainKeyPressed.value) {
-    // 仅修饰键被按下后松开，没有按其他键
-    // 检查当前是否只有一个修饰键（排除组合修饰键如 Command+Shift）
     const modifier = getModifierName(e.code)
     if (!modifier) {
       stopRecording()
@@ -246,14 +260,12 @@ function handleKeyUp(e: KeyboardEvent): void {
     if (e.altKey) activeModifiers.push(props.platform === 'win32' ? 'Alt' : 'Option')
     if (e.shiftKey) activeModifiers.push('Shift')
 
-    // 只在所有修饰键都释放时才计为一次 tap
     if (activeModifiers.length > 0) {
       return
     }
 
     const now = Date.now()
 
-    // 检查是否匹配第二次 tap
     if (
       lastModifierOnlyTap.value &&
       lastModifierOnlyTap.value.modifier === modifier &&
@@ -264,13 +276,11 @@ function handleKeyUp(e: KeyboardEvent): void {
       return
     }
 
-    // 第一次 tap，开始等待第二次
     lastModifierOnlyTap.value = { modifier, time: now }
     recordedKeys.value = ['请再按一次非修饰键...']
 
     clearDoubleTapTimer()
     doubleTapTimer.value = setTimeout(() => {
-      // 等待超时，重置状态继续录制
       lastModifierOnlyTap.value = null
       doubleTapTimer.value = null
       if (isRecording.value) {
@@ -280,13 +290,11 @@ function handleKeyUp(e: KeyboardEvent): void {
     return
   }
 
-  // 常规快捷键确认：至少一个修饰键 + 一个主键
   if (recordedKeys.value.length > 1 && mainKeyPressed.value) {
     confirmShortcut(recordedKeys.value.join('+'))
     return
   }
 
-  // 单独 F 键
   const currentKey = recordedKeys.value[recordedKeys.value.length - 1] || ''
   if (
     recordedKeys.value.length === 1 &&
@@ -300,7 +308,6 @@ function handleKeyUp(e: KeyboardEvent): void {
   stopRecording()
 }
 
-// 处理后端传来的快捷键（立即确认）
 function handleHotkeyRecorded(shortcut: string): void {
   if (isRecording.value) {
     console.log('收到后端快捷键录制事件:', shortcut)

@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, useSlots } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useSlots, watch } from 'vue'
 import type { CSSProperties } from 'vue'
 import { parsePlacement, useOverlayPosition } from '../shared/useOverlayPosition'
 import type { PopoverEmits, PopoverPlacement, PopoverProps } from './Popover'
 
 const props = withDefaults(defineProps<PopoverProps>(), {
   trigger: 'hover',
-  show: undefined,
   placement: 'top',
   overlap: false,
   raw: false,
@@ -14,7 +13,8 @@ const props = withDefaults(defineProps<PopoverProps>(), {
   showArrow: false,
   to: 'body',
   zIndex: 10000,
-  keepAliveOnHover: false
+  keepAliveOnHover: false,
+  defaultShow: false
 })
 
 const emit = defineEmits<PopoverEmits>()
@@ -22,7 +22,7 @@ const slots = useSlots()
 
 const triggerRef = ref<HTMLElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
-const uncontrolledShow = ref(false)
+const uncontrolledShow = ref(props.show ?? props.defaultShow)
 const arrowStyle = ref<CSSProperties>({})
 
 const mergedShow = computed(() => (props.show === undefined ? uncontrolledShow.value : props.show))
@@ -53,6 +53,15 @@ const bodyClasses = computed(() => [
     'zt-popover__body--card': !props.raw
   }
 ])
+
+watch(
+  () => props.show,
+  (value) => {
+    if (value !== undefined) {
+      uncontrolledShow.value = value
+    }
+  }
+)
 
 const ARROW_SIZE = 10
 const ARROW_HALF = ARROW_SIZE / 2

@@ -1,6 +1,6 @@
 <template>
   <Transition name="dialog">
-    <div v-if="visible" class="dialog-overlay" @click="handleOverlayClick">
+    <div v-if="mergedVisible" class="dialog-overlay" @click="handleOverlayClick">
       <div class="dialog-container" @click.stop>
         <div class="dialog-header">
           <div class="dialog-icon" :class="`dialog-icon-${type}`">
@@ -45,10 +45,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 interface Props {
-  visible: boolean
+  visible?: boolean
+  defaultVisible?: boolean
   title?: string
   message: string
   type?: 'info' | 'warning' | 'danger'
@@ -57,6 +58,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  defaultVisible: false,
   title: '确认操作',
   type: 'info',
   confirmText: '确定',
@@ -69,20 +71,40 @@ const emit = defineEmits<{
   (e: 'cancel'): void
 }>()
 
+const uncontrolledVisible = ref(props.visible ?? props.defaultVisible)
+const mergedVisible = computed(() => (props.visible === undefined ? uncontrolledVisible.value : props.visible))
+
+watch(
+  () => props.visible,
+  (value) => {
+    if (value !== undefined) {
+      uncontrolledVisible.value = value
+    }
+  }
+)
+
 const confirmButtonClass = computed(() => {
   if (props.type === 'danger') return 'btn-danger'
   if (props.type === 'warning') return 'btn-warning'
   return 'btn-primary'
 })
 
+function closeDialog(): void {
+  if (props.visible === undefined) {
+    uncontrolledVisible.value = false
+  }
+
+  emit('update:visible', false)
+}
+
 const handleConfirm = (): void => {
   emit('confirm')
-  emit('update:visible', false)
+  closeDialog()
 }
 
 const handleCancel = (): void => {
   emit('cancel')
-  emit('update:visible', false)
+  closeDialog()
 }
 
 const handleOverlayClick = (): void => {
@@ -261,3 +283,4 @@ const handleOverlayClick = (): void => {
   transform: scale(0.9);
 }
 </style>
+

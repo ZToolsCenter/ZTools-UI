@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
+type SwitchValue = boolean
 type SwitchSize = 'small' | 'medium' | 'large'
 
 interface Props {
-  modelValue: boolean
+  modelValue?: SwitchValue
+  defaultModelValue?: SwitchValue
   disabled?: boolean
   activeText?: string
   inactiveText?: string
-  activeValue?: boolean
-  inactiveValue?: boolean
+  activeValue?: SwitchValue
+  inactiveValue?: SwitchValue
   size?: SwitchSize
 }
 
@@ -23,11 +25,23 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void
-  (e: 'change', value: boolean): void
+  (e: 'update:modelValue', value: SwitchValue): void
+  (e: 'change', value: SwitchValue): void
 }>()
 
-const checked = computed(() => props.modelValue === props.activeValue)
+const uncontrolledValue = ref<SwitchValue>(props.modelValue ?? props.defaultModelValue ?? props.inactiveValue)
+
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (value !== undefined) {
+      uncontrolledValue.value = value
+    }
+  }
+)
+
+const mergedValue = computed<SwitchValue>(() => (props.modelValue !== undefined ? props.modelValue : uncontrolledValue.value))
+const checked = computed(() => mergedValue.value === props.activeValue)
 const switchClasses = computed(() => [
   'zt-switch',
   `zt-switch--${props.size}`,
@@ -37,12 +51,25 @@ const switchClasses = computed(() => [
   }
 ])
 
-function handleChange(): void {
-  if (props.disabled) return
+function updateValue(value: SwitchValue): void {
+  if (props.modelValue === undefined) {
+    uncontrolledValue.value = value
+  }
 
-  const value = checked.value ? props.inactiveValue : props.activeValue
   emit('update:modelValue', value)
   emit('change', value)
+}
+
+function handleChange(event: Event): void {
+  if (props.disabled) return
+
+  const target = event.target as HTMLInputElement
+  const value = target.checked ? props.activeValue : props.inactiveValue
+  updateValue(value)
+
+  if (props.modelValue !== undefined) {
+    target.checked = checked.value
+  }
 }
 </script>
 
@@ -197,3 +224,4 @@ function handleChange(): void {
   transform: translateX(24px);
 }
 </style>
+

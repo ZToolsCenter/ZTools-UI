@@ -1,9 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ZSelect } from 'ztools-ui-components/common/Select'
-import type { SelectValueType } from 'ztools-ui-components/common/Select'
+import type { SelectModelValue, SelectSingleModelValue, SelectValueType } from 'ztools-ui-components/common/Select'
 
-type SelectDemoVariant = 'basic' | 'multiple' | 'clearable' | 'size' | 'status' | 'scroll' | 'tags' | 'placement'
+type SelectDemoVariant =
+  | 'basic'
+  | 'multiple'
+  | 'clearable'
+  | 'size'
+  | 'status'
+  | 'scroll'
+  | 'tags'
+  | 'custom-trigger'
+  | 'placement'
 
 const props = withDefaults(
   defineProps<{
@@ -14,21 +23,19 @@ const props = withDefaults(
   }
 )
 
-const selected = ref('blue')
-const clearableSelected = ref('purple')
+const selected = ref<SelectSingleModelValue>('blue')
 const multipleSelected = ref<SelectValueType[]>(['blue', 'green', 'orange'])
 const limitedSelected = ref<SelectValueType[]>(['blue', 'purple', 'green', 'orange'])
 const tagValues = ref<SelectValueType[]>(['设计', '效率'])
-const sizeValue = ref('medium')
-const statusValue = ref('')
-const scrollValue = ref('option-1')
+const customTriggerValue = ref<SelectSingleModelValue>('green')
+const scrollValue = ref<SelectSingleModelValue>('option-1')
 const scrollCount = ref(0)
-const placementStartValue = ref('blue')
-const placementCenterValue = ref('purple')
-const placementEndValue = ref('green')
-const placementBottomStartValue = ref('pink')
-const autoAdjustValue = ref('orange')
-const fixedPlacementValue = ref('red')
+const placementStartValue = ref<SelectSingleModelValue>('blue')
+const placementCenterValue = ref<SelectSingleModelValue>('purple')
+const placementEndValue = ref<SelectSingleModelValue>('green')
+const placementBottomStartValue = ref<SelectSingleModelValue>('pink')
+const autoAdjustValue = ref<SelectSingleModelValue>('orange')
+const fixedPlacementValue = ref<SelectSingleModelValue>('red')
 
 const options = [
   { label: '蓝色 (Blue)', value: 'blue' },
@@ -60,6 +67,10 @@ const longOptions = Array.from({ length: 24 }, (_, index) => ({
 function handleScroll(): void {
   scrollCount.value += 1
 }
+
+function formatSingleValue(value: SelectSingleModelValue): string {
+  return value === null || value === '' ? '未选择' : String(value)
+}
 </script>
 
 <template>
@@ -67,7 +78,7 @@ function handleScroll(): void {
     <template v-if="props.variant === 'basic'">
       <div class="select-demo__column">
         <ZSelect v-model="selected" :options="options" placeholder="选择主题色" />
-        <span class="select-demo__value">当前值: {{ selected }}</span>
+        <span class="select-demo__value">当前值: {{ formatSingleValue(selected) }}</span>
       </div>
     </template>
 
@@ -88,24 +99,24 @@ function handleScroll(): void {
 
     <template v-else-if="props.variant === 'clearable'">
       <div class="select-demo__column">
-        <ZSelect v-model="clearableSelected" :options="options" clearable placeholder="可清空选择" />
-        <span class="select-demo__value">当前值: {{ clearableSelected || '未选择' }}</span>
+        <ZSelect v-model="selected" :options="options" clearable placeholder="可清空选择" />
+        <span class="select-demo__value">当前值: {{ formatSingleValue(selected) }}</span>
       </div>
     </template>
 
     <template v-else-if="props.variant === 'size'">
       <div class="select-demo__row select-demo__row--align-end">
-        <ZSelect v-model="sizeValue" :options="sizeOptions" size="small" />
-        <ZSelect v-model="sizeValue" :options="sizeOptions" size="medium" />
-        <ZSelect v-model="sizeValue" :options="sizeOptions" size="large" />
+        <ZSelect v-model="selected" :options="sizeOptions" size="small" />
+        <ZSelect v-model="selected" :options="sizeOptions" size="medium" />
+        <ZSelect v-model="selected" :options="sizeOptions" size="large" />
       </div>
     </template>
 
     <template v-else-if="props.variant === 'status'">
       <div class="select-demo__row select-demo__row--align-start">
-        <ZSelect v-model="statusValue" :options="options" status="success" message="选择可用" placeholder="成功状态" />
-        <ZSelect v-model="statusValue" :options="options" status="warning" message="建议确认后选择" placeholder="警告状态" />
-        <ZSelect v-model="statusValue" :options="options" status="error" message="请选择一个选项" placeholder="错误状态" />
+        <ZSelect v-model="selected" :options="options" status="success" message="选择可用" placeholder="成功状态" />
+        <ZSelect v-model="selected" :options="options" status="warning" message="建议确认后选择" placeholder="警告状态" />
+        <ZSelect v-model="selected" :options="options" status="error" message="请选择一个选项" placeholder="错误状态" />
       </div>
     </template>
 
@@ -126,6 +137,26 @@ function handleScroll(): void {
           placeholder="输入后按 Enter 创建标签"
         />
         <span class="select-demo__value">标签: {{ tagValues.join(', ') }}</span>
+      </div>
+    </template>
+
+    <template v-else-if="props.variant === 'custom-trigger'">
+      <div class="select-demo__column">
+        <ZSelect v-model="customTriggerValue" :options="options" placeholder="选择主题色">
+          <template #trigger="{ triggerProps, setTriggerRef, visible, selectedLabel }">
+            <button
+              :ref="setTriggerRef"
+              v-bind="triggerProps"
+              type="button"
+              class="select-demo__custom-trigger"
+              :class="{ 'select-demo__custom-trigger--open': visible }"
+            >
+              <span class="select-demo__custom-trigger-label">{{ selectedLabel }}</span>
+              <span class="select-demo__custom-trigger-arrow" aria-hidden="true">{{ visible ? '▴' : '▾' }}</span>
+            </button>
+          </template>
+        </ZSelect>
+        <span class="select-demo__value">当前值: {{ formatSingleValue(customTriggerValue) }}</span>
       </div>
     </template>
 
@@ -205,6 +236,45 @@ function handleScroll(): void {
 
 .select-demo__row--align-end {
   align-items: flex-end;
+}
+
+.select-demo__custom-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 2px solid var(--control-border);
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--control-bg), color-mix(in srgb, var(--primary-light-bg), var(--control-bg) 55%));
+  color: var(--text-color);
+  font: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.select-demo__custom-trigger:hover {
+  border-color: color-mix(in srgb, var(--primary-color), black 15%);
+  color: var(--primary-color);
+}
+
+.select-demo__custom-trigger:focus-visible,
+.select-demo__custom-trigger--open {
+  border-color: color-mix(in srgb, var(--primary-color), black 15%);
+  box-shadow: 0 0 0 3px var(--primary-light-bg);
+  color: var(--primary-color);
+}
+
+.select-demo__custom-trigger-label {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.select-demo__custom-trigger-arrow {
+  color: var(--text-secondary);
+  font-size: 12px;
 }
 
 .select-demo__placement-grid {

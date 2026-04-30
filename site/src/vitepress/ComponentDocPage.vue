@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useData } from 'vitepress'
 import DemoBlock from '../components/DemoBlock.vue'
 import ApiTable from '../components/ApiTable.vue'
 import { getComponentDoc } from '../content/components/meta'
@@ -8,6 +9,8 @@ import type { ComponentDemo } from '../content/components/meta'
 const props = defineProps<{
   componentId: string
 }>()
+
+const { site } = useData()
 
 const componentDoc = computed(() => getComponentDoc(props.componentId))
 const demoColumns = computed<[ComponentDemo[], ComponentDemo[]]>(() => {
@@ -20,6 +23,20 @@ const demoColumns = computed<[ComponentDemo[], ComponentDemo[]]>(() => {
     [[], []]
   )
 })
+
+// 使用 VitePress 的 markdown 渲染器
+function renderMarkdown(content: string): string {
+  const md = (site.value as any).markdown?.md
+  if (md && typeof md.render === 'function') {
+    return md.render(content)
+  }
+  // 降级处理：基本的 markdown 转换
+  return content
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/```vue\n([\s\S]+?)```/g, '<pre><code>$1</code></pre>')
+    .replace(/\n/g, '<br>')
+}
 </script>
 
 <template>
@@ -38,6 +55,17 @@ const demoColumns = computed<[ComponentDemo[], ComponentDemo[]]>(() => {
 
     <section class="component-description">
       <p>{{ componentDoc.description }}</p>
+    </section>
+
+    <section v-if="componentDoc.sections?.length" class="component-sections">
+      <article
+        v-for="(section, index) in componentDoc.sections"
+        :key="index"
+        class="component-section"
+      >
+        <h3 class="section-title">{{ section.title }}</h3>
+        <div class="section-content" v-html="renderMarkdown(section.content)"></div>
+      </article>
     </section>
 
     <section class="component-demos">
@@ -135,6 +163,65 @@ const demoColumns = computed<[ComponentDemo[], ComponentDemo[]]>(() => {
   line-height: 1.6;
   color: var(--site-text-muted);
   margin: 0;
+}
+
+.component-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.component-section {
+  padding: 20px;
+  border: 1px solid var(--site-border);
+  border-radius: 12px;
+  background: var(--site-panel-bg);
+}
+
+.component-section .section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--site-text);
+  margin: 0 0 12px;
+}
+
+.component-section .section-content {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--site-text-muted);
+}
+
+.component-section .section-content :deep(strong) {
+  color: var(--site-text);
+  font-weight: 600;
+}
+
+.component-section .section-content :deep(code) {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--site-panel-muted-bg);
+  border: 1px solid var(--site-border);
+  font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+  font-size: 13px;
+  color: var(--site-text);
+}
+
+.component-section .section-content :deep(pre) {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--site-panel-muted-bg);
+  border: 1px solid var(--site-border);
+  overflow-x: auto;
+  margin: 12px 0;
+}
+
+.component-section .section-content :deep(pre code) {
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .component-demos {

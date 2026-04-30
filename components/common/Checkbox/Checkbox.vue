@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { computed, useTemplateRef, watchEffect } from 'vue'
+import { computed, ref, useTemplateRef, watch, watchEffect } from 'vue'
 
 interface Props {
-  modelValue: boolean
+  modelValue?: boolean
+  defaultModelValue?: boolean
   label?: string
   disabled?: boolean
   indeterminate?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  defaultModelValue: false,
   label: '',
   disabled: false,
   indeterminate: false
@@ -19,10 +21,22 @@ const emit = defineEmits<{
   (e: 'change', value: boolean): void
 }>()
 
+const uncontrolledValue = ref(props.modelValue ?? props.defaultModelValue)
+
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (value !== undefined) {
+      uncontrolledValue.value = value
+    }
+  }
+)
+
+const mergedValue = computed(() => (props.modelValue !== undefined ? props.modelValue : uncontrolledValue.value))
 const checkboxClasses = computed(() => [
   'zt-checkbox',
   {
-    'is-checked': props.modelValue,
+    'is-checked': mergedValue.value,
     'is-indeterminate': props.indeterminate,
     'is-disabled': props.disabled
   }
@@ -36,10 +50,23 @@ watchEffect(() => {
   }
 })
 
+function updateValue(value: boolean): void {
+  if (props.modelValue === undefined) {
+    uncontrolledValue.value = value
+  }
+
+  emit('update:modelValue', value)
+  emit('change', value)
+}
+
 function handleChange(event: Event): void {
-  const checked = (event.target as HTMLInputElement).checked
-  emit('update:modelValue', checked)
-  emit('change', checked)
+  const target = event.target as HTMLInputElement
+  const checked = target.checked
+  updateValue(checked)
+
+  if (props.modelValue !== undefined) {
+    target.checked = mergedValue.value
+  }
 }
 </script>
 
@@ -50,9 +77,9 @@ function handleChange(event: Event): void {
         ref="inputRef"
         class="zt-checkbox__input"
         type="checkbox"
-        :checked="modelValue"
+        :checked="mergedValue"
         :disabled="disabled"
-        :aria-checked="indeterminate ? 'mixed' : modelValue"
+        :aria-checked="indeterminate ? 'mixed' : mergedValue"
         @change="handleChange"
       />
       <span class="zt-checkbox__inner"></span>
@@ -150,3 +177,4 @@ function handleChange(event: Event): void {
   line-height: 1.4;
 }
 </style>
+

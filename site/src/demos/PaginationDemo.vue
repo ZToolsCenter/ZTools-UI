@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ZPagination } from 'ztools-ui-components/common/Pagination'
-import type { VNodeChild } from 'vue'
+import type { PaginationInfo } from 'ztools-ui-components/common/Pagination'
 
 type DemoVariant =
   | 'basic'
@@ -10,6 +10,7 @@ type DemoVariant =
   | 'quick-jumper'
   | 'disabled'
   | 'size'
+  | 'custom'
   | 'display-order'
 
 const props = withDefaults(
@@ -27,37 +28,30 @@ const page3 = ref(5)
 const page4 = ref(2)
 const page5 = ref(4)
 const page6 = ref(1)
+const page7 = ref(6)
 const pageSize1 = ref(10)
 const pageSize2 = ref(20)
 
-function renderPrefix(): VNodeChild {
-  return '共 200 条'
-}
+const renderPrefix = (info: PaginationInfo) => `共 ${info.itemCount} 条`
+const renderSuffix = (info: PaginationInfo) => `${info.startIndex}-${info.endIndex}`
+const renderGoto = () => '前往'
+const renderPrev = () => '上一页'
+const renderNext = () => '下一页'
 </script>
 
 <template>
   <div class="pagination-demo">
-    <!-- Basic -->
     <template v-if="variant === 'basic'">
       <div class="pagination-demo__column">
-        <span class="pagination-demo__label">受控模式</span>
         <ZPagination
           :page="page1"
           :item-count="200"
           @update:page="page1 = $event"
         />
-        <span class="pagination-demo__value">当前页: {{ page1 }}</span>
-      </div>
-      <div class="pagination-demo__column">
-        <span class="pagination-demo__label">非受控模式（default-page）</span>
-        <ZPagination
-          :default-page="3"
-          :item-count="200"
-        />
+        <span class="pagination-demo__value">点击 ... 会打开页码下拉，选择后跳转。当前页: {{ page1 }}</span>
       </div>
     </template>
 
-    <!-- Simple -->
     <template v-else-if="variant === 'simple'">
       <ZPagination
         simple
@@ -68,7 +62,6 @@ function renderPrefix(): VNodeChild {
       <span class="pagination-demo__value">当前页: {{ page2 }}</span>
     </template>
 
-    <!-- Size picker -->
     <template v-else-if="variant === 'size-picker'">
       <div class="pagination-demo__column">
         <span class="pagination-demo__label">选择每页条数</span>
@@ -102,7 +95,6 @@ function renderPrefix(): VNodeChild {
       </div>
     </template>
 
-    <!-- Quick jumper -->
     <template v-else-if="variant === 'quick-jumper'">
       <div class="pagination-demo__column">
         <span class="pagination-demo__label">输入框模式</span>
@@ -122,10 +114,10 @@ function renderPrefix(): VNodeChild {
           :item-count="200"
           @update:page="page6 = $event"
         />
+        <span class="pagination-demo__value">通过前往下拉或 ... 下拉选择页码后才会触发跳转。</span>
       </div>
     </template>
 
-    <!-- Disabled -->
     <template v-else-if="variant === 'disabled'">
       <ZPagination
         disabled
@@ -134,7 +126,6 @@ function renderPrefix(): VNodeChild {
       />
     </template>
 
-    <!-- Size -->
     <template v-else-if="variant === 'size'">
       <div class="pagination-demo__column pagination-demo__column--gap">
         <ZPagination size="small" :page="2" :item-count="100" />
@@ -143,7 +134,26 @@ function renderPrefix(): VNodeChild {
       </div>
     </template>
 
-    <!-- Display order -->
+    <template v-else-if="variant === 'custom'">
+      <div class="pagination-demo__column">
+        <span class="pagination-demo__label">结果列表</span>
+        <ZPagination
+          show-quick-jumper
+          :page="page7"
+          :page-size="10"
+          :page-slot="3"
+          :item-count="278"
+          :prefix="renderPrefix"
+          :suffix="renderSuffix"
+          :goto="renderGoto"
+          :prev="renderPrev"
+          :next="renderNext"
+          @update:page="page7 = $event"
+        />
+        <span class="pagination-demo__value">紧凑页码中的 ... 会先展开下拉，再由用户选择目标页。</span>
+      </div>
+    </template>
+
     <template v-else-if="variant === 'display-order'">
       <div class="pagination-demo__column pagination-demo__column--gap">
         <span class="pagination-demo__label">默认: pages → size-picker → quick-jumper</span>
@@ -182,6 +192,8 @@ function renderPrefix(): VNodeChild {
   flex-direction: column;
   align-items: flex-start;
   gap: 16px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .pagination-demo__column {
@@ -189,6 +201,8 @@ function renderPrefix(): VNodeChild {
   flex-direction: column;
   align-items: flex-start;
   gap: 8px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .pagination-demo__column--gap {

@@ -1,7 +1,17 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useSlots, watch } from 'vue'
 import { useOverlayPosition } from '../shared/useOverlayPosition'
-import type { SelectEmits, SelectOption, SelectProps, SelectValueType } from './Select'
+import type {
+  SelectEmits,
+  SelectModelValue,
+  SelectOption,
+  SelectProps,
+  SelectSelectedItem,
+  SelectSingleModelValue,
+  SelectTriggerProps,
+  SelectTriggerSlotProps,
+  SelectValueType
+} from './Select'
 
 const props = withDefaults(defineProps<SelectProps>(), {
   placeholder: '请选择',
@@ -12,14 +22,20 @@ const props = withDefaults(defineProps<SelectProps>(), {
   size: 'medium',
   message: '',
   mode: 'default',
+  defaultShow: false,
   placement: 'bottom-start',
   autoAdjustPlacement: true,
   to: 'body'
 })
 
 const emit = defineEmits<SelectEmits>()
+const slots = defineSlots<{
+  trigger?: (props: SelectTriggerSlotProps) => any
+}>()
+const runtimeSlots = useSlots()
 
-const isOpen = ref(false)
+void slots
+
 const selectRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
@@ -28,14 +44,74 @@ const tagInputValue = ref('')
 
 const isTagsMode = computed(() => props.mode === 'tags')
 const isMultiple = computed(() => props.multiple || isTagsMode.value)
+
+function normalizeSelectValue(value: SelectModelValue | undefined, multiple: boolean): SelectModelValue {
+  if (multiple) {
+    if (Array.isArray(value)) {
+      return [...value]
+    }
+
+    if (value === undefined || value === null || value === '') {
+      return []
+    }
+
+    return [value]
+  }
+
+  if (Array.isArray(value)) {
+    return value[0] ?? null
+  }
+
+  if (value === undefined) {
+    return null
+  }
+
+  return value
+}
+
+const uncontrolledValue = ref<SelectModelValue>(
+  normalizeSelectValue(props.modelValue !== undefined ? props.modelValue : props.defaultModelValue, isMultiple.value)
+)
+const uncontrolledShow = ref(props.show !== undefined ? props.show : props.defaultShow)
+
+const mergedValue = computed<SelectModelValue>(() => {
+  return props.modelValue !== undefined ? normalizeSelectValue(props.modelValue, isMultiple.value) : uncontrolledValue.value
+})
+const mergedShow = computed(() => (props.show === undefined ? uncontrolledShow.value : props.show))
 const isInteractive = computed(() => !props.disabled && !props.readonly)
 const teleportTarget = computed(() => (props.to === false ? 'body' : props.to ?? 'body'))
+const hasCustomTrigger = computed(() => !!runtimeSlots.trigger)
+
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (value !== undefined) {
+      uncontrolledValue.value = normalizeSelectValue(value, isMultiple.value)
+    }
+  }
+)
+
+watch(
+  () => props.show,
+  (value) => {
+    if (value !== undefined) {
+      uncontrolledShow.value = value
+    }
+  }
+)
+
+watch(isMultiple, (multiple) => {
+  const normalizedPropValue = normalizeSelectValue(props.modelValue, multiple)
+  const normalizedUncontrolledValue = normalizeSelectValue(uncontrolledValue.value, multiple)
+
+  uncontrolledValue.value = props.modelValue !== undefined ? normalizedPropValue : normalizedUncontrolledValue
+})
 
 const selectClasses = computed(() => [
   'z-select',
   `select--${props.size}`,
   {
-    open: isOpen.value,
+    open: mergedShow.value,
     'is-disabled': props.disabled,
     'is-readonly': props.readonly,
     'is-success': props.status === 'success',
@@ -43,29 +119,32 @@ const selectClasses = computed(() => [
     'is-error': props.status === 'error',
     'is-multiple': isMultiple.value,
     'is-tags': isTagsMode.value,
-    'has-clear': showClear.value
+    'has-clear': showClear.value,
+    'is-custom-trigger': hasCustomTrigger.value
   }
 ])
 
 const selectedValues = computed<SelectValueType[]>(() => {
-  if (Array.isArray(props.modelValue)) {
-    return props.modelValue
+  const value = mergedValue.value
+
+  if (Array.isArray(value)) {
+    return value
   }
 
-  if (props.modelValue === '' || props.modelValue === null || props.modelValue === undefined) {
+  if (value === '' || value === null || value === undefined) {
     return []
   }
 
-  return [props.modelValue]
+  return [value]
 })
 
-const singleValue = computed(() => selectedValues.value[0])
+const singleValue = computed<SelectValueType | undefined>(() => selectedValues.value[0])
 const selectedLabel = computed(() => {
   const selected = props.options.find((opt) => opt.value === singleValue.value)
   return selected ? selected.label : props.placeholder
 })
 
-const selectedItems = computed(() =>
+const selectedItems = computed<SelectSelectedItem[]>(() =>
   selectedValues.value.map((value) => {
     const option = props.options.find((opt) => opt.value === value)
     return {
@@ -88,7 +167,7 @@ const hasValue = computed(() => selectedValues.value.length > 0)
 const showClear = computed(() => props.clearable && isInteractive.value && hasValue.value)
 
 const { resolvedPlacement, panelStyle, containsTarget, scheduleUpdate } = useOverlayPosition({
-  visible: computed(() => isOpen.value),
+  visible: mergedShow,
   triggerRef: selectRef,
   anchorRef: triggerRef,
   panelRef,
@@ -102,9 +181,27 @@ function scheduleOverlayUpdate(): void {
 }
 
 function setOpen(visible: boolean): void {
-  if (isOpen.value === visible) return
-  isOpen.value = visible
+  if (!isInteractive.value && visible) return
+  if (mergedShow.value === visible) return
+
+  if (props.show === undefined) {
+    uncontrolledShow.value = visible
+  }
+
+  emit('update:show', visible)
   emit('visible-change', visible)
+}
+
+function openMenu(): void {
+  if (isTagsMode.value) {
+    focusTagInput()
+  }
+
+  setOpen(true)
+}
+
+function closeMenu(): void {
+  setOpen(false)
 }
 
 function focusTagInput(): void {
@@ -116,21 +213,32 @@ function toggleSelect(): void {
   if (!isInteractive.value) return
 
   if (isTagsMode.value) {
-    setOpen(true)
-    focusTagInput()
+    openMenu()
     return
   }
 
-  setOpen(!isOpen.value)
+  setOpen(!mergedShow.value)
 }
 
 function isSelected(value: SelectValueType): boolean {
   return selectedValues.value.includes(value)
 }
 
-function emitValue(value: SelectValueType | SelectValueType[]): void {
+function updateValue(value: SelectModelValue): void {
+  if (props.modelValue === undefined) {
+    uncontrolledValue.value = normalizeSelectValue(value, isMultiple.value)
+  }
+
   emit('update:modelValue', value)
   emit('change', value)
+}
+
+function emitSingleValue(value: SelectSingleModelValue): void {
+  updateValue(value)
+}
+
+function emitMultipleValue(value: SelectValueType[]): void {
+  updateValue(value)
 }
 
 function selectOption(option: SelectOption): void {
@@ -140,27 +248,31 @@ function selectOption(option: SelectOption): void {
     const nextValues = isSelected(option.value)
       ? selectedValues.value.filter((value) => value !== option.value)
       : [...selectedValues.value, option.value]
-    emitValue(nextValues)
+    emitMultipleValue(nextValues)
     focusTagInput()
     scheduleOverlayUpdate()
     return
   }
 
-  emitValue(option.value)
+  emitSingleValue(option.value)
   setOpen(false)
 }
 
 function removeValue(value: SelectValueType): void {
   if (!isInteractive.value) return
-  emitValue(selectedValues.value.filter((item) => item !== value))
+  emitMultipleValue(selectedValues.value.filter((item) => item !== value))
   emit('tag-remove', value)
   focusTagInput()
   scheduleOverlayUpdate()
 }
 
 function handleClear(): void {
-  const emptyValue = isMultiple.value ? [] : ''
-  emitValue(emptyValue)
+  if (isMultiple.value) {
+    emitMultipleValue([])
+  } else {
+    emitSingleValue(null)
+  }
+
   emit('clear')
   tagInputValue.value = ''
   scheduleOverlayUpdate()
@@ -182,7 +294,7 @@ function commitTagInput(): void {
   const value = matchedOption?.value ?? text
 
   if (!selectedValues.value.includes(value)) {
-    emitValue([...selectedValues.value, value])
+    emitMultipleValue([...selectedValues.value, value])
     if (!matchedOption) {
       emit('tag-create', text)
     }
@@ -227,8 +339,39 @@ function handleTriggerKeydown(event: KeyboardEvent): void {
   }
 }
 
+function setTriggerRef(element: HTMLElement | null): void {
+  triggerRef.value = element
+}
+
+const triggerProps = computed<SelectTriggerProps>(() => ({
+  role: 'combobox',
+  tabindex: props.disabled ? -1 : 0,
+  'aria-haspopup': 'listbox',
+  'aria-expanded': mergedShow.value ? 'true' : 'false',
+  'aria-disabled': props.disabled ? 'true' : undefined,
+  'aria-readonly': props.readonly ? 'true' : undefined,
+  'aria-invalid': props.status === 'error' ? 'true' : undefined,
+  onClick: toggleSelect
+}))
+
+const triggerSlotProps = computed<SelectTriggerSlotProps>(() => ({
+  visible: mergedShow.value,
+  selectedLabel: selectedLabel.value,
+  selectedValues: selectedValues.value,
+  selectedItems: selectedItems.value,
+  hasValue: hasValue.value,
+  disabled: props.disabled,
+  readonly: props.readonly,
+  multiple: isMultiple.value,
+  triggerProps: triggerProps.value,
+  setTriggerRef,
+  openMenu,
+  closeMenu,
+  toggleMenu: toggleSelect
+}))
+
 function handleDocumentPointerDown(event: PointerEvent): void {
-  if (!isOpen.value || containsTarget(event.target)) {
+  if (!mergedShow.value || containsTarget(event.target)) {
     return
   }
 
@@ -236,15 +379,15 @@ function handleDocumentPointerDown(event: PointerEvent): void {
 }
 
 function handleDocumentKeydown(event: KeyboardEvent): void {
-  if (isOpen.value && event.key === 'Escape') {
+  if (mergedShow.value && event.key === 'Escape') {
     setOpen(false)
   }
 }
 
 watch(
-  () => [props.modelValue, tagInputValue.value, props.options.length] as const,
+  () => [mergedValue.value, tagInputValue.value, props.options.length, mergedShow.value] as const,
   () => {
-    if (isOpen.value) {
+    if (mergedShow.value) {
       scheduleOverlayUpdate()
     }
   },
@@ -264,14 +407,17 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="selectRef" :class="selectClasses">
+    <slot v-if="hasCustomTrigger" name="trigger" v-bind="triggerSlotProps" />
     <div
+      v-else
       ref="triggerRef"
       class="select-trigger"
       role="combobox"
-      tabindex="0"
+      :tabindex="disabled ? -1 : 0"
       aria-haspopup="listbox"
-      :aria-expanded="isOpen"
+      :aria-expanded="mergedShow"
       :aria-disabled="disabled ? 'true' : undefined"
+      :aria-readonly="readonly ? 'true' : undefined"
       :aria-invalid="status === 'error' ? 'true' : undefined"
       @click="toggleSelect"
       @keydown="handleTriggerKeydown"
@@ -322,7 +468,7 @@ onBeforeUnmount(() => {
 
       <svg
         class="select-arrow"
-        :class="{ rotate: isOpen }"
+        :class="{ rotate: mergedShow }"
         width="16"
         height="16"
         viewBox="0 0 16 16"
@@ -342,7 +488,7 @@ onBeforeUnmount(() => {
     <Teleport :to="teleportTarget" :disabled="props.to === false">
       <Transition name="select-menu">
         <div
-          v-if="isOpen"
+          v-if="mergedShow"
           ref="panelRef"
           class="select-menu"
           :data-placement="resolvedPlacement"
@@ -400,6 +546,10 @@ onBeforeUnmount(() => {
   color: var(--text-color);
 }
 
+.z-select.is-custom-trigger {
+  min-width: 0;
+}
+
 .select-trigger {
   width: 100%;
   display: flex;
@@ -429,12 +579,13 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 0 3px var(--primary-light-bg);
 }
 
-.z-select.is-disabled {
+.z-select.is-disabled:not(.is-custom-trigger) {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.z-select.is-disabled .select-trigger {
+.z-select.is-disabled .select-trigger,
+.z-select.is-disabled.is-custom-trigger {
   cursor: not-allowed;
 }
 
@@ -734,3 +885,4 @@ onBeforeUnmount(() => {
   }
 }
 </style>
+

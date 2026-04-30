@@ -13,7 +13,7 @@ function open(type: 'info' | 'warning' | 'danger') {
 
 <template>
   <div class="demo-section">
-    <p>确认弹窗，支持 info / warning / danger 三种样式。</p>
+    <p>确认弹窗支持 v-model:visible 受控显示。</p>
     <div class="demo-box">
       <button class="btn" @click="open('info')">Info 确认</button>
       <button class="btn" @click="open('warning')">Warning 确认</button>
