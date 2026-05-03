@@ -6,6 +6,7 @@ import type { PopoverEmits, PopoverPlacement, PopoverProps } from './Popover'
 
 const props = withDefaults(defineProps<PopoverProps>(), {
   trigger: 'hover',
+  show: undefined,
   placement: 'top',
   overlap: false,
   raw: false,

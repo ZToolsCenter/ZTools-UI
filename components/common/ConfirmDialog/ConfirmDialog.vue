@@ -58,6 +58,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  visible: undefined,
   defaultVisible: false,
   title: '确认操作',
   type: 'info',

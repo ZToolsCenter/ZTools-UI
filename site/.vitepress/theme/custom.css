@@ -49,6 +49,8 @@ body {
 
 #app {
   min-height: 100vh;
+  height: auto !important;
+  overflow: visible !important;
 }
 
 .VPApp,

@@ -22,6 +22,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
   size: 'medium',
   message: '',
   mode: 'default',
+  show: undefined,
   defaultShow: false,
   placement: 'bottom-start',
   autoAdjustPlacement: true,

@@ -26,6 +26,7 @@ const props = withDefaults(defineProps<ColorPickerProps>(), {
   disabled: false,
   showInput: true,
   showAlpha: false,
+  show: undefined,
   defaultShow: false,
   size: 'medium',
   placement: 'bottom-start',
