@@ -19,6 +19,7 @@ import { ZRadio } from './components/common/Radio'
 import { ZShortcutEditor } from './components/common/ShortcutEditor'
 import { ZSlider } from './components/common/Slider'
 import { ZSwitch } from './components/common/Switch'
+import { ZTab, ZTabPane, ZTabs } from './components/common/Tabs'
 import { ZTag } from './components/common/Tag'
 import { ZTagDropdown } from './components/common/TagDropdown'
 import { ZToast } from './components/common/Toast'
@@ -43,6 +44,9 @@ const components = {
   ZShortcutEditor,
   ZSlider,
   ZSwitch,
+  ZTab,
+  ZTabPane,
+  ZTabs,
   ZTag,
   ZTagDropdown,
   ZToast

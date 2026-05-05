@@ -18,6 +18,9 @@ const componentNames = [
   'ZShortcutEditor',
   'ZSlider',
   'ZSwitch',
+  'ZTab',
+  'ZTabPane',
+  'ZTabs',
   'ZTag',
   'ZTagDropdown',
   'ZToast'

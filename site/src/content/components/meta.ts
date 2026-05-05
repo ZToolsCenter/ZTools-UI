@@ -36,6 +36,8 @@ import PluginDetailDemo from '../../demos/PluginDetailDemo.vue'
 import PluginDetailDemoSource from '../../demos/PluginDetailDemo.vue?raw'
 import PaginationDemo from '../../demos/PaginationDemo.vue'
 import PaginationDemoSource from '../../demos/PaginationDemo.vue?raw'
+import TabsDemo from '../../demos/TabsDemo.vue'
+import TabsDemoSource from '../../demos/TabsDemo.vue?raw'
 
 const componentDemoSources = new Map<Component, string>([
   [SelectDemo, SelectDemoSource],
@@ -51,7 +53,8 @@ const componentDemoSources = new Map<Component, string>([
   [DetailPanelDemo, DetailPanelDemoSource],
   [ShortcutEditorDemo, ShortcutEditorDemoSource],
   [PluginDetailDemo, PluginDetailDemoSource],
-  [PaginationDemo, PaginationDemoSource]
+  [PaginationDemo, PaginationDemoSource],
+  [TabsDemo, TabsDemoSource]
 ])
 
 interface SfcSourceBlock {
@@ -148,6 +151,9 @@ import { ZPagination } from 'ztools-ui-components/common/Pagination'`
 const paginationCustomDemoScript = `import { ref } from 'vue'
 import { ZPagination } from 'ztools-ui-components/common/Pagination'
 import type { PaginationInfo } from 'ztools-ui-components/common/Pagination'`
+const tabsDemoScript = `import { ZTabs, ZTabPane } from 'ztools-ui-components/common/Tabs'`
+const tabsModelDemoScript = `import { ref } from 'vue'
+import { ZTabs, ZTabPane } from 'ztools-ui-components/common/Tabs'`
 
 const buttonDemoVariants = [
   {
@@ -1817,6 +1823,254 @@ const renderNext = () => '下一页'`
   }
 ]
 
+const tabsDemoVariants = [
+  {
+    variant: 'basic',
+    title: '基础用法',
+    description: '通过 v-model:value 绑定当前激活标签，用嵌套的 ZTabPane 声明每个标签页。',
+    sourceCode: createDemoSource(
+      `
+        <ZTabs v-model:value="value">
+          <ZTabPane name="detail" tab="详情">
+            <p>详情页内容</p>
+          </ZTabPane>
+          <ZTabPane name="commands" tab="指令">
+            <p>指令页内容</p>
+          </ZTabPane>
+          <ZTabPane name="data" tab="数据">
+            <p>数据页内容</p>
+          </ZTabPane>
+        </ZTabs>
+      `,
+      tabsModelDemoScript + `
+
+const value = ref('detail')`
+    )
+  },
+  {
+    variant: 'type',
+    title: '类型',
+    description: '支持 bar（默认）、line、card 三种类型，配合主题色统一展示。',
+    sourceCode: createDemoSource(
+      `
+        <ZTabs default-value="a" type="bar">
+          <ZTabPane name="a" tab="标签 A">bar 类型</ZTabPane>
+          <ZTabPane name="b" tab="标签 B">指示条跟随文字宽度</ZTabPane>
+        </ZTabs>
+        <ZTabs default-value="a" type="line">
+          <ZTabPane name="a" tab="标签 A">line 类型</ZTabPane>
+          <ZTabPane name="b" tab="标签 B">底部分割线 + 指示条</ZTabPane>
+        </ZTabs>
+        <ZTabs default-value="a" type="card">
+          <ZTabPane name="a" tab="标签 A">card 类型</ZTabPane>
+          <ZTabPane name="b" tab="标签 B">卡片样式</ZTabPane>
+        </ZTabs>
+      `,
+      tabsDemoScript
+    )
+  },
+  {
+    variant: 'segment',
+    title: 'segment 分段',
+    description: 'iOS 分段控制器风格，整个 nav 共用一个胶囊容器。',
+    sourceCode: createDemoSource(
+      `
+        <ZTabs default-value="day" type="segment">
+          <ZTabPane name="day" tab="日">日维度</ZTabPane>
+          <ZTabPane name="week" tab="周">周维度</ZTabPane>
+          <ZTabPane name="month" tab="月">月维度</ZTabPane>
+          <ZTabPane name="year" tab="年">年维度</ZTabPane>
+        </ZTabs>
+      `,
+      tabsDemoScript
+    )
+  },
+  {
+    variant: 'size',
+    title: '尺寸',
+    description: '支持 small、medium、large 三种尺寸。',
+    sourceCode: createDemoSource(
+      `
+        <ZTabs default-value="a" size="small">
+          <ZTabPane name="a" tab="标签 A">small</ZTabPane>
+          <ZTabPane name="b" tab="标签 B">small</ZTabPane>
+        </ZTabs>
+        <ZTabs default-value="a" size="medium">
+          <ZTabPane name="a" tab="标签 A">medium</ZTabPane>
+          <ZTabPane name="b" tab="标签 B">medium</ZTabPane>
+        </ZTabs>
+        <ZTabs default-value="a" size="large">
+          <ZTabPane name="a" tab="标签 A">large</ZTabPane>
+          <ZTabPane name="b" tab="标签 B">large</ZTabPane>
+        </ZTabs>
+      `,
+      tabsDemoScript
+    )
+  },
+  {
+    variant: 'placement',
+    title: '位置',
+    description: '通过 placement 控制标签栏位置：top（默认） / bottom / left / right。对 segment 类型不生效。',
+    sourceCode: createDemoSource(
+      `
+        <ZTabs default-value="a" type="line" placement="left">
+          <ZTabPane name="a" tab="标签 A">左侧标签栏</ZTabPane>
+          <ZTabPane name="b" tab="标签 B">左侧标签栏</ZTabPane>
+        </ZTabs>
+      `,
+      tabsDemoScript
+    )
+  },
+  {
+    variant: 'card-closable-addable',
+    title: '可关闭与可添加',
+    description: '在 type="card" 下设置 closable 与 addable 即可显示关闭与添加按钮，并通过 close / add 事件维护标签数据。',
+    sourceCode: createDemoSource(
+      `
+        <ZTabs
+          v-model:value="value"
+          type="card"
+          addable
+          closable
+          @add="handleAdd"
+          @close="handleClose"
+        >
+          <ZTabPane v-for="tab in tabs" :key="tab.name" :name="tab.name" :tab="tab.tab">
+            {{ tab.content }}
+          </ZTabPane>
+        </ZTabs>
+      `,
+      tabsModelDemoScript + `
+
+const value = ref<number>(1)
+const tabs = ref([
+  { name: 1, tab: '标签 1', content: '内容 1' },
+  { name: 2, tab: '标签 2', content: '内容 2' }
+])
+let nextId = 3
+
+function handleAdd() {
+  const id = nextId++
+  tabs.value.push({ name: id, tab: \`新标签 \${id}\`, content: \`动态内容 \${id}\` })
+  value.value = id
+}
+
+function handleClose(name: string | number) {
+  const i = tabs.value.findIndex(t => t.name === name)
+  if (i !== -1) tabs.value.splice(i, 1)
+}`
+    )
+  },
+  {
+    variant: 'before-leave',
+    title: '切换前钩子',
+    description: 'on-before-leave 返回 false（或 reject）会阻止切换，可用于未保存确认等场景。',
+    sourceCode: createDemoSource(
+      `
+        <ZTabs v-model:value="value" type="line" :on-before-leave="handleBeforeLeave">
+          <ZTabPane name="a" tab="标签 A">普通标签</ZTabPane>
+          <ZTabPane name="b" tab="标签 B（受保护）">离开此标签前会确认</ZTabPane>
+          <ZTabPane name="c" tab="标签 C">普通标签</ZTabPane>
+        </ZTabs>
+      `,
+      tabsModelDemoScript + `
+
+const value = ref('a')
+
+function handleBeforeLeave(name: string | number, oldName: string | number | null) {
+  if (oldName === 'b' && name !== 'b') {
+    return window.confirm('确定要离开标签 B 吗？')
+  }
+  return true
+}`
+    )
+  },
+  {
+    variant: 'animated',
+    title: '动画',
+    description: '设置 animated 后切换标签会有横向滑入动画（placement 为 left/right 时不生效）。',
+    sourceCode: createDemoSource(
+      `
+        <ZTabs default-value="a" type="line" animated>
+          <ZTabPane name="a" tab="标签 A">切换时有动画</ZTabPane>
+          <ZTabPane name="b" tab="标签 B">这是 B 的内容</ZTabPane>
+          <ZTabPane name="c" tab="标签 C">这是 C 的内容</ZTabPane>
+        </ZTabs>
+      `,
+      tabsDemoScript
+    )
+  },
+  {
+    variant: 'justify-content',
+    title: '主轴排列',
+    description: 'justify-content 仅对 line 与 bar 类型生效，可在富余空间下分配 tab 的对齐方式。',
+    sourceCode: createDemoSource(
+      `
+        <ZTabs default-value="a" type="line" justify-content="space-between">
+          <ZTabPane name="a" tab="标签 A">A</ZTabPane>
+          <ZTabPane name="b" tab="标签 B">B</ZTabPane>
+          <ZTabPane name="c" tab="标签 C">C</ZTabPane>
+        </ZTabs>
+      `,
+      tabsDemoScript
+    )
+  },
+  {
+    variant: 'prefix-suffix',
+    title: '前缀与后缀',
+    description: '通过 prefix 和 suffix 插槽在 nav 区追加自定义内容。',
+    sourceCode: createDemoSource(
+      `
+        <ZTabs default-value="a" type="line">
+          <template #prefix>📚</template>
+          <template #suffix>
+            <button type="button">操作</button>
+          </template>
+          <ZTabPane name="a" tab="标签 A">内容</ZTabPane>
+          <ZTabPane name="b" tab="标签 B">内容</ZTabPane>
+        </ZTabs>
+      `,
+      tabsDemoScript
+    )
+  },
+  {
+    variant: 'disabled',
+    title: '禁用',
+    description: '在 ZTabPane 上设置 disabled 可禁用该标签。',
+    sourceCode: createDemoSource(
+      `
+        <ZTabs default-value="a" type="line">
+          <ZTabPane name="a" tab="可用">可用标签</ZTabPane>
+          <ZTabPane name="b" tab="禁用" disabled>禁用标签</ZTabPane>
+          <ZTabPane name="c" tab="可用">另一个可用标签</ZTabPane>
+        </ZTabs>
+      `,
+      tabsDemoScript
+    )
+  },
+  {
+    variant: 'display-directive',
+    title: '渲染指令',
+    description: 'display-directive 控制标签内容的渲染方式：if（默认）每次重新挂载，show 通过 v-show 切换并保留状态，show:lazy 首次显示后再保留。',
+    sourceCode: createDemoSource(
+      `
+        <ZTabs default-value="a" type="line">
+          <ZTabPane name="a" tab="if">每次切换重建</ZTabPane>
+          <ZTabPane name="b" tab="show" display-directive="show">
+            <input v-model="value" placeholder="输入内容后切换 tab" />
+          </ZTabPane>
+          <ZTabPane name="c" tab="show:lazy" display-directive="show:lazy">
+            首次显示后才挂载
+          </ZTabPane>
+        </ZTabs>
+      `,
+      tabsModelDemoScript + `
+
+const value = ref('')`
+    )
+  }
+]
+
 function createVariantDemos<TVariant extends string>(
   component: Component,
   configs: readonly VariantDemoConfig<TVariant>[]
@@ -1873,6 +2127,11 @@ export interface ComponentApi {
   emits?: ApiEmit[]
 }
 
+export interface ComponentDocSection {
+  title: string
+  content: string
+}
+
 // 组件文档元数据
 export interface ComponentDocMeta {
   id: string
@@ -1882,6 +2141,7 @@ export interface ComponentDocMeta {
   description: string
   demos: ComponentDemo[]
   api: ComponentApi
+  sections?: ComponentDocSection[]
 }
 
 // 所有组件文档元数据
@@ -2818,6 +3078,190 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
           name: 'click',
           signature: '(event: MouseEvent) => void',
           description: '点击标签时触发',
+          since: '1.0.0'
+        }
+      ]
+    }
+  },
+
+  tabs: {
+    id: 'tabs',
+    group: 'display',
+    zhName: '标签页',
+    enName: 'Tabs',
+    description: '用于在不同视图之间切换的标签页组件，支持 bar / line / card / segment 四种类型，受控/非受控双模式，以及关闭、添加、动画、自定义渲染指令等。',
+    demos: createVariantDemos(TabsDemo, tabsDemoVariants),
+    api: {
+      props: [
+        {
+          name: 'value',
+          type: 'string | number',
+          description: '受控模式下的值，配合 update:value 事件使用',
+          since: '1.0.0'
+        },
+        {
+          name: 'default-value',
+          type: 'string | number',
+          description: '非受控模式下的默认值；未提供时取第一个 ZTabPane 的 name',
+          since: '1.0.0'
+        },
+        {
+          name: 'type',
+          type: "'bar' | 'line' | 'card' | 'segment'",
+          default: "'bar'",
+          description: '标签类型',
+          since: '1.0.0'
+        },
+        {
+          name: 'size',
+          type: "'small' | 'medium' | 'large'",
+          default: "'medium'",
+          description: '标签页的尺寸',
+          since: '1.0.0'
+        },
+        {
+          name: 'placement',
+          type: "'top' | 'bottom' | 'left' | 'right'",
+          default: "'top'",
+          description: "标签的位置；对 segment 类型不生效",
+          since: '1.0.0'
+        },
+        {
+          name: 'trigger',
+          type: "'click' | 'hover'",
+          default: "'click'",
+          description: '触发 tab 的方式',
+          since: '1.0.0'
+        },
+        {
+          name: 'animated',
+          type: 'boolean',
+          default: 'false',
+          description: '标签页切换是否使用动画；当 placement 为 left 或 right 时不生效',
+          since: '1.0.0'
+        },
+        {
+          name: 'addable',
+          type: 'boolean | { disabled?: boolean }',
+          default: 'false',
+          description: '是否允许添加标签，只在 type 为 card 时生效；传入对象可单独禁用 + 按钮',
+          since: '1.0.0'
+        },
+        {
+          name: 'closable',
+          type: 'boolean',
+          default: 'false',
+          description: '是否允许关闭标签，只在 type 为 card 时生效；可在单个 ZTabPane 上覆盖',
+          since: '1.0.0'
+        },
+        {
+          name: 'bar-width',
+          type: 'number',
+          description: 'bar 类型指示条的固定宽度，未指定时跟随当前 tab 文本宽度',
+          since: '1.0.0'
+        },
+        {
+          name: 'tabs-padding',
+          type: 'number',
+          default: '0',
+          description: '全部标签最左和最右的 padding（垂直布局下为顶部和底部）',
+          since: '1.0.0'
+        },
+        {
+          name: 'justify-content',
+          type: "'space-between' | 'space-around' | 'space-evenly' | 'start' | 'center' | 'end'",
+          description: 'flex 布局下主轴的排列方式，只对 line 与 bar 类型生效',
+          since: '1.0.0'
+        },
+        {
+          name: 'pane-class',
+          type: 'string',
+          description: '面板的类名',
+          since: '1.0.0'
+        },
+        {
+          name: 'pane-style',
+          type: 'string | object',
+          description: '面板的样式',
+          since: '1.0.0'
+        },
+        {
+          name: 'pane-wrapper-class',
+          type: 'string',
+          description: '面板容器的类名',
+          since: '1.0.0'
+        },
+        {
+          name: 'pane-wrapper-style',
+          type: 'string | object',
+          description: '面板容器的样式',
+          since: '1.0.0'
+        },
+        {
+          name: 'tab-class',
+          type: 'string',
+          description: '标签的类名',
+          since: '1.0.0'
+        },
+        {
+          name: 'tab-style',
+          type: 'string | object',
+          description: '标签的样式',
+          since: '1.0.0'
+        },
+        {
+          name: 'add-tab-class',
+          type: 'string',
+          description: '添加标签按钮的类名',
+          since: '1.0.0'
+        },
+        {
+          name: 'add-tab-style',
+          type: 'string | object',
+          description: '添加标签按钮的样式',
+          since: '1.0.0'
+        },
+        {
+          name: 'on-before-leave',
+          type: '(name, oldName) => boolean | Promise<boolean>',
+          description: '切换标签之前的钩子，返回 false 或 reject 会阻止切换',
+          since: '1.0.0'
+        }
+      ],
+      slots: [
+        {
+          name: 'default',
+          description: '一组 ZTabPane（或 ZTab）子组件',
+          since: '1.0.0'
+        },
+        {
+          name: 'prefix',
+          description: '标签栏前缀',
+          since: '1.0.0'
+        },
+        {
+          name: 'suffix',
+          description: '标签栏后缀',
+          since: '1.0.0'
+        }
+      ],
+      emits: [
+        {
+          name: 'update:value',
+          signature: '(value: string | number) => void',
+          description: '选中发生改变时触发，用于 v-model:value',
+          since: '1.0.0'
+        },
+        {
+          name: 'add',
+          signature: '() => void',
+          description: '点击添加按钮时触发（仅 type="card" + addable）',
+          since: '1.0.0'
+        },
+        {
+          name: 'close',
+          signature: '(name: string | number) => void',
+          description: '点击关闭按钮时触发（仅 type="card" + closable）',
           since: '1.0.0'
         }
       ]
