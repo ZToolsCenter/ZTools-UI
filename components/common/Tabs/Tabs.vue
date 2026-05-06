@@ -1050,12 +1050,7 @@ function paneVisibleStyle(entry: PaneEntry): CSSProperties | undefined {
 }
 
 .tabs-pane {
-  padding: 12px 0;
   animation: tabs-fade-in 0.2s ease-out;
-}
-
-.z-tabs.is-vertical .tabs-pane {
-  padding: 0 16px;
 }
 
 .z-tabs.is-animated .tabs-pane.is-active {
