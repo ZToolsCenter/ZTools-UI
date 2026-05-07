@@ -8,6 +8,8 @@ const componentNames = [
   'ZCommandTag',
   'ZConfirmDialog',
   'ZDetailPanel',
+  'ZDrawer',
+  'ZDrawerContent',
   'ZPopover',
   'ZSelect',
   'ZFeatureCard',

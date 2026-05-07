@@ -34,7 +34,6 @@ const teleportTarget = computed(() => (props.to === false ? 'body' : props.to ??
 const panelClasses = computed(() => [
   'zt-popover__panel',
   {
-    'zt-popover__panel--ready': panelReady.value,
     'zt-popover__panel--raw': props.raw,
     'zt-popover__panel--with-arrow': props.showArrow
   }
@@ -121,7 +120,7 @@ function updateArrowPosition(placement: PopoverPlacement, panelRect: DOMRect, tr
   }
 }
 
-const { resolvedPlacement, panelReady, panelStyle, containsTarget, updatePosition } = useOverlayPosition({
+const { resolvedPlacement, panelStyle, containsTarget, updatePosition } = useOverlayPosition({
   visible: mergedShow,
   triggerRef,
   panelRef,
@@ -316,42 +315,44 @@ defineExpose({
     </div>
 
     <Teleport :to="teleportTarget" :disabled="props.to === false">
-      <div
-        v-if="mergedShow"
-        ref="panelRef"
-        :class="panelClasses"
-        :data-placement="resolvedPlacement"
-        :style="panelStyle"
-        @pointerenter="handlePanelPointerEnter"
-        @pointerleave="handlePanelPointerLeave"
-        @focusin="handlePanelFocusIn"
-        @focusout="handlePanelFocusOut"
-      >
-        <div v-if="props.showArrow" class="zt-popover__arrow" :style="arrowStyle"></div>
-        <div :class="contentClasses">
-          <div
-            v-if="hasHeader"
-            class="zt-popover__header"
-            :class="props.headerClass"
-            :style="props.headerStyle"
-          >
-            <slot name="header"></slot>
-          </div>
+      <Transition name="zt-popover-panel">
+        <div
+          v-if="mergedShow"
+          ref="panelRef"
+          :class="panelClasses"
+          :data-placement="resolvedPlacement"
+          :style="panelStyle"
+          @pointerenter="handlePanelPointerEnter"
+          @pointerleave="handlePanelPointerLeave"
+          @focusin="handlePanelFocusIn"
+          @focusout="handlePanelFocusOut"
+        >
+          <div v-if="props.showArrow" class="zt-popover__arrow" :style="arrowStyle"></div>
+          <div :class="contentClasses">
+            <div
+              v-if="hasHeader"
+              class="zt-popover__header"
+              :class="props.headerClass"
+              :style="props.headerStyle"
+            >
+              <slot name="header"></slot>
+            </div>
 
-          <div :class="bodyClasses">
-            <slot></slot>
-          </div>
+            <div :class="bodyClasses">
+              <slot></slot>
+            </div>
 
-          <div
-            v-if="hasFooter"
-            class="zt-popover__footer"
-            :class="props.footerClass"
-            :style="props.footerStyle"
-          >
-            <slot name="footer"></slot>
+            <div
+              v-if="hasFooter"
+              class="zt-popover__footer"
+              :class="props.footerClass"
+              :style="props.footerStyle"
+            >
+              <slot name="footer"></slot>
+            </div>
           </div>
         </div>
-      </div>
+      </Transition>
     </Teleport>
   </div>
 </template>
@@ -368,18 +369,30 @@ defineExpose({
 }
 
 .zt-popover__panel {
+  --zt-popover-offset-x: 0px;
+  --zt-popover-offset-y: 4px;
   position: fixed;
   left: 0;
   top: 0;
   z-index: 10000;
   display: inline-flex;
   max-width: calc(100vw - 16px);
-  visibility: hidden;
+  visibility: visible;
   pointer-events: auto;
 }
 
-.zt-popover__panel--ready {
-  visibility: visible;
+.zt-popover__panel[data-placement^='bottom'] {
+  --zt-popover-offset-y: -4px;
+}
+
+.zt-popover__panel[data-placement^='left'] {
+  --zt-popover-offset-x: 4px;
+  --zt-popover-offset-y: 0px;
+}
+
+.zt-popover__panel[data-placement^='right'] {
+  --zt-popover-offset-x: -4px;
+  --zt-popover-offset-y: 0px;
 }
 
 .zt-popover__content {
@@ -478,5 +491,25 @@ defineExpose({
 .zt-popover__content--raw {
   position: relative;
   z-index: 1;
+}
+
+.zt-popover-panel-enter-active {
+  transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+}
+
+.zt-popover-panel-leave-active {
+  transition: opacity 0.1s ease-in, transform 0.1s ease-in;
+}
+
+.zt-popover-panel-enter-from,
+.zt-popover-panel-leave-to {
+  opacity: 0;
+  transform: translate(var(--zt-popover-offset-x), var(--zt-popover-offset-y));
+}
+
+.zt-popover-panel-enter-to,
+.zt-popover-panel-leave-from {
+  opacity: 1;
+  transform: translate(0, 0);
 }
 </style>

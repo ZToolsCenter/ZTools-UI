@@ -856,34 +856,43 @@ onBeforeUnmount(() => {
   color: var(--danger-color);
 }
 
+.select-menu {
+  --select-menu-offset-x: 0px;
+  --select-menu-offset-y: -4px;
+}
+
+.select-menu[data-placement^='top'] {
+  --select-menu-offset-y: 4px;
+}
+
+.select-menu[data-placement^='left'] {
+  --select-menu-offset-x: 4px;
+  --select-menu-offset-y: 0px;
+}
+
+.select-menu[data-placement^='right'] {
+  --select-menu-offset-x: -4px;
+  --select-menu-offset-y: 0px;
+}
+
 .select-menu-enter-active {
-  animation: select-in 0.15s ease-out;
+  transition: opacity 0.15s ease-out, transform 0.15s ease-out;
 }
 
 .select-menu-leave-active {
-  animation: select-out 0.1s ease-in;
+  transition: opacity 0.1s ease-in, transform 0.1s ease-in;
 }
 
-@keyframes select-in {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.select-menu-enter-from,
+.select-menu-leave-to {
+  opacity: 0;
+  transform: translate(var(--select-menu-offset-x), var(--select-menu-offset-y));
 }
 
-@keyframes select-out {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
+.select-menu-enter-to,
+.select-menu-leave-from {
+  opacity: 1;
+  transform: translate(0, 0);
 }
 </style>
 

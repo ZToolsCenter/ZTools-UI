@@ -8,6 +8,8 @@ import SliderDemoSource from '../../demos/SliderDemo.vue?raw'
 import InputDemo from '../../demos/InputDemo.vue'
 import ColorPickerDemo from '../../demos/ColorPickerDemo.vue'
 import PopoverDemo from '../../demos/PopoverDemo.vue'
+import DrawerDemo from '../../demos/DrawerDemo.vue'
+import DrawerDemoSource from '../../demos/DrawerDemo.vue?raw'
 import CheckboxDemo from '../../demos/CheckboxDemo.vue'
 import RadioDemo from '../../demos/RadioDemo.vue'
 import SwitchDemo from '../../demos/SwitchDemo.vue'
@@ -49,6 +51,7 @@ const componentDemoSources = new Map<Component, string>([
   [AdaptiveIconDemo, AdaptiveIconDemoSource],
   [ToastDemo, ToastDemoSource],
   [ConfirmDialogDemo, ConfirmDialogDemoSource],
+  [DrawerDemo, DrawerDemoSource],
   [TagDropdownDemo, TagDropdownDemoSource],
   [DetailPanelDemo, DetailPanelDemoSource],
   [ShortcutEditorDemo, ShortcutEditorDemoSource],
@@ -119,6 +122,11 @@ const popoverOnlyDemoScript = `import { ZPopover } from 'ztools-ui-components/co
 const popoverModelDemoScript = `import { ref } from 'vue'
 import { ZButton } from 'ztools-ui-components/common/Button'
 import { ZPopover } from 'ztools-ui-components/common/Popover'`
+const drawerDemoScript = `import { ZButton } from 'ztools-ui-components/common/Button'
+import { ZDrawer, ZDrawerContent } from 'ztools-ui-components/common/Drawer'`
+const drawerModelDemoScript = `import { ref } from 'vue'
+import { ZButton } from 'ztools-ui-components/common/Button'
+import { ZDrawer, ZDrawerContent } from 'ztools-ui-components/common/Drawer'`
 const checkboxDemoScript = `import { ZCheckbox } from 'ztools-ui-components/common/Checkbox'`
 const checkboxModelDemoScript = `import { ref } from 'vue'
 import { ZCheckbox } from 'ztools-ui-components/common/Checkbox'`
@@ -1038,6 +1046,218 @@ const popoverDemoVariants = [
         ${popoverModelDemoScript}
 
         const items = Array.from({ length: 14 }, (_, index) => '滚动内容 ' + (index + 1))
+      `
+    )
+  }
+] satisfies readonly VariantDemoConfig<string>[]
+
+const drawerDemoVariants = [
+  {
+    variant: 'basic',
+    title: '基础用法',
+    description: '默认从右侧滑出，适合承载设置面板、详情信息和局部流程。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <ZButton type="primary" @click="visible = true">打开抽屉</ZButton>
+          <ZDrawer v-model:show="visible">
+            <ZDrawerContent title="基础抽屉" closable>
+              <p>Drawer 适合承载设置面板、详情信息和局部流程。</p>
+            </ZDrawerContent>
+          </ZDrawer>
+        </div>
+      `,
+      `
+        ${drawerModelDemoScript}
+
+        const visible = ref(false)
+      `
+    )
+  },
+  {
+    variant: 'placement',
+    title: '弹出位置',
+    description: '支持 left、right、top、bottom 四个方向。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-row">
+          <ZButton @click="open('left')">left</ZButton>
+          <ZButton @click="open('right')">right</ZButton>
+          <ZButton @click="open('top')">top</ZButton>
+          <ZButton @click="open('bottom')">bottom</ZButton>
+          <ZDrawer v-model:show="visible" :placement="placement">
+            <ZDrawerContent :title="'placement: ' + placement" closable>
+              <p>通过 placement 控制抽屉出现方向。</p>
+            </ZDrawerContent>
+          </ZDrawer>
+        </div>
+      `,
+      `
+        ${drawerModelDemoScript}
+        import type { DrawerPlacement } from 'ztools-ui-components/common/Drawer'
+
+        const visible = ref(false)
+        const placement = ref<DrawerPlacement>('right')
+
+        function open(next: DrawerPlacement): void {
+          placement.value = next
+          visible.value = true
+        }
+      `
+    )
+  },
+  {
+    variant: 'controlled',
+    title: '受控模式',
+    description: '通过 show 和 update:show 完全由外部状态控制显示。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <div class="demo-row">
+            <ZButton type="primary" @click="visible = true">打开受控抽屉</ZButton>
+            <ZButton @click="visible = false">外部关闭</ZButton>
+          </div>
+          <span>show: {{ visible }}</span>
+          <ZDrawer :show="visible" :show-mask="false" @update:show="visible = $event">
+            <ZDrawerContent title="受控模式" closable>
+              <p>显示状态由外部 ref 管理。</p>
+            </ZDrawerContent>
+          </ZDrawer>
+        </div>
+      `,
+      `
+        ${drawerModelDemoScript}
+
+        const visible = ref(false)
+      `
+    )
+  },
+  {
+    variant: 'uncontrolled',
+    title: '非受控模式',
+    description: '点击后挂载 default-show 的非受控抽屉，页面加载时不会自动打开。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <ZButton @click="mounted = true">打开非受控抽屉</ZButton>
+          <ZDrawer v-if="mounted" default-show :block-scroll="false" @after-leave="mounted = false">
+            <ZDrawerContent title="非受控模式" closable>
+              <p>使用 default-show 设置挂载后的初始状态。</p>
+            </ZDrawerContent>
+          </ZDrawer>
+        </div>
+      `,
+      `
+        ${drawerModelDemoScript}
+
+        const mounted = ref(false)
+      `
+    )
+  },
+  {
+    variant: 'content',
+    title: '结构化内容',
+    description: 'DrawerContent 提供 header、body、footer 分区和关闭按钮。',
+    sourceCode: createDemoSource(
+      `
+        <div>
+          <ZButton type="primary" @click="visible = true">打开结构化内容</ZButton>
+          <ZDrawer v-model:show="visible" width="360px">
+            <ZDrawerContent title="任务详情" closable>
+              <p>DrawerContent 提供 header / body / footer 分区。</p>
+              <template #footer>
+                <ZButton @click="visible = false">取消</ZButton>
+                <ZButton type="primary" @click="visible = false">确认</ZButton>
+              </template>
+            </ZDrawerContent>
+          </ZDrawer>
+        </div>
+      `,
+      `
+        ${drawerModelDemoScript}
+
+        const visible = ref(false)
+      `
+    )
+  },
+  {
+    variant: 'mask',
+    title: '遮罩',
+    description: '支持禁用遮罩或使用透明遮罩。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-row">
+          <ZButton @click="noMask = true">无遮罩</ZButton>
+          <ZButton @click="transparent = true">透明遮罩</ZButton>
+          <ZDrawer v-model:show="noMask" :show-mask="false" width="300px">
+            <ZDrawerContent title="无遮罩" closable>不渲染遮罩。</ZDrawerContent>
+          </ZDrawer>
+          <ZDrawer v-model:show="transparent" show-mask="transparent" width="300px">
+            <ZDrawerContent title="透明遮罩" closable>保留点击层但背景透明。</ZDrawerContent>
+          </ZDrawer>
+        </div>
+      `,
+      `
+        ${drawerModelDemoScript}
+
+        const noMask = ref(false)
+        const transparent = ref(false)
+      `
+    )
+  },
+  {
+    variant: 'display',
+    title: '渲染方式',
+    description: 'displayDirective 控制关闭时卸载内容或仅隐藏内容。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-row">
+          <ZButton @click="showIf = true">displayDirective=&quot;if&quot;</ZButton>
+          <ZButton @click="showShow = true">displayDirective=&quot;show&quot;</ZButton>
+          <ZDrawer v-model:show="showIf" display-directive="if">
+            <ZDrawerContent title="v-if 渲染" closable>关闭后内容节点会卸载。</ZDrawerContent>
+          </ZDrawer>
+          <ZDrawer v-model:show="showShow" display-directive="show">
+            <ZDrawerContent title="v-show 渲染" closable>关闭后内容节点会保留。</ZDrawerContent>
+          </ZDrawer>
+        </div>
+      `,
+      `
+        ${drawerModelDemoScript}
+
+        const showIf = ref(false)
+        const showShow = ref(false)
+      `
+    )
+  },
+  {
+    variant: 'resizable',
+    title: '可调整尺寸',
+    description: 'resizable 开启后可拖拽边缘调整宽高，并受 min/max 约束。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <ZButton type="primary" @click="visible = true">打开可调整抽屉</ZButton>
+          <span>宽度: {{ width }}px</span>
+          <ZDrawer
+            v-model:show="visible"
+            resizable
+            :width="width"
+            :min-width="240"
+            :max-width="520"
+            @update:width="width = $event"
+          >
+            <ZDrawerContent title="可调整尺寸" closable>
+              <p>拖拽抽屉内侧边缘可调整尺寸。</p>
+            </ZDrawerContent>
+          </ZDrawer>
+        </div>
+      `,
+      `
+        ${drawerModelDemoScript}
+
+        const visible = ref(false)
+        const width = ref(320)
       `
     )
   }
@@ -3740,6 +3960,330 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
           name: 'clickoutside',
           signature: '(event: PointerEvent) => void',
           description: '点击浮层外部区域时触发',
+          since: '1.0.0'
+        }
+      ]
+    }
+  },
+
+  drawer: {
+    id: 'drawer',
+    group: 'feedback',
+    zhName: '抽屉',
+    enName: 'Drawer',
+    description: '贴边滑出的面板组件，支持受控/非受控显示、遮罩、焦点管理、四向弹出和可调整尺寸。',
+    demos: createVariantDemos(DrawerDemo, drawerDemoVariants),
+    sections: [
+      {
+        title: '子组件说明',
+        content: '`ZDrawer` 负责显示状态、遮罩、定位和尺寸控制；`ZDrawerContent` 提供标题、关闭按钮、主体和底部区域。API 表中以 `DrawerContent.` 开头的字段属于 `ZDrawerContent`。'
+      }
+    ],
+    api: {
+      props: [
+        {
+          name: 'show',
+          type: 'boolean',
+          description: '受控显示状态。传入且不为 undefined 时组件进入受控模式。',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultShow',
+          type: 'boolean',
+          default: 'false',
+          description: '非受控模式的初始显示状态；未传 show 或其为 undefined 时生效。',
+          since: '1.0.0'
+        },
+        {
+          name: 'placement',
+          type: "'top' | 'right' | 'bottom' | 'left'",
+          default: 'right',
+          description: '抽屉展示的位置',
+          since: '1.0.0'
+        },
+        {
+          name: 'width',
+          type: 'number | string',
+          description: '抽屉宽度，在 left / right 方向生效',
+          since: '1.0.0'
+        },
+        {
+          name: 'height',
+          type: 'number | string',
+          description: '抽屉高度，在 top / bottom 方向生效',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultWidth',
+          type: 'number | string',
+          default: '251',
+          description: '未传 width 时的默认宽度，在 left / right 方向生效',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultHeight',
+          type: 'number | string',
+          default: '251',
+          description: '未传 height 时的默认高度，在 top / bottom 方向生效',
+          since: '1.0.0'
+        },
+        {
+          name: 'minWidth',
+          type: 'number',
+          description: '拖拽调整时的最小宽度',
+          since: '1.0.0'
+        },
+        {
+          name: 'maxWidth',
+          type: 'number',
+          description: '拖拽调整时的最大宽度',
+          since: '1.0.0'
+        },
+        {
+          name: 'minHeight',
+          type: 'number',
+          description: '拖拽调整时的最小高度',
+          since: '1.0.0'
+        },
+        {
+          name: 'maxHeight',
+          type: 'number',
+          description: '拖拽调整时的最大高度',
+          since: '1.0.0'
+        },
+        {
+          name: 'resizable',
+          type: 'boolean',
+          default: 'false',
+          description: '是否允许拖拽抽屉边缘调整宽度或高度',
+          since: '1.0.0'
+        },
+        {
+          name: 'to',
+          type: 'string | HTMLElement | false',
+          default: 'body',
+          description: 'Teleport 目标，设为 false 时内容留在原位置渲染',
+          since: '1.0.0'
+        },
+        {
+          name: 'zIndex',
+          type: 'number',
+          default: '10000',
+          description: '抽屉和遮罩的 z-index',
+          since: '1.0.0'
+        },
+        {
+          name: 'showMask',
+          type: "boolean | 'transparent'",
+          default: 'true',
+          description: "是否显示遮罩；设为 'transparent' 时渲染透明遮罩，设为 false 时不渲染遮罩并禁用有效焦点锁定。",
+          since: '1.0.0'
+        },
+        {
+          name: 'maskClosable',
+          type: 'boolean',
+          default: 'true',
+          description: '点击遮罩时是否关闭抽屉',
+          since: '1.0.0'
+        },
+        {
+          name: 'closeOnEsc',
+          type: 'boolean',
+          default: 'true',
+          description: '焦点在抽屉内部时按下 Esc 是否关闭抽屉',
+          since: '1.0.0'
+        },
+        {
+          name: 'blockScroll',
+          type: 'boolean',
+          default: 'true',
+          description: '打开抽屉时是否禁用 body 滚动',
+          since: '1.0.0'
+        },
+        {
+          name: 'autoFocus',
+          type: 'boolean',
+          default: 'true',
+          description: '打开后是否自动聚焦第一个可聚焦元素，找不到时聚焦抽屉面板',
+          since: '1.0.0'
+        },
+        {
+          name: 'trapFocus',
+          type: 'boolean',
+          default: 'true',
+          description: '是否将焦点锁定在抽屉内部；showMask=false 时不会生效。',
+          since: '1.0.0'
+        },
+        {
+          name: 'displayDirective',
+          type: "'if' | 'show'",
+          default: 'if',
+          description: '控制关闭时卸载内容或仅隐藏内容',
+          since: '1.0.0'
+        },
+        {
+          name: 'contentClass',
+          type: 'string',
+          description: '抽屉面板类名',
+          since: '1.0.0'
+        },
+        {
+          name: 'contentStyle',
+          type: 'string | object',
+          description: '抽屉面板样式',
+          since: '1.0.0'
+        },
+        {
+          name: 'nativeScrollbar',
+          type: 'boolean',
+          default: 'true',
+          description: '抽屉面板是否使用原生滚动条',
+          since: '1.0.0'
+        },
+        {
+          name: 'scrollbarProps',
+          type: 'Record<string, unknown>',
+          description: '滚动条参数兼容字段，当前使用原生滚动容器保留透传类型',
+          since: '1.0.0'
+        },
+        {
+          name: 'DrawerContent.title',
+          type: 'string',
+          description: '内容区标题',
+          since: '1.0.0'
+        },
+        {
+          name: 'DrawerContent.closable',
+          type: 'boolean',
+          default: 'false',
+          description: '是否显示关闭按钮',
+          since: '1.0.0'
+        },
+        {
+          name: 'DrawerContent.headerClass',
+          type: 'string',
+          description: '内容区 header 容器类名',
+          since: '1.0.0'
+        },
+        {
+          name: 'DrawerContent.headerStyle',
+          type: 'string | object',
+          description: '内容区 header 容器样式',
+          since: '1.0.0'
+        },
+        {
+          name: 'DrawerContent.bodyClass',
+          type: 'string',
+          description: '内容区 body 容器类名',
+          since: '1.0.0'
+        },
+        {
+          name: 'DrawerContent.bodyStyle',
+          type: 'string | object',
+          description: '内容区 body 容器样式',
+          since: '1.0.0'
+        },
+        {
+          name: 'DrawerContent.bodyContentClass',
+          type: 'string',
+          description: '内容区 body 内层内容类名',
+          since: '1.0.0'
+        },
+        {
+          name: 'DrawerContent.bodyContentStyle',
+          type: 'string | object',
+          description: '内容区 body 内层内容样式',
+          since: '1.0.0'
+        },
+        {
+          name: 'DrawerContent.footerClass',
+          type: 'string',
+          description: '内容区 footer 容器类名',
+          since: '1.0.0'
+        },
+        {
+          name: 'DrawerContent.footerStyle',
+          type: 'string | object',
+          description: '内容区 footer 容器样式',
+          since: '1.0.0'
+        },
+        {
+          name: 'DrawerContent.nativeScrollbar',
+          type: 'boolean',
+          default: 'true',
+          description: '内容区 body 是否使用原生滚动条',
+          since: '1.0.0'
+        },
+        {
+          name: 'DrawerContent.scrollbarProps',
+          type: 'Record<string, unknown>',
+          description: '滚动条参数兼容字段，当前使用原生滚动容器保留透传类型',
+          since: '1.0.0'
+        }
+      ],
+      slots: [
+        {
+          name: 'default',
+          description: '抽屉内容，通常放置 ZDrawerContent',
+          since: '1.0.0'
+        },
+        {
+          name: 'DrawerContent.default',
+          description: '内容区主体内容',
+          since: '1.0.0'
+        },
+        {
+          name: 'DrawerContent.header',
+          description: '内容区自定义头部',
+          since: '1.0.0'
+        },
+        {
+          name: 'DrawerContent.footer',
+          description: '内容区底部操作区',
+          since: '1.0.0'
+        }
+      ],
+      emits: [
+        {
+          name: 'update:show',
+          signature: '(value: boolean) => void',
+          description: '显示状态变化时始终触发；非受控模式下组件会同步更新内部状态。',
+          since: '1.0.0'
+        },
+        {
+          name: 'update:width',
+          signature: '(value: number) => void',
+          description: '拖拽调整宽度时触发',
+          since: '1.0.0'
+        },
+        {
+          name: 'update:height',
+          signature: '(value: number) => void',
+          description: '拖拽调整高度时触发',
+          since: '1.0.0'
+        },
+        {
+          name: 'after-enter',
+          signature: '() => void',
+          description: '抽屉进入动画结束后触发',
+          since: '1.0.0'
+        },
+        {
+          name: 'after-leave',
+          signature: '() => void',
+          description: '抽屉离开动画结束后触发',
+          since: '1.0.0'
+        },
+        {
+          name: 'mask-click',
+          signature: '(event: MouseEvent) => void',
+          description: '点击遮罩时触发',
+          since: '1.0.0'
+        },
+        {
+          name: 'esc',
+          signature: '() => void',
+          description: '焦点在抽屉内部且按下 Esc 时触发',
           since: '1.0.0'
         }
       ]
