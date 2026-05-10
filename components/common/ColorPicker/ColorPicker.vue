@@ -42,6 +42,8 @@ const hueSliderRef = ref<HTMLElement | null>(null)
 const alphaSliderRef = ref<HTMLElement | null>(null)
 const uncontrolledValue = ref(props.modelValue ?? props.defaultModelValue)
 const uncontrolledShow = ref(props.show ?? props.defaultShow)
+const panelValueDraft = ref('')
+const isEditingPanelValue = ref(false)
 let dragTarget: DragTarget | null = null
 
 const emit = defineEmits<ColorPickerEmits>()
@@ -468,14 +470,67 @@ function handleTextInput(event: Event): void {
   }
 }
 
-async function copyPanelColor(): Promise<void> {
-  if (props.disabled || !navigator.clipboard) {
+function handlePanelValueInput(event: Event): void {
+  panelValueDraft.value = (event.target as HTMLInputElement).value
+}
+
+function beginPanelValueEdit(): void {
+  isEditingPanelValue.value = true
+  panelValueDraft.value = panelColorValue.value
+}
+
+function finishPanelValueEdit(): void {
+  if (!isEditingPanelValue.value) {
     return
   }
 
-  try {
-    await navigator.clipboard.writeText(panelColorValue.value)
-  } catch {}
+  isEditingPanelValue.value = false
+  commitPanelValueDraft()
+}
+
+function cancelPanelValueEdit(): void {
+  isEditingPanelValue.value = false
+  panelValueDraft.value = panelColorValue.value
+}
+
+function commitPanelValueDraft(): void {
+  const nextValue = panelValueDraft.value.trim()
+  const detectedFormat = detectColorFormat(nextValue)
+
+  if (!detectedFormat) {
+    panelValueDraft.value = panelColorValue.value
+    return
+  }
+
+  const parsedColor = parseHexColor(nextValue) ?? parseRgbColor(nextValue) ?? parseHslColor(nextValue)
+
+  if (!parsedColor) {
+    panelValueDraft.value = panelColorValue.value
+    return
+  }
+
+  colorValueFormat.value = detectedFormat
+  const normalizedValue = formatColorFromRgba(parsedColor, detectedFormat)
+  updateValue(normalizedValue)
+  panelValueDraft.value = normalizedValue
+}
+
+function handlePanelValueKeydown(event: KeyboardEvent): void {
+  if (event.key === 'Enter') {
+    event.preventDefault()
+    if (!event.isComposing) {
+      isEditingPanelValue.value = false
+      commitPanelValueDraft()
+      ;(event.target as HTMLInputElement).blur()
+    }
+    return
+  }
+
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    cancelPanelValueEdit()
+    ;(event.target as HTMLInputElement).blur()
+  }
 }
 
 function schedulePanelPositionUpdate(): void {
@@ -610,6 +665,11 @@ function detectColorFormat(value: string): ColorValueFormat | null {
 }
 
 function toggleColorValueFormat(): void {
+  if (isEditingPanelValue.value) {
+    isEditingPanelValue.value = false
+    commitPanelValueDraft()
+  }
+
   const formats: ColorValueFormat[] = ['hex', 'rgba', 'hsl']
   const nextFormat = formats[(formats.indexOf(colorValueFormat.value) + 1) % formats.length]
 
@@ -634,6 +694,16 @@ watch(
 
     if (format) {
       colorValueFormat.value = format
+    }
+  },
+  { immediate: true }
+)
+
+watch(
+  panelColorValue,
+  (value) => {
+    if (!isEditingPanelValue.value) {
+      panelValueDraft.value = value
     }
   },
   { immediate: true }
@@ -719,13 +789,16 @@ onBeforeUnmount(() => {
               >
                 {{ currentFormatLabel }}
               </button>
-              <button
+              <input
                 class="zt-color-picker__value-text"
-                type="button"
-                @click="copyPanelColor"
-              >
-                {{ panelColorValue }}
-              </button>
+                :value="panelValueDraft"
+                type="text"
+                spellcheck="false"
+                @input="handlePanelValueInput"
+                @focus="beginPanelValueEdit"
+                @blur="finishPanelValueEdit"
+                @keydown="handlePanelValueKeydown"
+              />
             </div>
           </div>
         </div>
@@ -899,8 +972,7 @@ onBeforeUnmount(() => {
   cursor: pointer;
 }
 
-.zt-color-picker__format-button:hover,
-.zt-color-picker__value-text:hover {
+.zt-color-picker__format-button:hover {
   background: var(--hover-bg);
   color: var(--text-color);
 }
@@ -917,12 +989,19 @@ onBeforeUnmount(() => {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 12px;
   line-height: 16px;
-  text-align: left;
-  appearance: none;
-  cursor: pointer;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.zt-color-picker__value-text:hover {
+  background: var(--hover-bg);
+  border-color: color-mix(in srgb, var(--primary-color), black 15%);
+}
+
+.zt-color-picker__value-text:focus {
+  background: var(--active-bg);
+  border-color: color-mix(in srgb, var(--primary-color), black 15%);
+  box-shadow: 0 0 0 3px var(--primary-light-bg);
 }
 
 .zt-color-picker__input {

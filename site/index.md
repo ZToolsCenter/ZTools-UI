@@ -14,7 +14,7 @@ hero:
       link: /docs/introduction
     - theme: alt
       text: 浏览组件
-      link: /components/select
+      link: /components/button
 
 features:
   - icon:

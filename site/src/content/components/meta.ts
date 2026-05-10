@@ -143,6 +143,8 @@ const selectDemoScript = `import { ZSelect } from 'ztools-ui-components/common/S
 const selectModelDemoScript = `import { ref } from 'vue'
 import { ZSelect } from 'ztools-ui-components/common/Select'
 import type { SelectValueType } from 'ztools-ui-components/common/Select'`
+const sliderModelDemoScript = `import { ref } from 'vue'
+import { ZSlider } from 'ztools-ui-components/common/Slider'`
 const selectCustomTriggerDemoScript = `import { ref } from 'vue'
 import { ZSelect } from 'ztools-ui-components/common/Select'
 
@@ -1692,6 +1694,54 @@ const selectDemoVariants = [
     )
   }
 ] satisfies readonly VariantDemoConfig<string>[]
+const sliderDemoVariants = [
+  {
+    variant: 'basic',
+    title: '基础用法',
+    description: '通过 v-model 绑定数值，使用 min、max、step 配置范围和步长。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <div style="width: 300px;">
+            <ZSlider v-model="value" :min="0" :max="100" :step="1" />
+          </div>
+          <span>当前值: {{ value }}</span>
+        </div>
+      `,
+      `
+        ${sliderModelDemoScript}
+
+        const value = ref(50)
+      `
+    )
+  },
+  {
+    variant: 'disabled-range',
+    title: '禁用区间',
+    description: '通过 disabledValue 指定不可停留的数值，拖动进入禁区时会保持进入前的值；禁用区间底色默认浅灰色，也可通过 disabledTrackColor 自定义。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <div style="width: 300px;">
+            <ZSlider v-model="value" :min="0" :max="100" :step="1" :disabled-value="isRangeDisabled" disabled-track-color="rgba(255, 160, 122, 0.45)" />
+          </div>
+          <span>当前值: {{ value }}</span>
+          <span>禁用区间: 40 - 60</span>
+          <span>自定义底色: rgba(255, 160, 122, 0.45)</span>
+        </div>
+      `,
+      `
+        ${sliderModelDemoScript}
+
+        const value = ref(30)
+
+        function isRangeDisabled(value: number): boolean {
+          return value >= 40 && value <= 60
+        }
+      `
+    )
+  }
+] satisfies readonly VariantDemoConfig<string>[]
 const tagDemoVariants = [
   {
     variant: 'type',
@@ -3102,14 +3152,8 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
     group: 'input',
     zhName: '滑块',
     enName: 'Slider',
-    description: '用于在数值范围内选择值的滑块控件，支持自定义步长和格式化显示。',
-    demos: [
-      {
-        title: '基础用法',
-        description: '通过 v-model 绑定数值，使用 min、max、step 配置范围和步长。',
-        component: SliderDemo
-      }
-    ],
+    description: '用于在数值范围内选择值的滑块控件，支持自定义步长、格式化显示和禁用区间。',
+    demos: createVariantDemos(SliderDemo, sliderDemoVariants),
     api: {
       props: [
         {
@@ -3150,6 +3194,19 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
           type: '(value: number) => string',
           default: '(value) => Math.round(value)',
           description: '格式化显示值的函数',
+          since: '1.0.0'
+        },
+        {
+          name: 'disabledValue',
+          type: '(value: number) => boolean',
+          description: '返回 true 时表示该数值不可停留；拖动或点击到禁用值时会保持当前值不变。',
+          since: '1.0.0'
+        },
+        {
+          name: 'disabledTrackColor',
+          type: 'string',
+          default: 'var(--control-border)',
+          description: '禁用区间在滑轨上的背景色，默认使用浅灰色。',
           since: '1.0.0'
         }
       ],

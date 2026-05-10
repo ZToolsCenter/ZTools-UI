@@ -1,7 +1,8 @@
 <template>
   <div class="slider-wrapper">
     <input
-      :value="mergedValue"
+      :value="displayValue"
+      :style="sliderStyle"
       type="range"
       :min="min"
       :max="max"
@@ -15,7 +16,7 @@
       @blur="showTooltip = false"
     />
     <div v-show="showTooltip" class="slider-tooltip" :style="{ left: tooltipPosition }">
-      {{ formatValue(mergedValue) }}
+      {{ formatValue(displayValue) }}
     </div>
   </div>
 </template>
@@ -30,13 +31,16 @@ interface Props {
   max?: number
   step?: number
   formatter?: (value: number) => string
+  disabledValue?: (value: number) => boolean
+  disabledTrackColor?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   min: 0,
   max: 100,
   step: 1,
-  formatter: (value: number) => `${Math.round(value)}`
+  formatter: (value: number) => `${Math.round(value)}`,
+  disabledTrackColor: 'var(--control-border)'
 })
 
 const emit = defineEmits<{
@@ -47,6 +51,10 @@ const emit = defineEmits<{
 const uncontrolledValue = ref(props.modelValue ?? props.defaultModelValue ?? props.min)
 const showTooltip = ref(false)
 
+const precision = computed(() => Math.max(getPrecision(props.min), getPrecision(props.max), getPrecision(props.step)))
+const mergedValue = computed(() => (props.modelValue !== undefined ? props.modelValue : uncontrolledValue.value))
+const displayValue = computed(() => resolveValue(mergedValue.value, mergedValue.value))
+
 watch(
   () => props.modelValue,
   (value) => {
@@ -56,11 +64,75 @@ watch(
   }
 )
 
-const mergedValue = computed(() => (props.modelValue !== undefined ? props.modelValue : uncontrolledValue.value))
+watch(
+  [() => props.min, () => props.max, () => props.step, () => props.disabledValue],
+  () => {
+    if (props.modelValue !== undefined) {
+      return
+    }
+
+    const resolvedValue = resolveValue(uncontrolledValue.value, uncontrolledValue.value)
+
+    if (resolvedValue !== uncontrolledValue.value) {
+      uncontrolledValue.value = resolvedValue
+    }
+  },
+  { immediate: true }
+)
+
+function getPrecision(value: number): number {
+  const valueString = `${value}`
+
+  if (valueString.includes('e-')) {
+    return Number(valueString.split('e-')[1] ?? 0)
+  }
+
+  return valueString.split('.')[1]?.length ?? 0
+}
+
+function roundValue(value: number): number {
+  const factor = 10 ** precision.value
+  return Math.round(value * factor) / factor
+}
+
+function clampValue(value: number): number {
+  return Math.min(props.max, Math.max(props.min, value))
+}
+
+function alignToStep(value: number): number {
+  const clampedValue = clampValue(value)
+
+  if (props.step <= 0 || clampedValue === props.min || clampedValue === props.max) {
+    return roundValue(clampedValue)
+  }
+
+  const stepCount = Math.round((clampedValue - props.min) / props.step)
+  return clampValue(roundValue(props.min + stepCount * props.step))
+}
+
+function isValueDisabled(value: number): boolean {
+  return props.disabledValue?.(value) ?? false
+}
+
+function resolveValue(targetValue: number, referenceValue: number): number {
+  const normalizedTargetValue = alignToStep(targetValue)
+
+  if (!isValueDisabled(normalizedTargetValue)) {
+    return normalizedTargetValue
+  }
+
+  return alignToStep(referenceValue)
+}
 
 function updateValue(value: number): void {
+  const currentValue = mergedValue.value
+
   if (props.modelValue === undefined) {
     uncontrolledValue.value = value
+  }
+
+  if (value === currentValue) {
+    return
   }
 
   emit('update:modelValue', value)
@@ -68,16 +140,94 @@ function updateValue(value: number): void {
 }
 
 function handleInput(event: Event): void {
-  const value = Number((event.target as HTMLInputElement).value)
-  updateValue(value)
+  const input = event.target as HTMLInputElement
+  const rawValue = Number(input.value)
+  const resolvedValue = resolveValue(rawValue, displayValue.value)
+
+  if (resolvedValue !== rawValue) {
+    input.value = `${resolvedValue}`
+  }
+
+  updateValue(resolvedValue)
 }
 
 function formatValue(value: number): string {
   return props.formatter(value)
 }
 
+const disabledSegments = computed(() => {
+  if (!props.disabledValue || props.max <= props.min) {
+    return []
+  }
+
+  if (props.step <= 0) {
+    return isValueDisabled(props.min) && isValueDisabled(props.max)
+      ? [{ start: props.min, end: props.max }]
+      : []
+  }
+
+  const segments: Array<{ start: number; end: number }> = []
+  const maxIterations = Math.ceil((props.max - props.min) / props.step) + 1
+  let segmentStart: number | null = null
+  let previousValue: number | null = null
+
+  for (let index = 0; index < maxIterations; index += 1) {
+    const rawValue = props.min + props.step * index
+    const value = index === maxIterations - 1 ? props.max : alignToStep(rawValue)
+    const disabled = isValueDisabled(value)
+
+    if (disabled && segmentStart === null) {
+      segmentStart = value
+    }
+
+    if (!disabled && segmentStart !== null && previousValue !== null) {
+      segments.push({ start: segmentStart, end: previousValue })
+      segmentStart = null
+    }
+
+    previousValue = value
+
+    if (value >= props.max) {
+      break
+    }
+  }
+
+  if (segmentStart !== null && previousValue !== null) {
+    segments.push({ start: segmentStart, end: previousValue })
+  }
+
+  return segments
+})
+
+const sliderStyle = computed(() => {
+  if (props.max <= props.min || disabledSegments.value.length === 0) {
+    return undefined
+  }
+
+  const backgroundStops = disabledSegments.value.flatMap((segment) => {
+    const startPercent = ((segment.start - props.min) / (props.max - props.min)) * 100
+    const endPercent = ((segment.end - props.min) / (props.max - props.min)) * 100
+
+    return [
+      `transparent ${startPercent}%`,
+      `var(--slider-disabled-track-color) ${startPercent}%`,
+      `var(--slider-disabled-track-color) ${endPercent}%`,
+      `transparent ${endPercent}%`
+    ]
+  })
+
+  return {
+    backgroundImage: `linear-gradient(90deg, ${backgroundStops.join(', ')})`,
+    '--slider-disabled-track-color': props.disabledTrackColor
+  }
+})
+
 const tooltipPosition = computed(() => {
-  const percent = (mergedValue.value - props.min) / (props.max - props.min)
+  if (props.max === props.min) {
+    return '10px'
+  }
+
+  const percent = (displayValue.value - props.min) / (props.max - props.min)
   const thumbWidth = 20
   const thumbRadius = thumbWidth / 2
   return `calc(${percent * 100}% * (100% - ${thumbWidth}px) / 100% + ${thumbRadius}px)`

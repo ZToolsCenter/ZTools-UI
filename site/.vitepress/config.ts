@@ -32,7 +32,7 @@ export default defineConfig({
     nav: [
       { text: '首页', link: '/' },
       { text: '文档', link: '/docs/introduction' },
-      { text: '组件', link: '/components/select' }
+      { text: '组件', link: '/components/button' }
     ],
     sidebar: {
       '/docs/': [
