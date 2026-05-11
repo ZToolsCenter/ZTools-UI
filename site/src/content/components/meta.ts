@@ -10,6 +10,8 @@ import ColorPickerDemo from '../../demos/ColorPickerDemo.vue'
 import PopoverDemo from '../../demos/PopoverDemo.vue'
 import DrawerDemo from '../../demos/DrawerDemo.vue'
 import DrawerDemoSource from '../../demos/DrawerDemo.vue?raw'
+import ModalDemo from '../../demos/ModalDemo.vue'
+import ModalDemoSource from '../../demos/ModalDemo.vue?raw'
 import CheckboxDemo from '../../demos/CheckboxDemo.vue'
 import RadioDemo from '../../demos/RadioDemo.vue'
 import SwitchDemo from '../../demos/SwitchDemo.vue'
@@ -52,6 +54,7 @@ const componentDemoSources = new Map<Component, string>([
   [ToastDemo, ToastDemoSource],
   [ConfirmDialogDemo, ConfirmDialogDemoSource],
   [DrawerDemo, DrawerDemoSource],
+  [ModalDemo, ModalDemoSource],
   [TagDropdownDemo, TagDropdownDemoSource],
   [DetailPanelDemo, DetailPanelDemoSource],
   [ShortcutEditorDemo, ShortcutEditorDemoSource],
@@ -127,6 +130,12 @@ import { ZDrawer, ZDrawerContent } from 'ztools-ui-components/common/Drawer'`
 const drawerModelDemoScript = `import { ref } from 'vue'
 import { ZButton } from 'ztools-ui-components/common/Button'
 import { ZDrawer, ZDrawerContent } from 'ztools-ui-components/common/Drawer'`
+const modalDemoScript = `import { ZButton } from 'ztools-ui-components/common/Button'
+import { ZModal } from 'ztools-ui-components/common/Modal'`
+const modalModelDemoScript = `import { h, ref } from 'vue'
+import { ZButton } from 'ztools-ui-components/common/Button'
+import { ZModal, ZModalProvider, useModal } from 'ztools-ui-components/common/Modal'
+import type { ModalDraggable, ModalPreset, ModalReactive } from 'ztools-ui-components/common/Modal'`
 const checkboxDemoScript = `import { ZCheckbox } from 'ztools-ui-components/common/Checkbox'`
 const checkboxModelDemoScript = `import { ref } from 'vue'
 import { ZCheckbox } from 'ztools-ui-components/common/Checkbox'`
@@ -1260,6 +1269,326 @@ const drawerDemoVariants = [
 
         const visible = ref(false)
         const width = ref(320)
+      `
+    )
+  }
+] satisfies readonly VariantDemoConfig<string>[]
+
+const modalDemoVariants = [
+  {
+    variant: 'basic',
+    title: '基础用法',
+    description: 'Modal 只负责显示、遮罩、焦点和动画，内容结构由默认插槽自行组织。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <ZButton type="primary" @click="visible = true">打开弹窗</ZButton>
+          <ZModal v-model:show="visible" preset="dialog">
+            <div class="demo-modal">
+              <div class="demo-modal__header" data-modal-drag-handle>
+                <div class="demo-modal__title">基础弹窗</div>
+                <button class="demo-modal__close" type="button" data-modal-drag-ignore @click="visible = false">×</button>
+              </div>
+              <div class="demo-modal__body">
+                <p>Modal 负责显示状态、遮罩、焦点和动画。</p>
+              </div>
+              <div class="demo-modal__footer">
+                <ZButton @click="visible = false">取消</ZButton>
+                <ZButton type="primary" @click="visible = false">确认</ZButton>
+              </div>
+            </div>
+          </ZModal>
+        </div>
+      `,
+      `
+        ${modalModelDemoScript}
+
+        const visible = ref(false)
+      `
+    )
+  },
+  {
+    variant: 'controlled',
+    title: '受控模式',
+    description: '通过 show 和 update:show 完全由外部状态控制显示。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <div class="demo-row">
+            <ZButton type="primary" @click="visible = true">打开受控弹窗</ZButton>
+            <ZButton @click="visible = false">外部关闭</ZButton>
+          </div>
+          <span>show: {{ visible }}</span>
+          <ZModal :show="visible" @update:show="visible = $event">
+            <div class="demo-modal">
+              <div class="demo-modal__header" data-modal-drag-handle>
+                <div class="demo-modal__title">受控模式</div>
+                <button class="demo-modal__close" type="button" data-modal-drag-ignore @click="visible = false">×</button>
+              </div>
+              <div class="demo-modal__body">显示状态由外部 ref 管理。</div>
+            </div>
+          </ZModal>
+        </div>
+      `,
+      `
+        ${modalModelDemoScript}
+
+        const visible = ref(false)
+      `
+    )
+  },
+  {
+    variant: 'uncontrolled',
+    title: '非受控模式',
+    description: '点击后挂载 default-show 的非受控弹窗，关闭后自动卸载。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <ZButton @click="mounted = true">打开非受控弹窗</ZButton>
+          <ZModal v-if="mounted" default-show @after-leave="mounted = false">
+            <div class="demo-modal">
+              <div class="demo-modal__header" data-modal-drag-handle>
+                <div class="demo-modal__title">非受控模式</div>
+              </div>
+              <div class="demo-modal__body">
+                点击遮罩或按 Esc 关闭，组件会在离场动画后自动卸载。
+              </div>
+            </div>
+          </ZModal>
+        </div>
+      `,
+      `
+        ${modalModelDemoScript}
+
+        const mounted = ref(false)
+      `
+    )
+  },
+  {
+    variant: 'mask',
+    title: '遮罩与关闭行为',
+    description: '支持隐藏遮罩或禁用遮罩点击关闭。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-row">
+          <ZButton @click="noMask = true">无遮罩</ZButton>
+          <ZButton @click="locked = true">遮罩不可关闭</ZButton>
+
+          <ZModal v-model:show="noMask" :show-mask="false" preset="dialog">
+            <div class="demo-modal">
+              <div class="demo-modal__header" data-modal-drag-handle>
+                <div class="demo-modal__title">无遮罩</div>
+                <button class="demo-modal__close" type="button" data-modal-drag-ignore @click="noMask = false">×</button>
+              </div>
+              <div class="demo-modal__body">showMask=false 时不会渲染遮罩。</div>
+            </div>
+          </ZModal>
+
+          <ZModal v-model:show="locked" :mask-closable="false" preset="dialog">
+            <div class="demo-modal">
+              <div class="demo-modal__header" data-modal-drag-handle>
+                <div class="demo-modal__title">遮罩不可关闭</div>
+                <button class="demo-modal__close" type="button" data-modal-drag-ignore @click="locked = false">×</button>
+              </div>
+              <div class="demo-modal__body">点击遮罩会触发事件，但不会自动关闭。</div>
+            </div>
+          </ZModal>
+        </div>
+      `,
+      `
+        ${modalModelDemoScript}
+
+        const noMask = ref(false)
+        const locked = ref(false)
+      `
+    )
+  },
+  {
+    variant: 'display',
+    title: '渲染方式',
+    description: 'displayDirective 控制关闭时卸载内容或仅隐藏内容。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-row">
+          <ZButton @click="showIf = true">displayDirective=&quot;if&quot;</ZButton>
+          <ZButton @click="showKeep = true">displayDirective=&quot;show&quot;</ZButton>
+
+          <ZModal v-model:show="showIf" display-directive="if">
+            <div class="demo-modal">
+              <div class="demo-modal__header" data-modal-drag-handle>
+                <div class="demo-modal__title">v-if 渲染</div>
+              </div>
+              <div class="demo-modal__body">关闭后内容节点会卸载。</div>
+            </div>
+          </ZModal>
+
+          <ZModal v-model:show="showKeep" display-directive="show">
+            <div class="demo-modal">
+              <div class="demo-modal__header" data-modal-drag-handle>
+                <div class="demo-modal__title">v-show 渲染</div>
+              </div>
+              <div class="demo-modal__body">关闭后内容节点会保留，只切换显示状态。</div>
+            </div>
+          </ZModal>
+        </div>
+      `,
+      `
+        ${modalModelDemoScript}
+
+        const showIf = ref(false)
+        const showKeep = ref(false)
+      `
+    )
+  },
+  {
+    variant: 'preset',
+    title: '预设尺寸',
+    description: '通过 preset 在 dialog 与 card 两种常见尺寸之间切换。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-row">
+          <ZButton @click="openPreset('dialog')">dialog</ZButton>
+          <ZButton @click="openPreset('card')">card</ZButton>
+
+          <ZModal v-model:show="visible" :preset="preset">
+            <div class="demo-modal">
+              <div class="demo-modal__header" data-modal-drag-handle>
+                <div class="demo-modal__title">preset: {{ preset }}</div>
+                <button class="demo-modal__close" type="button" data-modal-drag-ignore @click="visible = false">×</button>
+              </div>
+              <div class="demo-modal__body">根据内容量在 dialog 和 card 两种预设之间切换。</div>
+            </div>
+          </ZModal>
+        </div>
+      `,
+      `
+        ${modalModelDemoScript}
+
+        const visible = ref(false)
+        const preset = ref<ModalPreset>('dialog')
+
+        function openPreset(next: ModalPreset): void {
+          preset.value = next
+          visible.value = true
+        }
+      `
+    )
+  },
+  {
+    variant: 'transform',
+    title: '动画原点',
+    description: '支持从鼠标位置或弹窗中心开始执行缩放动画。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-row">
+          <ZButton @click="mouseVisible = true">mouse</ZButton>
+          <ZButton @click="centerVisible = true">center</ZButton>
+
+          <ZModal v-model:show="mouseVisible" transform-origin="mouse" preset="dialog">
+            <div class="demo-modal">
+              <div class="demo-modal__header" data-modal-drag-handle>
+                <div class="demo-modal__title">transform-origin: mouse</div>
+              </div>
+              <div class="demo-modal__body">从触发点附近开始执行进入动画。</div>
+            </div>
+          </ZModal>
+
+          <ZModal v-model:show="centerVisible" transform-origin="center" preset="dialog">
+            <div class="demo-modal">
+              <div class="demo-modal__header" data-modal-drag-handle>
+                <div class="demo-modal__title">transform-origin: center</div>
+              </div>
+              <div class="demo-modal__body">始终以弹窗中心作为动画原点。</div>
+            </div>
+          </ZModal>
+        </div>
+      `,
+      `
+        ${modalModelDemoScript}
+
+        const mouseVisible = ref(false)
+        const centerVisible = ref(false)
+      `
+    )
+  },
+  {
+    variant: 'draggable',
+    title: '拖拽',
+    description: '拖拽 header 可以移动弹窗，支持限制在视口内或允许超出视口。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-row">
+          <ZButton @click="boundedVisible = true">默认边界</ZButton>
+          <ZButton @click="freeVisible = true">bounds: none</ZButton>
+
+          <ZModal v-model:show="boundedVisible" draggable preset="card">
+            <div class="demo-modal">
+              <div class="demo-modal__header" data-modal-drag-handle>
+                <div class="demo-modal__title">有边界拖拽</div>
+              </div>
+              <div class="demo-modal__body">默认会将拖拽范围限制在视口内。</div>
+            </div>
+          </ZModal>
+
+          <ZModal v-model:show="freeVisible" :draggable="freeDrag" preset="card">
+            <div class="demo-modal">
+              <div class="demo-modal__header" data-modal-drag-handle>
+                <div class="demo-modal__title">无边界拖拽</div>
+              </div>
+              <div class="demo-modal__body">当 bounds 为 none 时，可以拖出视口。</div>
+            </div>
+          </ZModal>
+        </div>
+      `,
+      `
+        ${modalModelDemoScript}
+
+        const boundedVisible = ref(false)
+        const freeVisible = ref(false)
+        const freeDrag: ModalDraggable = { bounds: 'none' }
+      `
+    )
+  },
+  {
+    variant: 'service',
+    title: '服务式调用',
+    description: '配合 ZModalProvider 与 useModal().create({ render }) 在任意位置创建弹窗。',
+    sourceCode: createDemoSource(
+      `
+        <div class="demo-column">
+          <div class="demo-row">
+            <ZButton type="primary" @click="openModal">create({ render })</ZButton>
+            <ZButton @click="destroyAll">destroyAll()</ZButton>
+          </div>
+          <ZModalProvider />
+        </div>
+      `,
+      `
+        ${modalModelDemoScript}
+
+        const { create, destroyAll } = useModal()
+
+        function openModal(): void {
+          let modal: ModalReactive
+
+          modal = create({
+            preset: 'dialog',
+            render: () =>
+              h('div', { class: 'demo-modal' }, [
+                h('div', { class: 'demo-modal__header', 'data-modal-drag-handle': '' }, [
+                  h('div', { class: 'demo-modal__title' }, '服务式弹窗')
+                ]),
+                h('div', { class: 'demo-modal__body' }, '通过 render 函数自由组织内容。'),
+                h('div', { class: 'demo-modal__footer' }, [
+                  h(
+                    ZButton,
+                    { onClick: () => modal.hide() },
+                    { default: () => '关闭' }
+                  )
+                ])
+              ])
+          })
+        }
       `
     )
   }
@@ -4017,6 +4346,155 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
           name: 'clickoutside',
           signature: '(event: PointerEvent) => void',
           description: '点击浮层外部区域时触发',
+          since: '1.0.0'
+        }
+      ]
+    }
+  },
+
+  modal: {
+    id: 'modal',
+    group: 'feedback',
+    zhName: '模态框',
+    enName: 'Modal',
+    description: '居中的模态框组件，负责显示状态、遮罩、焦点管理、拖拽和服务式创建能力。',
+    demos: createVariantDemos(ModalDemo, modalDemoVariants),
+    sections: [],
+    api: {
+      props: [
+        {
+          name: 'show',
+          type: 'boolean',
+          description: '受控显示状态。传入且不为 undefined 时组件进入受控模式。',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultShow',
+          type: 'boolean',
+          default: 'false',
+          description: '非受控模式的初始显示状态；未传 show 或其为 undefined 时生效。',
+          since: '1.0.0'
+        },
+        {
+          name: 'to',
+          type: 'string | HTMLElement | false',
+          default: 'body',
+          description: 'Teleport 目标，设为 false 时内容留在原位置渲染。',
+          since: '1.0.0'
+        },
+        {
+          name: 'zIndex',
+          type: 'number',
+          default: '10000',
+          description: '弹窗和遮罩的 z-index。',
+          since: '1.0.0'
+        },
+        {
+          name: 'showMask',
+          type: 'boolean',
+          default: 'true',
+          description: '是否显示遮罩；为 false 时遮罩相关 API 不生效，焦点也不会被有效限制在弹窗内。',
+          since: '1.0.0'
+        },
+        {
+          name: 'maskClosable',
+          type: 'boolean',
+          default: 'true',
+          description: '点击遮罩时是否关闭弹窗。',
+          since: '1.0.0'
+        },
+        {
+          name: 'closeOnEsc',
+          type: 'boolean',
+          default: 'true',
+          description: '焦点在弹窗内部时按下 Esc 是否关闭弹窗。',
+          since: '1.0.0'
+        },
+        {
+          name: 'blockScroll',
+          type: 'boolean',
+          default: 'true',
+          description: '打开弹窗时是否禁用 body 滚动。',
+          since: '1.0.0'
+        },
+        {
+          name: 'autoFocus',
+          type: 'boolean',
+          default: 'true',
+          description: '打开后是否自动聚焦第一个可聚焦元素，找不到时聚焦弹窗容器。',
+          since: '1.0.0'
+        },
+        {
+          name: 'trapFocus',
+          type: 'boolean',
+          default: 'true',
+          description: '是否将焦点锁定在弹窗内部；showMask=false 时不会生效。',
+          since: '1.0.0'
+        },
+        {
+          name: 'displayDirective',
+          type: "'if' | 'show'",
+          default: 'if',
+          description: '控制关闭时卸载内容或仅隐藏内容。',
+          since: '1.0.0'
+        },
+        {
+          name: 'draggable',
+          type: "boolean | { bounds?: 'none' }",
+          default: 'false',
+          description: '是否允许拖拽弹窗；传入 { bounds: \"none\" } 时允许拖出视口。',
+          since: '1.0.0'
+        },
+        {
+          name: 'preset',
+          type: "'dialog' | 'card'",
+          description: '弹窗使用何种尺寸预设。',
+          since: '1.0.0'
+        },
+        {
+          name: 'transformOrigin',
+          type: "'mouse' | 'center'",
+          default: 'mouse',
+          description: '弹窗动画原点，可从鼠标触发位置或弹窗中心开始。',
+          since: '1.0.0'
+        }
+      ],
+      slots: [
+        {
+          name: 'default',
+          description: '弹窗内容，由使用者自行组织 header、body、footer 结构。',
+          since: '1.0.0'
+        }
+      ],
+      emits: [
+        {
+          name: 'update:show',
+          signature: '(value: boolean) => void',
+          description: '显示状态变化时始终触发；非受控模式下组件会同步更新内部状态。',
+          since: '1.0.0'
+        },
+        {
+          name: 'after-enter',
+          signature: '() => void',
+          description: '弹窗进入动画结束后触发。',
+          since: '1.0.0'
+        },
+        {
+          name: 'after-leave',
+          signature: '() => void',
+          description: '弹窗离开动画结束后触发。',
+          since: '1.0.0'
+        },
+        {
+          name: 'mask-click',
+          signature: '(event: MouseEvent) => void',
+          description: '点击遮罩时触发。',
+          since: '1.0.0'
+        },
+        {
+          name: 'esc',
+          signature: '() => void',
+          description: '焦点在弹窗内部且按下 Esc 时触发。',
           since: '1.0.0'
         }
       ]

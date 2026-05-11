@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue'
 import type { CSSProperties } from 'vue'
+import { useBodyScrollLock } from '../shared/useBodyScrollLock'
 import { drawerInjectionKey } from './Drawer'
 import type { DrawerEmits, DrawerProps, DrawerSize } from './Drawer'
 
@@ -35,7 +36,7 @@ let previousFocusedElement: HTMLElement | null = null
 let resizing = false
 let resizeStartPosition = 0
 let resizeStartSize = 0
-let scrollLocked = false
+const bodyScrollLock = useBodyScrollLock()
 
 const mergedShow = computed(() => (props.show === undefined ? uncontrolledShow.value : props.show))
 const teleportTarget = computed(() => (props.to === false ? 'body' : props.to ?? 'body'))
@@ -338,21 +339,15 @@ function handleResizePointerUp(): void {
 }
 
 function lockBodyScroll(): void {
-  if (!props.blockScroll || scrollLocked) {
+  if (!props.blockScroll) {
     return
   }
 
-  lockScroll()
-  scrollLocked = true
+  bodyScrollLock.lock()
 }
 
 function unlockBodyScroll(): void {
-  if (!scrollLocked) {
-    return
-  }
-
-  unlockScroll()
-  scrollLocked = false
+  bodyScrollLock.unlock()
 }
 
 onBeforeUnmount(() => {
@@ -365,29 +360,6 @@ defineExpose({
   hide,
   close: hide
 })
-</script>
-
-<script lang="ts">
-let drawerScrollLockCount = 0
-let drawerOriginalBodyOverflow = ''
-
-function lockScroll(): void {
-  if (drawerScrollLockCount === 0) {
-    drawerOriginalBodyOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-  }
-
-  drawerScrollLockCount += 1
-}
-
-function unlockScroll(): void {
-  drawerScrollLockCount = Math.max(0, drawerScrollLockCount - 1)
-
-  if (drawerScrollLockCount === 0) {
-    document.body.style.overflow = drawerOriginalBodyOverflow
-    drawerOriginalBodyOverflow = ''
-  }
-}
 </script>
 
 <template>

@@ -10,6 +10,8 @@ const componentNames = [
   'ZDetailPanel',
   'ZDrawer',
   'ZDrawerContent',
+  'ZModal',
+  'ZModalProvider',
   'ZPopover',
   'ZSelect',
   'ZFeatureCard',

@@ -10,6 +10,7 @@ import { ZCommandTag } from './components/common/CommandTag'
 import { ZConfirmDialog } from './components/common/ConfirmDialog'
 import { ZDetailPanel } from './components/common/DetailPanel'
 import { ZDrawer, ZDrawerContent } from './components/common/Drawer'
+import { ZModal, ZModalProvider } from './components/common/Modal'
 import { ZPopover } from './components/common/Popover'
 import { ZSelect } from './components/common/Select'
 import { ZFeatureCard } from './components/common/FeatureCard'
@@ -37,6 +38,8 @@ const components = {
   ZDetailPanel,
   ZDrawer,
   ZDrawerContent,
+  ZModal,
+  ZModalProvider,
   ZPopover,
   ZSelect,
   ZFeatureCard,

@@ -38,6 +38,7 @@ export const componentIndex: ComponentIndexEntry[] = [
   { id: 'confirm-dialog', zhName: '确认弹窗', enName: 'ConfirmDialog', group: 'feedback' },
   { id: 'popover', zhName: '浮层', enName: 'Popover', group: 'feedback' },
   { id: 'drawer', zhName: '抽屉', enName: 'Drawer', group: 'feedback' },
+  { id: 'modal', zhName: '模态框', enName: 'Modal', group: 'feedback' },
   { id: 'tag-dropdown', zhName: '标签下拉菜单', enName: 'TagDropdown', group: 'feedback' },
   { id: 'detail-panel', zhName: '详情面板', enName: 'DetailPanel', group: 'host' },
   { id: 'shortcut-editor', zhName: '快捷键编辑', enName: 'ShortcutEditor', group: 'host' },
