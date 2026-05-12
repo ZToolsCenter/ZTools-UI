@@ -29,6 +29,7 @@ const hasApi = (data?: any[]): boolean => {
             <th>类型</th>
             <th>默认值</th>
             <th>说明</th>
+            <th class="version-header">版本</th>
           </tr>
         </thead>
         <tbody>
@@ -44,7 +45,10 @@ const hasApi = (data?: any[]): boolean => {
             </td>
             <td class="prop-description">
               {{ prop.description }}
+            </td>
+            <td class="prop-version">
               <span v-if="prop.since" class="since-badge">{{ prop.since }}</span>
+              <span v-else class="empty">-</span>
             </td>
           </tr>
         </tbody>
@@ -59,6 +63,7 @@ const hasApi = (data?: any[]): boolean => {
           <tr>
             <th>名称</th>
             <th>说明</th>
+            <th class="version-header">版本</th>
           </tr>
         </thead>
         <tbody>
@@ -66,7 +71,10 @@ const hasApi = (data?: any[]): boolean => {
             <td class="slot-name"><span class="api-token">{{ slot.name }}</span></td>
             <td class="slot-description">
               {{ slot.description }}
+            </td>
+            <td class="slot-version">
               <span v-if="slot.since" class="since-badge">{{ slot.since }}</span>
+              <span v-else class="empty">-</span>
             </td>
           </tr>
         </tbody>
@@ -82,6 +90,7 @@ const hasApi = (data?: any[]): boolean => {
             <th>名称</th>
             <th>签名</th>
             <th>说明</th>
+            <th class="version-header">版本</th>
           </tr>
         </thead>
         <tbody>
@@ -90,7 +99,10 @@ const hasApi = (data?: any[]): boolean => {
             <td class="emit-signature"><span class="api-token">{{ emit.signature }}</span></td>
             <td class="emit-description">
               {{ emit.description }}
+            </td>
+            <td class="emit-version">
               <span v-if="emit.since" class="since-badge">{{ emit.since }}</span>
+              <span v-else class="empty">-</span>
             </td>
           </tr>
         </tbody>
@@ -199,6 +211,18 @@ const hasApi = (data?: any[]): boolean => {
   line-height: 1.5;
 }
 
+.api-table th.version-header {
+  text-align: right;
+}
+
+.prop-version,
+.slot-version,
+.emit-version {
+  width: 92px;
+  text-align: right;
+  white-space: nowrap;
+}
+
 .required-badge {
   display: inline-block;
   margin-left: 6px;
@@ -212,7 +236,6 @@ const hasApi = (data?: any[]): boolean => {
 
 .since-badge {
   display: inline-block;
-  margin-left: 8px;
   padding: 2px 6px;
   font-size: 10px;
   font-weight: 500;

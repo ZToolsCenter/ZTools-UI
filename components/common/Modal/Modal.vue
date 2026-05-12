@@ -510,11 +510,6 @@ defineExpose({
     )
     scale(var(--zt-modal-scale, 1));
   will-change: transform, opacity;
-  width: min(100%, 560px);
-  max-width: min(100%, 720px);
-  max-height: min(100vh - 48px, 720px);
-  min-width: 320px;
-  min-height: 120px;
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--control-border);
@@ -524,14 +519,6 @@ defineExpose({
   box-shadow: 0 18px 56px rgba(0, 0, 0, 0.24);
   pointer-events: auto;
   outline: none;
-}
-
-.zt-modal--dialog {
-  width: min(100%, 420px);
-}
-
-.zt-modal--card {
-  width: min(100%, 720px);
 }
 
 .zt-modal.is-draggable [data-modal-drag-handle] {
