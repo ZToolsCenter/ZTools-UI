@@ -162,6 +162,10 @@ function handleChange(event: Event): void {
   transform: rotate(45deg);
 }
 
+.zt-checkbox.is-checked:hover:not(.is-disabled) .zt-checkbox__inner::after {
+  border-color: var(--primary-color);
+}
+
 .zt-checkbox.is-indeterminate .zt-checkbox__inner::after {
   content: '';
   position: absolute;
