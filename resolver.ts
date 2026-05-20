@@ -27,7 +27,8 @@ const componentNames = [
   'ZTabs',
   'ZTag',
   'ZTagDropdown',
-  'ZToast'
+  'ZToast',
+  'ZContextMenu'
 ] as const
 
 export type ZToolsUIComponentName = (typeof componentNames)[number]

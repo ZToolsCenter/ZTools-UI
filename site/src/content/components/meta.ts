@@ -42,6 +42,8 @@ import PaginationDemo from '../../demos/PaginationDemo.vue'
 import PaginationDemoSource from '../../demos/PaginationDemo.vue?raw'
 import TabsDemo from '../../demos/TabsDemo.vue'
 import TabsDemoSource from '../../demos/TabsDemo.vue?raw'
+import ContextMenuDemo from '../../demos/ContextMenuDemo.vue'
+import ContextMenuDemoSource from '../../demos/ContextMenuDemo.vue?raw'
 
 const componentDemoSources = new Map<Component, string>([
   [SelectDemo, SelectDemoSource],
@@ -60,7 +62,8 @@ const componentDemoSources = new Map<Component, string>([
   [ShortcutEditorDemo, ShortcutEditorDemoSource],
   [PluginDetailDemo, PluginDetailDemoSource],
   [PaginationDemo, PaginationDemoSource],
-  [TabsDemo, TabsDemoSource]
+  [TabsDemo, TabsDemoSource],
+  [ContextMenuDemo, ContextMenuDemoSource]
 ])
 
 interface SfcSourceBlock {
@@ -4860,6 +4863,111 @@ export const componentDocs: Record<string, ComponentDocMeta> = {
           name: 'select',
           signature: '(key: string) => void',
           description: '选择菜单项时触发',
+          since: '1.0.0'
+        }
+      ]
+    }
+  },
+
+  'context-menu': {
+    id: 'context-menu',
+    group: 'feedback',
+    zhName: '上下文菜单',
+    enName: 'ContextMenu',
+    description: '右键触发的上下文菜单组件，支持子菜单、快捷键标注、禁用项和危险操作。',
+    demos: [
+      {
+        title: '基础用法',
+        description: '使用 ZContextMenu 包裹触发区域，配置 menuItems 即可启用右键菜单。',
+        component: ContextMenuDemo
+      }
+    ],
+    api: {
+      props: [
+        {
+          name: 'menuItems',
+          type: 'ContextMenuItem[]',
+          description: '菜单项列表，支持 item、separator、submenu 三种类型',
+          required: true,
+          since: '1.0.0'
+        },
+        {
+          name: 'show',
+          type: 'boolean',
+          description: '受控模式下的菜单显示状态',
+          since: '1.0.0'
+        },
+        {
+          name: 'defaultShow',
+          type: 'boolean',
+          default: 'false',
+          description: '非受控模式下的初始显示状态',
+          since: '1.0.0'
+        },
+        {
+          name: 'x',
+          type: 'number',
+          description: '受控定位模式的水平坐标，与 show 搭配使用',
+          since: '1.0.0'
+        },
+        {
+          name: 'y',
+          type: 'number',
+          description: '受控定位模式的垂直坐标，与 show 搭配使用',
+          since: '1.0.0'
+        },
+        {
+          name: 'disabled',
+          type: 'boolean',
+          default: 'false',
+          description: '禁用右键菜单触发，此时浏览器原生右键菜单不受影响',
+          since: '1.0.0'
+        },
+        {
+          name: 'to',
+          type: 'string | HTMLElement | false',
+          default: "'body'",
+          description: '菜单面板的 Teleport 目标，设为 false 则不传送',
+          since: '1.0.0'
+        },
+        {
+          name: 'zIndex',
+          type: 'number',
+          default: '10000',
+          description: '菜单面板的 z-index 层级',
+          since: '1.0.0'
+        }
+      ],
+      slots: [
+        {
+          name: 'default',
+          description: '右键触发区域的内容',
+          since: '1.0.0'
+        }
+      ],
+      emits: [
+        {
+          name: 'update:show',
+          signature: '(value: boolean) => void',
+          description: '菜单显示状态变化时触发',
+          since: '1.0.0'
+        },
+        {
+          name: 'visible-change',
+          signature: '(value: boolean) => void',
+          description: '菜单打开或关闭时触发',
+          since: '1.0.0'
+        },
+        {
+          name: 'select',
+          signature: '(key: string) => void',
+          description: '点击可用菜单项时触发（不含分隔线和禁用项）',
+          since: '1.0.0'
+        },
+        {
+          name: 'clickoutside',
+          signature: '(event: PointerEvent) => void',
+          description: '点击菜单外部区域时触发',
           since: '1.0.0'
         }
       ]

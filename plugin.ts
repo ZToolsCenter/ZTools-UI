@@ -25,6 +25,7 @@ import { ZTab, ZTabPane, ZTabs } from './components/common/Tabs'
 import { ZTag } from './components/common/Tag'
 import { ZTagDropdown } from './components/common/TagDropdown'
 import { ZToast } from './components/common/Toast'
+import { ZContextMenu } from './components/common/ContextMenu'
 
 const components = {
   ZPagination,
@@ -55,7 +56,8 @@ const components = {
   ZTabs,
   ZTag,
   ZTagDropdown,
-  ZToast
+  ZToast,
+  ZContextMenu
 } as const
 
 export function install(app: App): void {
