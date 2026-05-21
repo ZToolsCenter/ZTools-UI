@@ -4,7 +4,10 @@
   "description": "Vue 3 UI component library for ZTools plugins",
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "assets",
+    "components",
+    "composables"
   ],
   "main": "./dist/index.js",
   "module": "./dist/index.js",
