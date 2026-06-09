@@ -54,6 +54,7 @@ const emit = defineEmits<{
 
 const attrs = useAttrs()
 const uncontrolledValue = ref<InputValue>(props.modelValue ?? props.defaultModelValue)
+const isComposing = ref(false)
 
 watch(
   () => props.modelValue,
@@ -89,6 +90,7 @@ const inputClasses = computed(() => [
   }
 ])
 
+/** 根据输入类型将 DOM 字符串值转换为组件对外暴露的值。 */
 function normalizeValue(value: string): InputValue {
   if (props.type === 'number' && value !== '') {
     return Number(value)
@@ -97,10 +99,12 @@ function normalizeValue(value: string): InputValue {
   return value
 }
 
+/** 从 input 或 textarea 事件中读取当前 DOM 值。 */
 function getEventValue(event: Event): string {
   return (event.target as NativeInputElement).value
 }
 
+/** 同步受控/非受控值，并统一触发 v-model 更新。 */
 function updateValue(value: InputValue): void {
   if (props.modelValue === undefined) {
     uncontrolledValue.value = value
@@ -109,7 +113,12 @@ function updateValue(value: InputValue): void {
   emit('update:modelValue', value)
 }
 
+/** 处理常规输入；中文等 IME 组词过程中只保留 DOM 临时值，选词完成后再同步。 */
 function handleInput(event: Event): void {
+  if (isComposing.value || (event as InputEvent).isComposing) {
+    return
+  }
+
   const target = event.target as NativeInputElement
   const value = normalizeValue(getEventValue(event))
   updateValue(value)
@@ -120,20 +129,39 @@ function handleInput(event: Event): void {
   }
 }
 
+/** 标记 IME 组词开始，避免拼音输入阶段提前更新组件值。 */
+function handleCompositionStart(): void {
+  isComposing.value = true
+}
+
+/** IME 选词完成后，用最终 DOM 值补发一次输入更新。 */
+function handleCompositionEnd(event: CompositionEvent): void {
+  if (!isComposing.value) {
+    return
+  }
+
+  isComposing.value = false
+  handleInput(event)
+}
+
+/** 在原生 change 触发时向外派发规范化后的最终值。 */
 function handleChange(event: Event): void {
   emit('change', normalizeValue(getEventValue(event)))
 }
 
+/** 清空当前值，并保持 change/clear 事件与用户点击行为一致。 */
 function handleClear(): void {
   updateValue('')
   emit('change', '')
   emit('clear')
 }
 
+/** 透传原生 focus 事件，方便外层处理聚焦状态。 */
 function handleFocus(event: FocusEvent): void {
   emit('focus', event)
 }
 
+/** 透传原生 blur 事件，方便外层处理失焦状态。 */
 function handleBlur(event: FocusEvent): void {
   emit('blur', event)
 }
@@ -157,6 +185,8 @@ function handleBlur(event: FocusEvent): void {
         :aria-invalid="status === 'error' ? 'true' : undefined"
         @input="handleInput"
         @change="handleChange"
+        @compositionstart="handleCompositionStart"
+        @compositionend="handleCompositionEnd"
         @focus="handleFocus"
         @blur="handleBlur"
       />
@@ -173,6 +203,8 @@ function handleBlur(event: FocusEvent): void {
         :aria-invalid="status === 'error' ? 'true' : undefined"
         @input="handleInput"
         @change="handleChange"
+        @compositionstart="handleCompositionStart"
+        @compositionend="handleCompositionEnd"
         @focus="handleFocus"
         @blur="handleBlur"
       />
