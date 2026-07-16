@@ -119,14 +119,11 @@ function handleInput(event: Event): void {
     return
   }
 
-  const target = event.target as NativeInputElement
   const value = normalizeValue(getEventValue(event))
   updateValue(value)
   emit('input', value)
-
-  if (props.modelValue !== undefined) {
-    target.value = String(mergedValue.value)
-  }
+  // 受控模式下不再手动回写 DOM 值：模板里 :value="mergedValue" 已通过响应式
+  // 更新保持 DOM 同步。手动赋值 String(...) 会导致光标被重置到文本末尾。
 }
 
 /** 标记 IME 组词开始，避免拼音输入阶段提前更新组件值。 */
